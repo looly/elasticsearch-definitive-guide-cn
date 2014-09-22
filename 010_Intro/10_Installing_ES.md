@@ -13,7 +13,9 @@ cd  elasticsearch-$VERSION
 ```
 1. 从 [elasticsearch.org/download](http://www.elasticsearch.org/download/) 获得最新可用的版本号并填入URL中
 
-提示：在生产环境安装时，除了以上方法，你还可以使用Debian或者RPM安装包，地址在这里：[downloads page](http://www.elasticsearch.org/downloads)，或者也可以使用官方提供的 [Puppet module](https://github.com/elasticsearch/puppet-elasticsearch) 或者
+>**提示：**
+
+>在生产环境安装时，除了以上方法，你还可以使用Debian或者RPM安装包，地址在这里：[downloads page](http://www.elasticsearch.org/downloads)，或者也可以使用官方提供的 [Puppet module](https://github.com/elasticsearch/puppet-elasticsearch) 或者
 [Chef cookbook](https://github.com/elasticsearch/cookbook-elasticsearch)。
 
 ## 安装Marvel
@@ -78,7 +80,6 @@ curl 'http://localhost:9200/?pretty'
 curl -XPOST 'http://localhost:9200/_shutdown'
 ```
 
-==== Viewing Marvel and Sense
 ## 查看Marvel和Sense
 
 如果你安装了Marvel管理和监控工具，可以通过在浏览器里通过以下地址访问：

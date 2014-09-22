@@ -1,4 +1,3 @@
-
 ## 为了搜索，你懂的
 
 Elasticsearch是一个基于[Apache Lucene(TM)](https://lucene.apache.org/core/)的开源搜索引擎，无论在开源还是专有领域，Lucene可以被认为是迄今为止最先进、性能最好的、功能最全的搜素引擎库。

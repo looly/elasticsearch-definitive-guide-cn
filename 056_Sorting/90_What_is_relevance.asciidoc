@@ -1,0 +1,217 @@
+[[relevance-intro]]
+=== What is relevance?
+
+We've mentioned that, by default, results are returned in descending order of
+relevance. But what is relevance? How is it calculated?
+
+The relevance score of each document is represented by a positive floating
+point number called the `_score` -- the higher the `_score`, the more relevant
+the document.
+
+A query clause generates a `_score` for each document.  How that score is
+calculated depends on the type of query clause -- different query clauses are
+used for different purposes: a `fuzzy` query might determine the `_score` by
+calculating how similar the spelling of the found word is to the original
+search term, a `terms` query would incorporate the percentage of terms that
+were found, but what we usually mean by _relevance_ is the algorithm that we
+use to calculate how similar the contents of a full text field are to a full
+text query string.
+
+The standard _similarity algorithm_ used in Elasticsearch is known as TF/IDF,
+or Term Frequency/Inverse Document Frequency, which takes the following
+factors into account:
+
+Term frequency::
+
+  How often does the term appear in the field? The more often, the more
+  relevant. A field containing five mentions of the same term is more likely
+  to be relevant than a field containing just one mention.
+
+Inverse document frequency::
+
+  How often does each term appear in the index? The more often, the *less*
+  relevant. Terms that appear in many documents have a lower _weight_ than
+  more uncommon terms.
+
+Field length norm::
+
+  How long is the field? The longer it is, the less likely it is that words in
+  the field will be relevant. A term appearing in a short `title` field
+  carries more weight than the same term appearing in a long `content` field.
+
+Individual queries may combine the TF/IDF score with other factors
+such as the term proximity in phrase queries, or term similarity in
+fuzzy queries.
+
+Relevance is not just about full text search though. It can equally be applied
+to `yes|no` clauses, where the more clauses that match, the higher the
+`_score`.
+
+When multiple query clauses are combined using a compound query like the
+`bool` query, the `_score` from each of these query clauses is combined to
+calculate the overall `_score` for the document.
+
+[[explain]]
+==== Understanding the score
+
+When debugging a complex query, it can be difficult to understand
+exactly how a `_score` has been calculated.  Elasticsearch
+has the option of producing an _explanation_ with every search result,
+by setting the `explain` parameter to `true`.
+
+
+[source,js]
+--------------------------------------------------
+GET /_search?explain <1>
+{
+   "query"   : { "match" : { "tweet" : "honeymoon" }}
+}
+--------------------------------------------------
+// SENSE: 056_Sorting/90_Explain.json
+<1> The `explain` parameter adds an explanation of how the `_score` was
+    calculated to every result.
+
+****
+Adding `explain` produces a lot of output for every hit which can look
+overwhelming, but it is worth taking the time to understand what it all means.
+Don't worry if it doesn't all make sense now -- you can refer to this section
+when you need it.  We'll work through the output for one `hit` bit by bit.
+****
+
+First, we have the metadata that is returned on normal search requests:
+
+[source,js]
+--------------------------------------------------
+{
+    "_index" :      "us",
+    "_type" :       "tweet",
+    "_id" :         "12",
+    "_score" :      0.076713204,
+    "_source" :     { ... trimmed ... },
+--------------------------------------------------
+
+It adds information about which shard on which node the document came from,
+which is useful to know because term and document frequencies are calculated
+per shard, rather than per index:
+
+[source,js]
+--------------------------------------------------
+    "_shard" :      1,
+    "_node" :       "mzIVYCsqSWCG_M_ZffSs9Q",
+--------------------------------------------------
+
+Then it provides the `_explanation`. Each entry contains a  `description`
+which tells you what type of calculation is being performed, a `value`
+which gives you the result of the calculation, and the `details` of any
+sub-calculations that were required:
+
+[source,js]
+--------------------------------------------------
+"_explanation": { <1>
+   "description": "weight(tweet:honeymoon in 0)
+                  [PerFieldSimilarity], result of:",
+   "value":       0.076713204,
+   "details": [
+      {
+         "description": "fieldWeight in 0, product of:",
+         "value":       0.076713204,
+         "details": [
+            {  <2>
+               "description": "tf(freq=1.0), with freq of:",
+               "value":       1,
+               "details": [
+                  {
+                     "description": "termFreq=1.0",
+                     "value":       1
+                  }
+               ]
+            },
+            { <3>
+               "description": "idf(docFreq=1, maxDocs=1)",
+               "value":       0.30685282
+            },
+            { <4>
+               "description": "fieldNorm(doc=0)",
+               "value":        0.25,
+            }
+         ]
+      }
+   ]
+}
+--------------------------------------------------
+<1> Summary of the score calculation for `honeymoon`
+<2> Term frequency
+<3> Inverse document frequency
+<4> Field length norm
+
+IMPORTANT: Producing the `explain` output is expensive. It is a debugging tool
+only -- don't leave it turned on in production.
+
+The first part is the summary of the calculation. It tells us that it has
+calculated the _weight_ -- term frequency/inverse document frequency or TF/IDF
+-- of the term `"honeymoon"` in the field `tweet`, for document `0`.  (This is
+an internal document ID and, for our purposes, can be ignored.)
+
+It then provides details of how the weight was calculated:
+
+Term frequency::
+
+    How many times did the term `honeymoon` appear in the `tweet` field in
+    this document?
+
+Inverse document frequency::
+
+    How many times did the term `honeymoon` appear in the `tweet` field
+    of all documents in the index?
+
+Field length norm::
+
+    How long is the `tweet` field in this document -- the longer the field,
+    the smaller this number.
+
+Explanations for more complicated queries can appear to be very complex, but
+really they just contain more of the same calculations that appear in the
+example above. This information can be invaluable for debugging why search
+results appear in the order that they do.
+
+[TIP]
+==================================================================
+The output from explain can be difficult to read in JSON, but it is easier
+when it is formatted as YAML. Just add `format=yaml` to the query string.
+==================================================================
+
+
+[[explain-api]]
+==== Understanding why a document matched
+
+While the `explain` option adds an explanation for every result, you can use
+the `explain` API to understand why one particular document matched or, more
+importantly, why it *didn't* match.
+
+The path for the request is `/index/type/id/_explain`, as in:
+
+[source,js]
+--------------------------------------------------
+GET /us/tweet/12/_explain
+{
+   "query" : {
+      "filtered" : {
+         "filter" : { "term" :  { "user_id" : 2           }},
+         "query" :  { "match" : { "tweet" :   "honeymoon" }}
+      }
+   }
+}
+--------------------------------------------------
+// SENSE: 056_Sorting/90_Explain_API.json
+
+Along with the full explanation that we saw above, we also now have a
+`description` element, which tells us:
+
+
+[source,js]
+--------------------------------------------------
+"failure to match filter: cache(user_id:[2 TO 2])"
+--------------------------------------------------
+
+In other words, our `user_id` filter clause is preventing the document from
+matching.

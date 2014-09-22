@@ -1,0 +1,53 @@
+[[reindex]]
+=== Reindexing your data
+
+While you can add new types to an index, or add new fields to a type, you
+can't add new analyzers or make changes to existing fields.  If you were to do
+so, the data that has already been indexed would be incorrect and your
+searches would no longer work as expected.
+
+The simplest way to apply these changes to your existing data is just to
+reindex:  create a new index with the new settings and copy all of your
+documents from the old index to the new index.
+
+One of the advantages of the `_source` field is that you already have the
+whole document available to you in Elasticsearch itself. You don't have to
+rebuild your index from the database, which is usually much slower.
+
+To reindex all of the documents from the old index efficiently,  use
+<<scan-scroll,_scan & scroll_>> to retrieve batches of documents from the old index,
+and the <<bulk,`bulk` API>> to push them into the new index.
+
+.Reindexing in batches
+****
+
+You can run multiple reindexing jobs at the same time, but you obviously don't
+want their results to overlap.  Instead, break a big reindex down into smaller
+jobs by filtering on a date or timestamp field:
+
+[source,js]
+--------------------------------------------------
+GET /old_index/_search?search_type=scan&scroll=1m
+{
+    "query": {
+        "range": {
+            "date": {
+                "gte":  "2014-01-01",
+                "lt":   "2014-02-01"
+            }
+        }
+    },
+    "size":  1000
+}
+--------------------------------------------------
+
+
+If you continue making changes to the old index, you will want to make
+sure that you include the newly added documents in your new index as well.
+This can be done by rerunning the reindex process, but again filtering
+on a date field to only match documents that have been added since the
+last reindex process started.
+
+****
+
+

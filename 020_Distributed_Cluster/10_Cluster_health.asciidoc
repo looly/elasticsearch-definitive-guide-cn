@@ -1,0 +1,42 @@
+[[cluster-health]]
+=== Cluster health
+
+There are many statistics that can be monitored in an Elasticsearch cluster
+but the single most important one is the _cluster health_, which reports a
+`status` of either `green`, `yellow` or `red`:
+
+[source,js]
+--------------------------------------------------
+GET /_cluster/health
+--------------------------------------------------
+// SENSE: 020_Distributed_Cluster/10_Cluster_health.json
+
+which, on an empty cluster with no indices, will return something like:
+
+[source,js]
+--------------------------------------------------
+{
+   "cluster_name":          "elasticsearch",
+   "status":                "green", <1>
+   "timed_out":             false,
+   "number_of_nodes":       1,
+   "number_of_data_nodes":  1,
+   "active_primary_shards": 0,
+   "active_shards":         0,
+   "relocating_shards":     0,
+   "initializing_shards":   0,
+   "unassigned_shards":     0
+}
+--------------------------------------------------
+<1> The `status` field is the one we're most interested in.
+
+The `status` field provides an overall indication of how the cluster is
+functioning. The meaning of the three colors are provided here for reference:
+
+[horizontal]
+`green`::   All primary and replica shards are active.
+`yellow`::  All primary shards are active, but not all replica shards are active.
+`red`::     Not all primary shards are active.
+
+In the rest of this chapter we explain what _primary_ and _replica_ shards are
+and explain the practical implications of each of the above colors.

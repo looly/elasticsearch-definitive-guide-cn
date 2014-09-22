@@ -1,0 +1,157 @@
+=== Analytics
+
+Finally, we come to our last business requirement: allow managers to run
+analytics over the employee directory.  Elasticsearch has functionality called
+_aggregations_, which allows you to generate sophisticated analytics over your
+data. It is similar to `GROUP BY` in SQL, but much more powerful.
+
+For example, let's find the most popular interests enjoyed by our employees:
+
+[source,js]
+--------------------------------------------------
+GET /megacorp/employee/_search
+{
+  "aggs": {
+    "all_interests": {
+      "terms": { "field": "interests" }
+    }
+  }
+}
+--------------------------------------------------
+// SENSE: 010_Intro/35_Aggregations.json
+
+Ignore the syntax for now and just look at the results:
+
+[source,js]
+--------------------------------------------------
+{
+   ...
+   "hits": { ... },
+   "aggregations": {
+      "all_interests": {
+         "buckets": [
+            {
+               "key":       "music",
+               "doc_count": 2
+            },
+            {
+               "key":       "forestry",
+               "doc_count": 1
+            },
+            {
+               "key":       "sports",
+               "doc_count": 1
+            }
+         ]
+      }
+   }
+}
+--------------------------------------------------
+
+We can see that two employees are interested in music, one in forestry and one
+in sports.  These aggregations are not precalculated -- they are generated on
+the fly from the documents which match the current query. If we want to know
+the popular interests of people called ``Smith'', we can just add the
+appropriate query into the mix:
+
+[source,js]
+--------------------------------------------------
+GET /megacorp/employee/_search
+{
+  "query": {
+    "match": {
+      "last_name": "smith"
+    }
+  },
+  "aggs": {
+    "all_interests": {
+      "terms": {
+        "field": "interests"
+      }
+    }
+  }
+}
+--------------------------------------------------
+// SENSE: 010_Intro/35_Aggregations.json
+
+The `all_interests` aggregation has changed to include only documents matching our query:
+
+[source,js]
+--------------------------------------------------
+  ...
+  "all_interests": {
+     "buckets": [
+        {
+           "key": "music",
+           "doc_count": 2
+        },
+        {
+           "key": "sports",
+           "doc_count": 1
+        }
+     ]
+  }
+--------------------------------------------------
+
+Aggregations allow hierarchical rollups too.  For example, let's find the
+average age of employees who share a particular interest:
+
+[source,js]
+--------------------------------------------------
+GET /megacorp/employee/_search
+{
+    "aggs" : {
+        "all_interests" : {
+            "terms" : { "field" : "interests" },
+            "aggs" : {
+                "avg_age" : {
+                    "avg" : { "field" : "age" }
+                }
+            }
+        }
+    }
+}
+--------------------------------------------------
+// SENSE: 010_Intro/35_Aggregations.json
+
+The aggregations that we get back are a bit more complicated, but still fairly
+easy to understand:
+
+[source,js]
+--------------------------------------------------
+  ...
+  "all_interests": {
+     "buckets": [
+        {
+           "key": "music",
+           "doc_count": 2,
+           "avg_age": {
+              "value": 28.5
+           }
+        },
+        {
+           "key": "forestry",
+           "doc_count": 1,
+           "avg_age": {
+              "value": 35
+           }
+        },
+        {
+           "key": "sports",
+           "doc_count": 1,
+           "avg_age": {
+              "value": 25
+           }
+        }
+     ]
+  }
+--------------------------------------------------
+
+The output is basically an enriched version of the first aggregation we ran.
+We still have a list of interests and their counts, but now each interest has
+an additional `avg_age` which shows the average age for all employees having
+that interest.
+
+Even if you don't understand the syntax yet, you can easily see how very
+complex aggregations and groupings can be accomplished using this feature.
+The sky is the limit as to what kind of data you can extract!

@@ -1,0 +1,75 @@
+=== Creating an index
+
+Up until now, we have created a new index by simply indexing a document into
+it.  The index is created with the default settings, and new fields are added
+to the type mapping using dynamic mapping.
+
+Now we need more control over the process: we want to ensure that the index
+has been created with the appropriate number of primary shards, and that
+analyzers and mappings are set up *before* we index any data.
+
+To do this, we have to create the index manually, passing in any settings or
+type mappings in the request body, as follows:
+
+[source,js]
+--------------------------------------------------
+PUT /my_index
+{
+    "settings": { ... any settings ... },
+    "mappings": {
+        "type_one": { ... any mappings ... },
+        "type_two": { ... any mappings ... },
+        ...
+    }
+}
+--------------------------------------------------
+
+
+In fact, if you want to you can prevent the automatic creation of indices by
+adding the following setting to the `config/elasticsearch.yml` file on each
+node:
+
+[source,js]
+--------------------------------------------------
+action.auto_create_index: false
+--------------------------------------------------
+
+
+****
+
+Later, we will discuss how you can use <<index-templates>> to pre-configure
+automatically created indices. This is particularly useful when indexing log
+data: you log into an index whose name includes the date and, as midnight
+rolls over, a new properly configured index automatically springs into
+existence.
+
+****
+
+=== Deleting an index
+
+To delete an index, use the following request:
+
+[source,js]
+--------------------------------------------------
+DELETE /my_index
+--------------------------------------------------
+
+
+You can delete multiple indices with:
+
+[source,js]
+--------------------------------------------------
+DELETE /index_one,index_two
+DELETE /index_*
+--------------------------------------------------
+
+
+You can even delete *ALL* indices with:
+
+[source,js]
+--------------------------------------------------
+DELETE /_all
+--------------------------------------------------
+
+
+

@@ -1,35 +1,18 @@
 === Document oriented
+## 面向文档
 
-Objects in an application are seldom just a simple list of keys and values.
-More often than not they are complex data structures which may contain dates,
-geo-locations, objects, or arrays of values.
+程序中的对象很少是简单的键值列表。更多时候它拥有复杂数据结构，比如包含日期、地理位置、对象或者数组。
 
-Sooner or later you're going to want to store these objects in a database.
-Trying to do this with the rows and columns of a relational database is the
-equivalent of trying to squeeze your rich expressive objects into a very big
-spreadsheet: you have to flatten the object to fit the table schema -- usually
-one field per column -- and then have to reconstruct it every time you
-retrieve it.
+迟早你想会把这些对象存储到数据库中。尝试将这些数据保存到由行和列组成的关系数据库中，就好像要把一个复杂对象放入一个非常大的表格中：你不得不调整对象以适应表模式（通常一列表示一个字段）然后不得不在检索的时候重建对象。
 
-Elasticsearch is _document oriented_, meaning that it stores entire objects or
-_documents_.  Not only does it store them, it also *indexes* the contents of
-each document in order to make them searchable. In Elasticsearch, you index,
-search, sort and filter documents... not rows of columnar data.  This is a
-fundamentally different way of thinking about data and is one of the reasons
-Elasticsearch can perform complex full text search.
+Elasticsearch是**面向文档(document oriented)**的，这意味着它可以存储整个对象或**文档(document)**，它不仅是存储，还会**索引(index)**每个文档的内容使之可以被搜索。在Elasticsearch中你可以对文档索引、搜索、排序、过滤，而非成行成列的数据。这种理解数据的方式与以往完全不同，这也是Elasticsearch能够执行复杂的全文搜索的原因之一。
 
-==== JSON
+## JSON
+ELasticsearch使用[**JSON**](http://en.wikipedia.org/wiki/Json)（或者叫做**Javascript对象符号(JavaScript
+Object Notation)**）做为文档序列化格式。JSON现在已经被大多语言所支持，而且已经成为NoSQL领域的标准格式。它简单、简洁且容易被阅读。
+以下这个JSON文档表示一个用户对象：
 
-Elasticsearch uses http://en.wikipedia.org/wiki/Json[_JSON_] (or JavaScript
-Object Notation ) as the serialization format for documents. JSON
-serialization is supported by most programming languages, and has become the
-standard format used by the NoSQL movement. It is simple, concise and easy to
-read.
-
-Consider this JSON document which represents a user object:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
     "email":      "john@smith.com",
     "first_name": "John",
@@ -41,21 +24,20 @@ Consider this JSON document which represents a user object:
     },
     "join_date": "2014/05/01"
 }
---------------------------------------------------
+```
 
 Although the original `user` object was complex, the structure and meaning of
 the object has been retained in the JSON version. Converting an object to JSON
 for indexing in Elasticsearch is much simpler than the equivalent process for
 a flat table structure.
 
-.Converting your data to JSON
-**************************************************
+尽管原始的`user`对象很复杂，但它的结构和对象的含义已经被保留在JSON中了，转换对象为JSON并作为索引要比在表结构中做相同事情简单多了。
 
-Almost all languages have modules which will convert arbitrary  data
-structures or objects into JSON for you, but the details are specific  to each
-language. Look for modules which handle JSON __ ``serialization'' __ or __
-``marshalling'' __. http://www.elasticsearch.org/guide[The official
-Elasticsearch clients] all handle conversion to and from JSON for you
-automatically.
+>转换你的数据为JSON
+>几乎所有语言都有相应的模块用于将任意数据结构转换为JSON，但每种语言处理细节不同。具体请查看“`serialization`” or “`marshalling`”两个用于处理JSON的模块。[Elasticsearch官方客户端](http://www.elasticsearch.org/guide)会自动为你序列化和反序列化JSON。
 
-**************************************************
+
+
+
+
+

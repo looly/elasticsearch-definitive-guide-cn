@@ -11,5 +11,5 @@
    * [汇总](010_Intro/35_tutorial_aggregations.md)
    * [小结](010_Intro/40_tutorial_conclusion.md)
    * [分布式](010_Intro/45_distributed.md)
-   * [本章总结](010_Intro/50_conclusion.md)
+   * [结语](010_Intro/50_conclusion.md)
 

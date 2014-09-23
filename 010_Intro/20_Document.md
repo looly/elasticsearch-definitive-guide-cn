@@ -26,11 +26,6 @@ Object Notation)**）做为文档序列化格式。JSON现在已经被大多语�
 }
 ```
 
-Although the original `user` object was complex, the structure and meaning of
-the object has been retained in the JSON version. Converting an object to JSON
-for indexing in Elasticsearch is much simpler than the equivalent process for
-a flat table structure.
-
 尽管原始的`user`对象很复杂，但它的结构和对象的含义已经被保留在JSON中了，转换对象为JSON并作为索引要比在表结构中做相同事情简单多了。
 
 >转换你的数据为JSON

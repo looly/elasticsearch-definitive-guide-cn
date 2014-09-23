@@ -1,22 +1,24 @@
-# Elasticsearch
-# 权威指南（中文版）
--------------------------
+# Elasticsearch 权威指南（中文版）
 
-原书地址：[Elasticsearch the definitive guide](https://github.com/elasticsearch/elasticsearch-definitive-guide)
-
-原作者：clinton gormley，zachary tong
+## 阅读地址：[Elasticsearch权威指南（中文版）](https://www.gitbook.io/book/looly/elasticsearch-the-definitive-guide-cn/)
 
 ----------------------------------------
 
-译者：[Looly](http://www.xiaoleilu.com)
+**原书地址：**[Elasticsearch the definitive guide](https://github.com/elasticsearch/elasticsearch-definitive-guide)
 
-邮箱：loolly@gmail.com
-
-微博：[@路小磊](http://weibo.com/loolly)
+**原作者：**clinton gormley，zachary tong
 
 ----------------------------------------
 
-项目地址：
+**译者：**[Looly](http://www.xiaoleilu.com)
+
+**邮箱：**loolly@gmail.com
+
+**微博：**[@路小磊](http://weibo.com/loolly)
+
+----------------------------------------
+
+#### 项目地址：
 
 [https://github.com/looly/elasticsearch-definitive-guide-cn](https://github.com/looly/elasticsearch-definitive-guide-cn)
 

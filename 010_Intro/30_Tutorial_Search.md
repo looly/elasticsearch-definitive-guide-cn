@@ -267,9 +267,6 @@ climbing”**。
 ## 短语搜索
 能找到字段中单独的单次固然最好，但是有时候你想要匹配确切的单词序列或者**短语(phrases)**。例如我们想要查询`about`包含完整短语**“rock climbing”**的员工。
 
-To do this, we use a slight variation of the `match` query called the
-`match_phrase` query:
-
 为了实现以上效果，我们将查询`match`变更为`match_phrase`:
 
 ```Javascript
@@ -308,17 +305,12 @@ GET /megacorp/employee/_search
 }
 ```
 
-[[highlighting-intro]]
-=== Highlighting our searches
+## 高亮我们的搜索
+很多应用喜欢从每个搜索结果中**高亮(highlight)**匹配到的关键字，以便用户可以知道**为什么**文档这样匹配查询。Elasticsearch中高亮片段是非常容易的。
 
-Many applications like to _highlight_ snippets of text from each search result
-so that the user can see *why* the document matched their query.  Retrieving
-highlighted fragments is very easy in Elasticsearch.
+让我们在之前的语句上增加`highlight`参数：
 
-Let's rerun our previous query, but add a new `highlight` parameter:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /megacorp/employee/_search
 {
     "query" : {
@@ -332,16 +324,11 @@ GET /megacorp/employee/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 010_Intro/30_Query_DSL.json
+```
 
-When we run this query, the same hit is returned as before, but now we get a
-new section in the response called `highlight`.  This contains a snippet of
-text from the `about` field with the matching words wrapped in `<em></em>`
-HTML tags:
+当我们运行这个语句，会命中与之前相同的结果，但是会得到一个新的叫做`highlight`的部分，这里包括了`about`字段中匹配的文本片段，并且用`<em></em>`包围匹配到的单词。
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    ...
    "hits": {
@@ -367,10 +354,9 @@ HTML tags:
       ]
    }
 }
---------------------------------------------------
+```
 
 <1> The highlighted fragment from the original text.
+- <1> 原有文本中高亮的片段
 
-You can read more about the highlighting of search snippets in the
-{ref}search-request-highlighting.html[highlighting reference documentation].
-
+你可以在高亮章节阅读更多关于搜索高亮的部分。

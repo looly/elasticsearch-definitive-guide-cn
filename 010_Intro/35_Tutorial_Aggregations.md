@@ -1,14 +1,10 @@
-=== Analytics
+## 分析
+最后，我们还有一个需求需要完成：允许管理者在职员目录中分析。
+Elasticsearch把这项功能叫做**聚合(aggregations)**，它允许你在数据基础上生成复杂的统计。它很像SQL中的`GROUP BY`但是功能更强大。
 
-Finally, we come to our last business requirement: allow managers to run
-analytics over the employee directory.  Elasticsearch has functionality called
-_aggregations_, which allows you to generate sophisticated analytics over your
-data. It is similar to `GROUP BY` in SQL, but much more powerful.
+举个例子，让我们找到最受员工欢迎的兴趣：
 
-For example, let's find the most popular interests enjoyed by our employees:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /megacorp/employee/_search
 {
   "aggs": {
@@ -17,13 +13,11 @@ GET /megacorp/employee/_search
     }
   }
 }
---------------------------------------------------
-// SENSE: 010_Intro/35_Aggregations.json
+```
 
-Ignore the syntax for now and just look at the results:
+忽略语法只看结果：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    ...
    "hits": { ... },
@@ -46,13 +40,15 @@ Ignore the syntax for now and just look at the results:
       }
    }
 }
---------------------------------------------------
+```
 
 We can see that two employees are interested in music, one in forestry and one
 in sports.  These aggregations are not precalculated -- they are generated on
 the fly from the documents which match the current query. If we want to know
 the popular interests of people called ``Smith'', we can just add the
 appropriate query into the mix:
+
+
 
 [source,js]
 --------------------------------------------------

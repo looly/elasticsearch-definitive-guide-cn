@@ -8,7 +8,7 @@
    * [文档](010_Intro/20_Document.md)
    * [索引](010_Intro/25_Tutorial_Indexing.md)
    * [搜索](010_Intro/30_Tutorial_Search.md)
-   * [汇总](010_Intro/35_Tutorial_Aggregations.md)
+   * [聚合](010_Intro/35_Tutorial_Aggregations.md)
    * [小结](010_Intro/40_Tutorial_Conclusion.md)
    * [分布式](010_Intro/45_Distributed.md)
    * [结语](010_Intro/50_Conclusion.md)

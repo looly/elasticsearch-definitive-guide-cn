@@ -2,7 +2,7 @@
 最后，我们还有一个需求需要完成：允许管理者在职员目录中分析。
 Elasticsearch把这项功能叫做**聚合(aggregations)**，它允许你在数据基础上生成复杂的统计。它很像SQL中的`GROUP BY`但是功能更强大。
 
-举个例子，让我们找到最受员工欢迎的兴趣：
+举个例子，让我们找到最受职员欢迎的兴趣：
 
 ```Javascript
 GET /megacorp/employee/_search
@@ -42,16 +42,9 @@ GET /megacorp/employee/_search
 }
 ```
 
-We can see that two employees are interested in music, one in forestry and one
-in sports.  These aggregations are not precalculated -- they are generated on
-the fly from the documents which match the current query. If we want to know
-the popular interests of people called ``Smith'', we can just add the
-appropriate query into the mix:
+我们可以看到两个职员对音乐有兴趣，一个喜欢森林，一个喜欢运动。这些聚合的数据并没有被预先计算好，它们从匹配查询语句的文档中动态生成。如果我们想知道姓**"Smith"**的人什么兴趣最受欢迎，我们只需要增加合数的语句既可：
 
-
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /megacorp/employee/_search
 {
   "query": {
@@ -67,13 +60,11 @@ GET /megacorp/employee/_search
     }
   }
 }
---------------------------------------------------
-// SENSE: 010_Intro/35_Aggregations.json
+```
 
-The `all_interests` aggregation has changed to include only documents matching our query:
+`all_interests`已经变成只包含匹配语句的文档了：
 
-[source,js]
---------------------------------------------------
+```Javascript
   ...
   "all_interests": {
      "buckets": [
@@ -87,13 +78,11 @@ The `all_interests` aggregation has changed to include only documents matching o
         }
      ]
   }
---------------------------------------------------
+```
 
-Aggregations allow hierarchical rollups too.  For example, let's find the
-average age of employees who share a particular interest:
+聚合也允许分级汇总。例如，让我们统计每种兴趣下职员的平均年龄：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /megacorp/employee/_search
 {
     "aggs" : {
@@ -107,14 +96,11 @@ GET /megacorp/employee/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 010_Intro/35_Aggregations.json
+```
 
-The aggregations that we get back are a bit more complicated, but still fairly
-easy to understand:
+虽然这次返回的聚合结果更加复杂，但是依旧容易理解：
 
-[source,js]
---------------------------------------------------
+```Javascript
   ...
   "all_interests": {
      "buckets": [
@@ -141,13 +127,8 @@ easy to understand:
         }
      ]
   }
---------------------------------------------------
+```
 
-The output is basically an enriched version of the first aggregation we ran.
-We still have a list of interests and their counts, but now each interest has
-an additional `avg_age` which shows the average age for all employees having
-that interest.
+输出基本上是我们之前运行聚合的一个丰富化版本。我们依旧有兴趣以及它们数量的列表，但是现在每个兴趣额外拥有`avg_age`用来显示拥有此兴趣职员的平均年龄。
 
-Even if you don't understand the syntax yet, you can easily see how very
-complex aggregations and groupings can be accomplished using this feature.
-The sky is the limit as to what kind of data you can extract!
+即使你依旧不能理解语法，但是可以很轻松的看到如此复杂的聚合和分组能够使用这些特性完成。处理数据的能力取决于你能提取什么样的数据！

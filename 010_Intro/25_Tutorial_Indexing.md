@@ -74,24 +74,20 @@ PUT /megacorp/employee/1
 
 注意到路径`/megacorp/employee/1`包含三部分信息：
 
-[horizontal]
-*megacorp*::    the index name
-*employee*::    the type name
-*1*::           the ID of this particular employee
+| 名字       | 说明        |
+| ---------- | ----------- |
+|**megacorp**|索引名       |
+|**employee**|类型名       |
+|**1**       |这个职员的ID |
 
-The request body -- the JSON document -- contains all the information about
-this employee.  His name is ``John Smith'', he's 25 and enjoys rock climbing.
+请求体——JSON文档，包含了这个职员的所有信息。他的名字叫“John Smith”，25岁，喜欢攀岩。
 
-Simple!  There was no need to perform any administrative tasks first, like
-creating an index or specifying the type of data that each field contains. We
-could just index a document directly.  Elasticsearch ships with defaults for
-everything, so all the necessary administration tasks were taken care of in
-the background, using default values.
+很简单吧，操作前不需要任何管理操作，比如创建索引或者定义每个字段的数据类型。我们能够直接索引文档，Elasticsearch附带所有的缺省设置，所有管理操作已经在后台帮你执行。
 
 Before moving on, let's add a few more employees to the directory:
+在继续之前，让我们在目录中加入更多员工信息：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /megacorp/employee/2
 {
     "first_name" :  "Jane",
@@ -109,8 +105,5 @@ PUT /megacorp/employee/3
     "about":        "I like to build cabinets",
     "interests":  [ "forestry" ]
 }
---------------------------------------------------
-// SENSE: 010_Intro/25_Index.json
-
-
+```
 

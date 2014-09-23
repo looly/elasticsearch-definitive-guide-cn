@@ -18,9 +18,6 @@
 ## 索引员工文档
 首要的工作是存储员工数据。这将需要一个“员工文档”的表单，每个文档代表一个员工。在Elasticsearch中存储数据的行为叫做**索引(indexing)**，不过在索引之前，我们需要决定数据存储在哪里。
 
-In Elasticsearch, a document belongs to a _type_, and those types live inside
-an _index_. You can draw some (rough) parallels to a traditional relational database:
-
 在Elasticsearch中，文档属于一种**类型(type)**,然后这些类型存在于**索引(index)**中，你可以画一些简单的对比图来类比传统关系型数据库中的一些概念：
 ```
 关系数据库(Relational DB) -> 库(Databases) -> 表(Tables) -> 行(Rows)       -> 列(Columns)
@@ -84,7 +81,6 @@ PUT /megacorp/employee/1
 
 很简单吧，操作前不需要任何管理操作，比如创建索引或者定义每个字段的数据类型。我们能够直接索引文档，Elasticsearch附带所有的缺省设置，所有管理操作已经在后台帮你执行。
 
-Before moving on, let's add a few more employees to the directory:
 在继续之前，让我们在目录中加入更多员工信息：
 
 ```Javascript

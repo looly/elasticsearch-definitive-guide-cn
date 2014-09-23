@@ -15,6 +15,7 @@
 两个Java客户端都通过**9300端口**与集群交互，使用**Elasticsearch传输协议(Elasticsearch Transport Protocol)**。集群中的节点也通过**9300端口**通信。如果此端口未开放，你的节点将不能形成集群。
 
 >**提示**
+
 >Java客户端版本必须与集群中的节点一致，换言之，它们可能互相无法识别。
 
 关于Java API的更多信息请查看相关章节：[Java API](http://www.elasticsearch.org/guide/)
@@ -23,9 +24,6 @@
 其他所有程序语言都可以通过**9200端口**的RESTful API与Elasticsearch通信，事实上，如你所见，你甚至可以通过命令行的`curl`命令与ELasticsearch通信。
 
 Elasticsearch官方提供了多种程序语言的客户端——Groovy，Javascript， .NET，PHP，Perl，Python，and Ruby——还有数量庞大的社区提供的客户端和集成插件，所有这些可以在这里找到：[Guide](http://www.elasticsearch.org/guide/)。
-
-A request to Elasticsearch consists of the same parts as any HTTP request. For
-instance, to count the number of documents in the cluster, we could use:
 
 向Elasticsearch发出的请求与其它HTTP请求组成是一致的，例如统计集群中文件的数量，我们可以这样：
 

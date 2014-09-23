@@ -89,9 +89,3 @@ curl -XPOST 'http://localhost:9200/_shutdown'
 你可以在Marvel中的`Marvel dashboards`点击下拉菜单或者访问以下地址访问**Sense**开发者控制台：
 
 [http://localhost:9200/_plugin/marvel/sense/](http://localhost:9200/_plugin/marvel/sense/)
-
-
-
-
-
-

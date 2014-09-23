@@ -30,9 +30,3 @@ Object Notation)**）做为文档序列化格式。JSON现在已经被大多语�
 
 >转换你的数据为JSON
 >几乎所有语言都有相应的模块用于将任意数据结构转换为JSON，但每种语言处理细节不同。具体请查看“`serialization`” or “`marshalling`”两个用于处理JSON的模块。[Elasticsearch官方客户端](http://www.elasticsearch.org/guide)会自动为你序列化和反序列化JSON。
-
-
-
-
-
-

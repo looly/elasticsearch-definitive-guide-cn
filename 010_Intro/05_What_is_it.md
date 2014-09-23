@@ -19,13 +19,3 @@ Elasticsearch也是使用Java编写并使用Lucene来建立索引并实现搜索
 Elasticsearch在[Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.html)下许可使用，可以免费下载、使用和修改。
 
 随着知识的积累，你可以根据不同的问题领域定制Elasticsearch的高级特性，这一切都是可配置的，并且配置非常灵活。
-
-
-
-
-
-
-
-
-
-

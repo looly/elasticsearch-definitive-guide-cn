@@ -6,8 +6,15 @@
 
 原作者：clinton gormley，zachary tong
 
+----------------------------------------
+
 译者：[Looly](http://www.xiaoleilu.com)
-邮箱：[loolly@gmail.com](loolly@gmail.com)
+
+邮箱：loolly@gmail.com
+
+微博：[@路小磊](http://weibo.com/loolly)
+
+----------------------------------------
 
 项目地址：
 

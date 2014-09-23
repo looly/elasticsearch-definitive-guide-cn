@@ -1,24 +1,15 @@
-=== Retrieving a document
+## 检索文档
+现在我们的Elasticsearch中已经存储了一些数据，我们可以根据业务需求开始进行工作了。第一个需求是能够检索单个员工的信息。
 
-Now that we have some data stored in Elasticsearch, we can get to work on the
-business requirements for this application.  The first requirement is the
-ability to retrieve individual employee data.
+这对于Elasticsearch非常简单。我们只要执行HTTP GET请求并指出文档的“地址”——索引、类型和ID既可。使用这三部分，就可以返回JSON原始文档：
 
-This is very easy in Elasticsearch.  We simply execute an HTTP GET request and
-specify the ``address'' of the document -- the index, type and id.  Using
-those three pieces of information, we can return the original JSON document:
-
-[source,js]
---------------------------------------------------
+```Jacscript
 GET /megacorp/employee/1
---------------------------------------------------
-// SENSE: 010_Intro/30_Get.json
+```
 
-And the response contains some metadata about the document, and John Smith's
-original JSON document as the `_source` field:
+响应的内容中包含一些文档的元数据信息，John Smith的原始JSON文档做为`_source`字段存在。
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "_index" :   "megacorp",
   "_type" :    "employee",
@@ -33,38 +24,29 @@ original JSON document as the `_source` field:
       "interests":  [ "sports", "music" ]
   }
 }
---------------------------------------------------
+```
 
 ****
 
-In the same way that we changed the HTTP verb from `PUT` to `GET` in order to
-retrieve the document, we could use the `DELETE` verb to delete the  document,
-and the `HEAD` verb to check whether or not the document exists. To replace an
-existing document with an updated version, we just `PUT` it again.
+同样的方式，我们通过把HTTP方法`PUT`改为`GET`来检索文档，我们可以使用`DELETE`方法删除文档，使用`HEAD`方法检查文档是否存在。如果为了替换已存在的文档，我们只需使用`PUT`方法即可。
 
 ****
 
-=== Search Lite
-
-A `GET` is fairly simple -- you get back the document that you ask for.  Let's
-try something a little more advanced, like a simple search!
+## 简单搜索
+`GET`请求确实足够简单——你想要什么，它就可以返回什么文档。让我们来看一些更复杂的东西，就像简单搜索！
 
 The first search we will try is the simplest search possible.  We will search
 for all employees, with this request:
 
-[source,js]
---------------------------------------------------
+我们尝试一个最简单的搜索全部员工的请求：
+
+```Javascript
 GET /megacorp/employee/_search
---------------------------------------------------
-// SENSE: 010_Intro/30_Simple_search.json
+```
 
-You can see that we're still using index `megacorp` and type `employee`, but
-instead of specifying a document ID, we now use the `_search` endpoint. The
-response includes all three of our documents in the `hits` array. By default,
-a search will return the top 10 results.
+你可以看到我们依旧使用`megacorp`索引和`employee`类型，但是与使用指定ID的文档不同，现在使用`_search`端点。响应内容的`hits`数组中包含了所有的三个文档。一般情况下搜索会返回前10个结果。
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "took":      6,
    "timed_out": false,
@@ -115,11 +97,9 @@ a search will return the top 10 results.
       ]
    }
 }
---------------------------------------------------
+```
 
-NOTE: The response not only tells us which documents matched, but it also
-includes the whole document itself: all of the information that we need to
-display the search results to the user.
+>**注意**：响应内容不仅会告诉我们哪些文档被匹配，而且这些文档内容会被包含其中：所有的信息我们都需要显示搜索结果给用户。
 
 Next, let's try searching for employees who have ``Smith'' in their last name.
 To do this, we'll use a ``lightweight'' search method which is easy to use

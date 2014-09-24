@@ -12,4 +12,12 @@
    * [小结](010_Intro/40_Tutorial_Conclusion.md)
    * [分布式](010_Intro/45_Distributed.md)
    * [结语](010_Intro/50_Conclusion.md)
-
+* [分布式集群](020_Distributed_Cluster/00_README.md)
+   * [初识](020_Distributed_Cluster/00_Intro.md)
+   * [空集群](020_Distributed_Cluster/05_Empty_cluster.md)
+   * [集群健康](020_Distributed_Cluster/10_Cluster_health.md)
+   * [添加索引](020_Distributed_Cluster/15_Add_an_index.md)
+   * [故障转移](020_Distributed_Cluster/20_Add_failover.md)
+   * [横向扩展](020_Distributed_Cluster/25_Scale_horizontally.md)
+   * [更多扩展](020_Distributed_Cluster/30_Scale_more.md)
+   * [应对失败](020_Distributed_Cluster/35_Coping_with_failure.md)

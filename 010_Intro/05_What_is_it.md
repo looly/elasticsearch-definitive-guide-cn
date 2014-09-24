@@ -19,3 +19,14 @@ Elasticsearch也是使用Java编写并使用Lucene来建立索引并实现搜索
 Elasticsearch在[Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.html)下许可使用，可以免费下载、使用和修改。
 
 随着知识的积累，你可以根据不同的问题领域定制Elasticsearch的高级特性，这一切都是可配置的，并且配置非常灵活。
+
+The mists of time
+Many years ago, a newly married unemployed developer called Shay Banon followed his wife to London where she was studying to be a chef. While looking for gainful employment, he started playing with an early version of Lucene, with the intent of building his wife a recipe search engine.
+
+Working directly with Lucene can be tricky, so Shay started work on an abstraction layer to make it easier for Java programmers to add search to their applications. He released this as his first open source project, called Compass.
+
+Later Shay took a job working in a high performance, distributed environment with in-memory data grids. The need for a high performance, real-time, distributed search engine was obvious, and he decided to rewrite the Compass libraries as a standalone server called Elasticsearch.
+
+The first public release came out in February 2010. Since then, Elasticsearch has become one of the most popular projects on Github with commits from over 300 contributors. A company has formed around Elasticsearch to provide commercial support and to develop new features but Elasticsearch is, and forever will be, open source and available to all.
+
+Shay’s wife is still waiting for the recipe search…

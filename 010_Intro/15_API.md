@@ -44,10 +44,6 @@ curl -XGET 'http://localhost:9200/_count?pretty' -d '
 - <4> 一些可选的查询参数，例如`?pretty`返回更加美观易读的JSON。
 - <5> 一个JSON编码过的请求主体（如果需要）。
 
-Elasticsearch returns an HTTP status code like `200 OK` and (except for `HEAD`
-requests) a JSON encoded response body. The above `curl` request would respond
-with a JSON body like the following:
-
 Elasticsearch返回一个类似`200 OK`的HTTP状态码和JSON格式主体（除`HEAD`请求）。上面的请求会得到如下的响应主体：
 
 ```Javascript

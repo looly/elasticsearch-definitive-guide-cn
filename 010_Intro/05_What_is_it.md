@@ -20,13 +20,13 @@ Elasticsearch在[Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.ht
 
 随着知识的积累，你可以根据不同的问题领域定制Elasticsearch的高级特性，这一切都是可配置的，并且配置非常灵活。
 
-The mists of time
-Many years ago, a newly married unemployed developer called Shay Banon followed his wife to London where she was studying to be a chef. While looking for gainful employment, he started playing with an early version of Lucene, with the intent of building his wife a recipe search engine.
+--------------------------------------------------------------
+多年前，一个叫做Shay Banon的刚结婚不久的失业开发者，由于妻子要去伦敦学习厨师，他便跟着也去了。在他找工作的过程中，为了给妻子构建一个食谱的搜索引擎，他开始构建一个早起版本的Lucene。
 
-Working directly with Lucene can be tricky, so Shay started work on an abstraction layer to make it easier for Java programmers to add search to their applications. He released this as his first open source project, called Compass.
+基于Lucene工作会比较困难，所以Shay开始抽象Lucene代码以便Java程序猿可以在应用中添加搜索功能。他第一次开源这个项目时把它叫做“Compass”。
 
-Later Shay took a job working in a high performance, distributed environment with in-memory data grids. The need for a high performance, real-time, distributed search engine was obvious, and he decided to rewrite the Compass libraries as a standalone server called Elasticsearch.
+后来Shay找到一份工作，这份工作处在高性能和内存数据网格的分布式环境中，因此高性能的、实时的、分布式的搜索引擎也是理所当然需要的。然后他决定重写Compass库做为一个独立的服务叫做Elasticsearch。
 
-The first public release came out in February 2010. Since then, Elasticsearch has become one of the most popular projects on Github with commits from over 300 contributors. A company has formed around Elasticsearch to provide commercial support and to develop new features but Elasticsearch is, and forever will be, open source and available to all.
+第一个公开版本出现在2010年二月，在那之后Elasticsearch已经变成Github上最受欢迎的项目之一，而且已经超过300人为此项目做出贡献。公司已经围绕Elasticsearch提供了商业支持用于扩展新功能，不过Elasticsearch将永远开源且对所有人可用。
 
-Shay’s wife is still waiting for the recipe search…
+Shay的妻子依旧等待着食谱搜索……

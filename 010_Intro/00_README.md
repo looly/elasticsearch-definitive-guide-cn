@@ -12,30 +12,15 @@ Elasticsearch是一个实时分布式搜索和分析引擎。他让你可以以�
 
 * Github使用Elasticsearch检索1300亿行的代码。
 
-But Elasticsearch is not just for mega-corporations. It has enabled many
-startups like DataDog and Klout to prototype ideas and to turn them into
-scalable solutions. Elasticsearch can run on your laptop, or scale out to
-hundreds of servers and petabytes of data.
+但是Elasticsearch不仅用于大型企业，它还让像DataDog以及Klout的创业公司将最初的想法变成可扩展的解决方案。Elasticsearch可以在你的笔记本上运行，也可以在数以百计的服务器上处理PB级别的数据。
 
-No individual part of Elasticsearch is new or revolutionary. Full text search
-has been done before, as have analytics systems and distributed databases. The
-revolution is the combination of these individually useful parts into a
-single, coherent, real-time application. It has a low barrier to entry for the
-new user, but can keep pace with you as your skills and needs grow.
+Elasticsearch每个独立部分都不是创新或者革命性的。在全文搜索中早已被实现，统计系统和分布式数据库也早已存在。它的革命之初在于整合这些独立的功能在单一的、连贯的和实时的程序中。它对新用户的门槛很低，当然它也会跟上你技能和需求增长的步伐。
 
-If you are picking up this book, it is because you have data, and there is no
-point in having data unless you plan to *do something* with it.
+你之所以拿起这本书，是因为你有数据，在用这些数据计划做些事情前并不知道怎么去使用它们。
 
-Unfortunately, most databases are astonishingly inept at extracting actionable
-knowledge from your data. Sure, they can filter by timestamp or exact values,
-but can they perform full-text search, handle synonyms and score documents by
-relevance?  Can they generate analytics and aggregations from the same data?
-Most importantly, can they do this in real-time without big batch processing
-jobs?
+很不幸，现在很多数据库对于提取可用只是方面非常无能。当然，它们能够通过时间戳或者精准字段值过滤，但是能够执行全文搜索，处理同义词和根据相关性给文档打分吗？它们能够生成分析和聚合相同内容数据吗？最重要的是，面对如此庞大的数据，它们能够做到实时处理吗？
 
-This is what sets Elasticsearch apart: Elasticsearch encourages you to explore
-and utilize your data, rather than letting it rot in a warehouse because it is
-too difficult to query.
+这就是Elasticsearch存在的理由：Elasticsearch鼓励你浏览并利用你的数据，而不是让它烂在数据库里，应为在库里太难查询了。
 
-Elasticsearch is your new best friend.
---
+Elasticsearch是你最好的朋友。
+

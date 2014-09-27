@@ -1,46 +1,24 @@
-==== Then scale some more
+## 更多扩展
+但是要怎么做才可以扩展我们的搜索使之大于6个节点？
 
-But what if we want to scale our search to more than 6 nodes?
+主节点的数量在创建索引时已经给定。实际上，这个数字定义了能**存储**到索引里数据的最大数量（实际的数量取决于你的数据、硬件和使用情况）。当然，读请求——搜索和文档检索——能够通过主分片**或者**复制分片处理，所以数据的冗余越多，我们能处理的搜索吞吐量就越大。
 
-The number of primary shards is fixed at the moment an index is created.
-Effectively, that number defines the maximum amount of data that can be
-*stored* in the index.  (The actual number depends on your data, your hardware
-and your use case). However, read requests -- searches or document retrieval
--- can be handled by a primary *or* a replica shard, so the more copies of
-data that you have, the more search throughput we can handle.
+复制节点的数量可以在运行中的集群中动态的变更，这允许我们可以根据需求扩大或者缩小规模。让我们增加复制节点的数量，从原来的`1`变成`2`：
 
-The number of replica shards can be changed dynamically on a live cluster,
-allowing us to scale up or down as demand requires. Let's increase the number
-of replicas from the default of `1` to `2`:
-
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /blogs/_settings
 {
    "number_of_replicas" : 2
 }
---------------------------------------------------
-// SENSE: 020_Distributed_Cluster/30_Replicas.json
+```
 
-[[cluster-three-nodes-two-replicas]]
-.Increasing the `number_of_replicas` to 2
-image::images/02-05_replicas.png["A three-node cluster with two replica shards"]
+增加`number_of_replicas`到2：
+![三节点两复制集群](../images/02-05_replicas.png)
 
-As can be seen in <<cluster-three-nodes-two-replicas>>, the `blogs` index now
-has 9 shards: 3 primaries and 6 replicas. This means that we can scale out to
-a total of 9 nodes, again with one shard per node.  This would allow us to
-*triple* search performance compared to our original three node cluster.
+从图中可以看出，`blogs`索引现在有9个分片：三个主分片和6个复制分片。这意味着我们能够扩展到9个节点，再次的变成每个节点一个分片。这样使我们的搜索性能相比标准的三节点集群扩展**三倍**。
 
-[NOTE]
-===================================================
+> ### 注意：
 
-Of course, just having more replica shards on the same number of nodes doesn't
-increase our performance at all because each shard has access to a smaller
-fraction of its node's resources.  You need to add hardware to increase
-throughput.
+> 当然，只是有更多的复制分片在同样数量的节点上并不能提高我们的性能，因为每个分片都要访问更小比重的节点资源（译者注：大部分请求都聚集到了分片少的节点，导致一个节点吞吐量太大，反而降低性能）。你需要增加硬件来提高吞吐量。
 
-But these extra replicas do mean that we have more redundancy: with the node
-configuration above, we can now afford to lose two nodes without losing any
-data.
-
-===================================================
+> 不过这些额外的复制节点意味着我们有更多的冗余：通过以上对接点的设置，我们更够承受两个节点故障而不丢失数据。

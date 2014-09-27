@@ -1,13 +1,10 @@
-## Life inside a Cluster
+## 感受集群
 
-补充章节
-****
+>### 补充章节
 
-正如之前提及的，这是关于Elasticsearch分布式操作的一些补充章节的第一部分。这个章节我们解释一些通用的术语，例如**集群(cluster)**、**节点(node)**和**分片(shard)**，Elasticsearch的扩展机制，以及它如何处理硬件故障。
+>正如之前提及的，这是关于Elasticsearch分布式操作的一些补充章节的第一部分。这个章节我们解释一些通用的术语，例如**集群(cluster)**、**节点(node)**和**分片(shard)**，Elasticsearch的扩展机制，以及它如何处理硬件故障。
 
-尽管这章不是必读的——你可以长时间使用Elasticsearch而不必担心分片、复制和故障转移——但是它会帮助你理解Elasticsearch内部的工作流程，你可以先跳过这章，以后再来查阅。
-
-****
+>尽管这章不是必读的——你可以长时间使用Elasticsearch而不必担心分片、复制和故障转移——但是它会帮助你理解Elasticsearch内部的工作流程，你可以先跳过这章，以后再来查阅。
 
 Elasticsearch用于构建高可用和可扩展的系统。扩展的方式可以是购买更好的服务器(**纵向扩展(vertical scale or scaling up)**)或者购买更多的服务器（**横向扩展(horizontal scale or scaling out)**）。
 

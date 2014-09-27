@@ -1,22 +1,10 @@
-=== Scale horizontally
+## 横向扩展
 
-What about scaling as the demand for our application grows? If we start a
-third node, our cluster reorganizes itself to look like
-<<cluster-three-nodes>>.
+随着应用需求的增长，我们该如何扩展？如果我们启动第三个节点，我们的集群会自我感知，这时便成为了**三节点集群(cluster-three-nodes)**
 
-[[cluster-three-nodes]]
-.A three-node cluster -- shards have been reallocated to spread the load
-image::images/02-04_three_nodes.png["A three-node cluster"]
+分片已经被重新分配以平衡负载：
+![三节点集群](../images/02-04_three_nodes.png)
 
-One shard each from `Node 1` and `Node 2` have moved to the new
-`Node 3` and we have two shards per node, instead of three.
-This means that the hardware resources (CPU, RAM, I/O) of each node
-are being shared between fewer shards, allowing each shard to perform
-better.
+从`Node 1`和`Node 2`来的分片已经被移动到新的`Node 3`上，这样每个节点就有两个分片，以代替之前的三个。这意味着每个节点的硬件资源（CPU、RAM、I/O）被较少的碎片共享，这样每个分片就会有更好的表现。
 
-A shard is a fully fledged search engine in its own right, and is
-capable of using all of the resources of a single node.  With our
-total of 6 shards (3 primaries and 3 replicas) our index is capable
-of scaling out to a maximum of 6 nodes, with one shard on each node
-and each shard having access to 100% of its node's resources.
-
+碎片本身就是一个完整成熟的搜索引擎，它可以使用单一节点的所有资源。使用这6个分片（3个主分片和三个复制分片）我们可以扩展最多到6个节点，每个节点上有一个碎片，这样就可以100%使用这个节点的资源了。

@@ -1,36 +1,18 @@
-[[distributed-cluster]]
-== Life inside a Cluster
+## Life inside a Cluster
 
-.Supplemental Chapter
+补充章节
 ****
 
-As mentioned earlier, this is the first of several ``supplemental'' chapters
-about how Elasticsearch operates in a distributed environment.  In this
-chapter we explain commonly used terminology like _cluster_, _node_ and
-_shard_, the mechanics of how Elasticsearch scales out, and how it deals with
-hardware failure.
+正如之前提及的，这是关于Elasticsearch分布式操作的一些补充章节的第一部分。这个章节我们解释一些通用的术语，例如**集群(cluster)**、**节点(node)**和**分片(shard)**，Elasticsearch的扩展机制，以及它如何处理硬件故障。
 
-Although this chapter is not required reading -- you can use Elasticsearch for
-a long time without worrying about shards, replication and failover -- it will
-help you to understand the processes at work inside Elasticsearch. Feel free
-to skim through the chapter and to refer to it again later.
+尽管这章不是必读的——你可以长时间使用Elasticsearch而不必担心分片、复制和故障转移——但是它会帮助你理解Elasticsearch内部的工作流程，你可以先跳过这章，以后再来查阅。
 
 ****
 
-Elasticsearch is built to be always available, and to scale with your needs.
-Scale can come from buying bigger servers (_vertical scale_ or _scaling up_)
-or from buying more servers (_horizontal scale_ or _scaling out_).
+Elasticsearch用于构建高可用和可扩展的系统。扩展的方式可以是购买更好的服务器(**纵向扩展(vertical scale or scaling up)**)或者购买更多的服务器（**横向扩展(horizontal scale or scaling out)**）。
 
-While Elasticsearch can benefit from more powerful hardware, vertical scale
-has its limits. Real scalability comes from horizontal scale -- the ability to
-add more nodes to the cluster and to spread load and reliability between them.
+Elasticsearch能从更强大的硬件中获得更好的性能，但是纵向扩展也有一定的局限性。真正的扩展应该是横向的，它通过增加节点来传播负载和增加可靠性。
 
-With most databases, scaling horizontally usually requires a major overhaul of
-your application to take advantage of these extra boxes. In contrast,
-Elasticsearch is _distributed_ by nature: it knows how to manage multiple
-nodes to provide scale and high availability.  This also means that your
-application doesn't need to care about it.
+对于大多数数据库而言，横向扩展意味着你的程序将做非常大的改动来利用这些新添加的设备。对比来说，Elasticsearch天生是分布式的：它知道如何管理节点来提供高扩展和高可用。这意味着你的程序不需要关心这些。
 
-In this chapter we are going to look at how you can setup your _cluster_,
-_nodes_ and _shards_ to scale with your needs and to ensure that your data is
-safe from hardware failure.
+在这章我们将探索如何创建你的**集群(cluster)**、**节点(node)**和**分片(shards)**来按照你的需求扩展，并保证在硬件故障后数依旧安全。

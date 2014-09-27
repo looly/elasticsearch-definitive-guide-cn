@@ -19,4 +19,4 @@
    * [故障转移](020_Distributed_Cluster/20_Add_failover.md)
    * [横向扩展](020_Distributed_Cluster/25_Scale_horizontally.md)
    * [更多扩展](020_Distributed_Cluster/30_Scale_more.md)
-   * [应对失败](020_Distributed_Cluster/35_Coping_with_failure.md)
+   * [应对故障](020_Distributed_Cluster/35_Coping_with_failure.md)

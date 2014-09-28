@@ -1,46 +1,37 @@
-[[index-doc]]
-=== Indexing a document
+## 索引一个文档
 
-Documents are _indexed_ -- stored and made searchable -- using the `index`
-API. But first, we need to decide where the document  lives.  As we just
-discussed, a document's `_index`, `_type` and `_id` uniquely identify the
-document.  We can either provide our own `_id` value or let the `index` API
-generate one for us.
+文档通过`index` API被索引——使数据可以被存储和搜索。但是首先我们需要决定文档所在。正如我们讨论的，文档通过其`_index`、`_type`、`_id`唯一确定。们可以自己提供一个`_id`，或者也使用`index` API 为我们生成一个。
 
-
-==== Using our own ID
+### 使用自己的ID
 
 If your document has a natural identifier (e.g. a `user_account` field
 or some other value that identifies the document), then you should provide
 your own `_id`, using this form of the `index` API:
 
-[source,js]
---------------------------------------------------
+如果你的文档有自然的标识符（例如`user_account`字段或者其他值表示文档），你就可以提供自己的`_id`，使用这种形式的`index` API：
+
+```Javascript
 PUT /{index}/{type}/{id}
 {
   "field": "value",
   ...
 }
---------------------------------------------------
+```
 
-For example, if our index is called `"website"`, our type is called `"blog"`
-and we choose the ID `"123"`, then the index request looks like this:
+例如我们的索引叫做`“website”`，类型叫做`“blog”`，我们选择的ID是`“123”`，那么这个索引请求就像这样：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /website/blog/123
 {
   "title": "My first blog entry",
   "text":  "Just trying this out...",
   "date":  "2014/01/01"
 }
---------------------------------------------------
-// SENSE: 030_Data/10_Create_doc_123.json
+```
 
-Elasticsearch responds with:
+Elasticsearch的响应：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "_index":    "website",
    "_type":     "blog",
@@ -48,44 +39,30 @@ Elasticsearch responds with:
    "_version":  1,
    "created":   true
 }
---------------------------------------------------
+```
 
+响应指出请求的索引已经被成功创建，这个索引中包含`_index`、`_type`和`_id`元数据，以及一个新元素：`_version`。
 
-The response indicates that the indexing request has been successfully created
-and includes the `_index`, `_type` and `_id` metadata, and a new element:
-`_version`.
+Elasticsearch中每个文档都有版本号，每当文档变化（包括删除）都会使`_version`增加。在《版本控制》章节中我们将探讨如何使用`_version`号确保你程序的一部分不会覆盖掉另一部分所做的更改。
 
-Every document in Elasticsearch has a version number. Every time a change is
-made to a document (including deleting it), the `_version` number is
-incremented.  In <<version-control>> we will discuss how to use the `_version`
-number to ensure that one part of your application doesn't overwrite changes
-made by another part.
+### 自增ID
 
-==== Auto-generating IDs
+如果我们的数据没有自然ID，我们可以让Elasticsearch自动为我们生成。请求结构发生了变化：`PUT`方法——`“在这个URL中存储文档”`变成了`POST`方法——`"在这个文档下存储文档"`。（译者注：原来是把文档存储到某个ID对应的空间，现在是把这个文档添加到某个`_type`下）。
 
-If our data doesn't have a natural ID, we can let Elasticsearch autogenerate
-one for us.  The structure of the request changes: instead of using the `PUT`
-verb -- ``store this document at this URL'' -- we use the `POST` verb --
-``store this document *under* this URL''.
+URL现在只包含`_index`和`_type`两个字段：
 
-The URL now contains just the `_index` and the `_type`:
-
-[source,js]
---------------------------------------------------
+```Javascript
 POST /website/blog/
 {
   "title": "My second blog entry",
   "text":  "Still trying this out...",
   "date":  "2014/01/01"
 }
---------------------------------------------------
-// SENSE: 030_Data/10_Create_doc_auto_ID.json
+```
 
-The response is similar to what we saw before, except that the `_id`
-field has been generated for us:
+响应内容与刚才类似，只有`_id`字段变成了自动生成的值：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "_index":    "website",
    "_type":     "blog",
@@ -93,11 +70,7 @@ field has been generated for us:
    "_version":  1,
    "created":   true
 }
---------------------------------------------------
+```
 
-Auto-generated IDs are 22 character long, URL-safe, Base64-encoded string
-_universally unique identifiers_, or http://en.wikipedia.org/wiki/Uuid[UUIDs].
-
-
-
+自动生成的ID有22个字符长，URL-safe, Base64-encoded string universally unique identifiers, 或者叫 [UUIDs](http://en.wikipedia.org/wiki/Uuid)。
 

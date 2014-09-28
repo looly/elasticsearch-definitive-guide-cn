@@ -4,10 +4,6 @@
 
 ### 使用自己的ID
 
-If your document has a natural identifier (e.g. a `user_account` field
-or some other value that identifies the document), then you should provide
-your own `_id`, using this form of the `index` API:
-
 如果你的文档有自然的标识符（例如`user_account`字段或者其他值表示文档），你就可以提供自己的`_id`，使用这种形式的`index` API：
 
 ```Javascript

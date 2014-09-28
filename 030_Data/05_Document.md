@@ -1,14 +1,8 @@
-[[document]]
-=== What is a document?
+## 什么是文档？
 
-Most entities or objects in most applications can be serialized into a JSON
-object, with keys and values. A _key_ is the name of a _field_ or _property_,
-and a _value_ can be a string, a number, a boolean, another object, an array
-of values, or some other specialized type such as a string representing a date
-or an object representing a geolocation:
+程序中大多的实体或对象能够被序列化为包含键值对的JSON对象，**键(key)**是**字段(field)**或**属性(property)**的名字，**值(value)**可以是字符串、数字、波尔类型、另一个对象、值数组或者其他特殊类型，比如表示日期的字符串或者表示地理位置的对象。
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
     "name":         "John Smith",
     "age":          42,
@@ -29,80 +23,48 @@ or an object representing a geolocation:
         }
     ]
 }
---------------------------------------------------
+```
+
+通常，我们使用可互换的**对象(object)**和**文档(document)**。然而，还是有区别的。对象(Object)仅是一个JSON对象——类似于哈希、hashmap、字典或者关联数组。对象(Object)则可以包含其他对象(Object)。
+
+在Elasticsearch中，**文档(document)**这个术语有着特殊含义。它指的是拥有唯一ID的最顶层或者**根对象(root object)**序列化成的JSON。
+
+## 文档元数据
+
+一个文档不只有数据。它还包含了**元数据(metadata)**——**关于**文档的信息。三个必须的元数据节点是：
+
+| 节点     | 说明               |
+| -------- | ------------------ |
+| `_index` | 文档存储的地方     |
+| `_type`  | 文档代表的对象的类 |
+| `_id`    | 文档的唯一标识     |
 
 
-Often, we use the terms _object_ and _document_ interchangeably. However,
-there is a distinction.  An object is just a JSON object -- similar to what is
-known as a hash, hashmap, dictionary or associative array. Objects may contain
-other objects.
+### `_index`
 
-In Elasticsearch, the term _document_ has a specific meaning. It refers
-to the top-level or _root object_ which is serialized into JSON and
-stored in Elasticsearch under a unique ID.
+**索引(index)**类似于关系型数据库里的“数据库”——它是我们存储和索引关联数据的地方。
 
-=== Document metadata
+> 提示：
 
-A document doesn't consist only of its data. It also has
-_metadata_ -- information *about* the document. The three required metadata
-elements are:
+> 事实上，我们的数据被存储和索引在**分片(shards)**中，索引只是一个把一个或多个分片分组在一起的逻辑空间。然而，这只是一些内部细节——我们的程序完全不用关心分片。对于我们的程序而言，文档存储在**索引(index)**中。剩下的细节由Elasticsearch关心既可。
 
-[horizontal]
-`_index`::  Where the document lives.
-`_type`::   The class of object that the document represents.
-`_id`::     The unique identifier for the document.
+我们将会在《索引管理》章节中探讨如何创建并管理索引，但现在，我们将让Elasticsearch为我们创建索引。我们唯一需要做的仅仅是选择一个索引名。这个名字必须是全部小写，不能以下划线开头，不能包含逗号。让我们使用`website`做为索引名。
 
-==== `_index`
+### `_type`
 
-An _index_ is like a ``database'' in a relational database -- it is the place
-we store and index related data.
+在应用中，我们使用对象表示一些“事物”，例如一个用户、一篇博客、一个评论，或者一封邮件。每个对象都属于一个**类(class)**，这个类定义了属性或与对象关联的数据。`user`类的对象可能包含姓名、性别、年龄和Email地址。
 
-TIP: Actually, in Elasticsearch, our data is stored and indexed in _shards_,
-while an index is just a logical namespace which groups together one or more
-shards. However, this is an internal detail -- our application shouldn't care
-about shards at all.  As far as our application is concerned, our documents
-live in an _index_. Elasticsearch takes care of the details.
+在关系型数据库中，我们经常将相同类的对象存储在一个表里，因为它们有着相同的结构。同理，在Elasticsearch中，我们使用相同**类型(type)**的文档表示相同的“事物”，因为他们的数据结构也是相同的。
 
-We will discuss how to create and manage indices ourselves in <<index-management>>,
-but for now we will let Elasticsearch create the index for us.  All we have to
-do is to choose an index name.  This name must be lower case, cannot begin with an
-underscore and cannot contain commas. Let's use `website` as our index name.
+每个**类型(type)**都有自己的**映射(mapping)**或者结构定义，就像传统数据库表中的列一样。所有类型下的文档被存储在同一个索引下，但是类型的**映射(mapping)**会告诉Elasticsearch不同的文档如何被索引。
+我们将会在《映射》章节探讨如何定义和管理映射，但是现在我们将依赖ELasticsearch去自动处理数据结构。
 
-==== `_type`
+`_type`的名字可以是大写或小写，不能包含下划线或逗号。我们将使用``blog`做为类型名。
 
-In applications, we use objects to represent ``things'' such as a user, a blog
-post, a comment, or an email. Each object belongs to a _class_ which defines
-the properties or data associated with an object. Objects in the `user` class
-may have a name, a gender, an age and an email address.
+### `_id`
 
-In a relational database, we usually store objects of the same class in the
-same table because they share the same data structure. For the same reason, in
-Elasticsearch we use the same _type_ for documents which represent the same
-class of ``thing'', because they share the same data structure.
+**id**仅仅是一个字符串，它与`_index`和`_type`组合时，就可以在ELasticsearch中唯一标识一个文档。当创建一个文档，你可以自定义`_id`，也可以让Elasticsearch帮你自动生成。
 
-Every _type_ has its own <<mapping,mapping>> or schema definition, which
-defines the data structure for documents of that type, much like the columns
-in a database table. Documents of all types can be stored in the same index,
-but the _mapping_ for the type tells Elasticsearch how the data in each
-document should be indexed.
+### 其它元数据
 
-We will discuss how to specify and manage mappings in <<mapping>>, but for now
-we will rely on Elasticsearch to detect our document's data structure
-automatically.
-
-A `_type` name can be lower or upper case, but shouldn't begin with an
-underscore, or contain commas.  We shall use `blog` for our type name.
-
-==== `_id`
-
-The _id_ is a string that, when combined with the `_index` and `_type`,
-uniquely identifies a document in Elasticsearch. When creating a new document,
-you can either provide your own `_id` or let Elasticsearch generate one for
-you.
-
-==== Other metadata
-
-There are several other metadata elements, which we will discuss in
-<<mapping>>. With the elements listed above, we are already able to store a
-document in Elasticsearch and to retrieve it by ID -- in other words, to use
-Elasticsearch as a document store.
+还有一些其它的元数据，我们将在《映射》章节探讨。使用上面提到的元素，我们已经可以在Elasticsearch中存储文档并通过ID检索——换言说，把Elasticsearch做为文档存储器使用了。

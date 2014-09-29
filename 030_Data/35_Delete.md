@@ -1,22 +1,14 @@
-[[delete-doc]]
-=== Deleting a document
+## 删除文档
 
-The syntax for deleting a document follows the same pattern that we have seen
-already, but uses the `DELETE` method :
+删除文档的语法模式与之前基本一致，只不过要使用`DELETE`方法：
 
-[source,js]
---------------------------------------------------
+```Javascript
 DELETE /website/blog/123
---------------------------------------------------
-// SENSE: 030_Data/35_Delete_doc.json
+```
 
+如果文档被找到，Elasticsearch将返回`200 OK`状态码和以下响应体。注意`_version`数字已经增加了。
 
-If the document is found, Elasticsearch will return an HTTP response code
-of `200 OK` and a response body like the following. Note that the `_version`
-number has been incremented.
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "found" :    true,
   "_index" :   "website",
@@ -24,13 +16,11 @@ number has been incremented.
   "_id" :      "123",
   "_version" : 3
 }
---------------------------------------------------
+```
 
-If the document isn't found, we get a `404 Not Found` response code, and
-a body like:
+如果文档未找到，我们将得到一个`404 Not Found`状态码，响应体是这样的：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "found" :    false,
   "_index" :   "website",
@@ -38,19 +28,9 @@ a body like:
   "_id" :      "123",
   "_version" : 4
 }
---------------------------------------------------
+```
 
-Even though the document doesn't exist -- `"found"` is `false` --  the
-`_version` number has still been incremented. This is part of the internal
-book-keeping which ensures that changes are applied in the correct order
-across multiple nodes.
+尽管文档不存在——`"found"`的值是`false`——`_version`依旧增加了。这是内部记录的一部分，它确保在多节点间不同操作可以有正确的顺序。
 
-****
-
-As already mentioned in <<update-doc>>, deleting a document doesn't
-immediately remove the document from disk -- it just marks it as deleted.
-Elasticsearch will clean up deleted documents in the background as you
-continue to index more data.
-
-****
+> 正如在《更新文档》一章中提到的，删除一个文档也不会立即从磁盘上移除，它只是被标记成已删除。Elasticsearch将会在你之后添加更多索引的时候才会在后台进行删除内容的清理。
 

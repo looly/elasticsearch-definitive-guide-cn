@@ -73,9 +73,6 @@ GET /website/blog/123?_source=title,text
 }
 ```
 
-Or if you want *just* the `_source` field without any metadata, you can use
-the `_source` endpoint:
-
 或者你只想得到`_source`字段而不要其他的元数据，你可以这样请求：
 
 ```sh

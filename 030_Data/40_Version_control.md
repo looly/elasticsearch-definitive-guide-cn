@@ -105,57 +105,33 @@ has been incremented to `2`:
 
 这告诉我们当前`_version`是`2`，但是我们指定想要更新的版本是`1`。
 
-What we do now depends upon our application requirements.  We could tell the
-user that somebody else has already made changes to the document, and that
-they should review the changes before trying to save them again.
-Alternatively, as in the case of the widget `stock_count` above, we could
-retrieve the latest document and try to reapply the change.
+我们需要做什么取决于程序的需求。我们可以告知用户其他人修改了文档，你应该在保存前再看一下。而对于上文提到的商品`stock_count`，我们需要重新检索最新文档然后申请新的更改操作。
 
-All APIs which update or delete a document accept a `version` parameter, which
-allows you to apply optimistic concurrency control to just the parts of your
-code where it makes sense.
+所有更新和删除文档的请求都接受`version`参数，它可以允许在你的代码中增加乐观锁控制。
 
-==== Using versions from an external system
+## 使用外部版本控制系统
 
-A common setup is to use some other database as the primary datastore and
-Elasticsearch to make the data searchable, which means that all changes to the
-primary database need to be copied across to Elasticsearch as they happen.  If
-multiple processes are responsible for this data synchronization, then you may
-run into concurrency problems similar to those described above.
+一种常见的结构是使用一些其他的数据库做为主数据库，然后使用Elasticsearch搜索数据，这意味着所有主数据库发生变化，就要将其拷贝到Elasticsearch中。如果有多个进程负责这些数据的同步，就会遇到上面提到的并发问题。
 
-If your main database already has version numbers -- or some value like a
-`timestamp` which can be used as a version number -- then  you can reuse these
-same version numbers in Elasticsearch by adding `version_type=external` to the
-query string. Version numbers must be integers greater than zero and less than
-about `9.2e+18` -- a positive `long` value in Java.
+如果主数据库有版本字段——或一些类似于`timestamp`等可以用于版本控制的字段——是你就可以在Elasticsearch的查询字符串后面添加`version_type=external`来使用这些版本号。版本号必须是整数，大于零小于`9.2e+18`——Java中的正的`long`。
 
-The way external version numbers are handled is a bit different to the
-internal version numbers  we discussed above.  Instead of checking that the
-current `_version` is _the same_ as the one specified in the request,
-Elasticsearch checks that the current `_version` is _less than_ the specified
-version. If the request succeeds, the external version number is stored as the
-document's new `_version`.
+外部版本号与之前说的内部版本号在处理的时候有些不同。它不再检查`_version`是否与请求中指定的**一致**，而是检查是否**小于**指定的版本。如果请求成功，外部版本号就会被存储到`_version`中。
 
-External version numbers can be specified not only on
-index and delete requests, but also when _creating_ new documents.
+外部版本号不仅在索引和删除请求中指定，也可以在**创建(create)**新文档中指定。
 
-For instance, to create a new blog post with an external version number
-of `5`, we can do the following:
+例如，创建一个包含外部版本号`5`的新博客，我们可以这样做：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /website/blog/2?version=5&version_type=external
 {
   "title": "My first external blog entry",
   "text":  "Starting to get the hang of this..."
 }
---------------------------------------------------
-// SENSE: 030_Data/40_External_versions.json
+```
 
-In the response, we can see that the current `_version` number is `5`:
+在响应中，我们能看到当前的`_version`号码是`5`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "_index":   "website",
   "_type":    "blog",
@@ -163,24 +139,21 @@ In the response, we can see that the current `_version` number is `5`:
   "_version": 5,
   "created":  true
 }
---------------------------------------------------
+```
 
-Now we update this document, specifying a new `version` number of `10`:
+现在我们更新这个文档，指定一个新`version`号码为`10`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /website/blog/2?version=10&version_type=external
 {
   "title": "My first external blog entry",
   "text":  "This is a piece of cake..."
 }
---------------------------------------------------
-// SENSE: 030_Data/40_External_versions.json
+```
 
-The request succeeds and sets the current `_version` to `10`:
+请求成功的设置了当前`_version`为`10`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "_index":   "website",
   "_type":    "blog",
@@ -188,8 +161,6 @@ The request succeeds and sets the current `_version` to `10`:
   "_version": 10,
   "created":  false
 }
---------------------------------------------------
+```
 
-If you were to rerun this request, it would fail with the same conflict error
-we saw before, because the specified external version number is not higher
-than the current version in Elasticsearch.
+如果你重新运行这个请求，就会返回一个像之前一样的冲突错误，因为指定的外部版本号不大于当前在Elasticsearch中的版本。

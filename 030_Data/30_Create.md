@@ -1,56 +1,38 @@
-[[create-doc]]
-=== Creating a new document
+## 创建一个新文档
 
-How can we be sure, when we index a document, that we are creating an entirely
-new document and not overwriting an existing one?
+当索引一个文档，我们如何确定是完全创建了一个新的还是覆盖了一个已经存在的呢？
 
-Remember that the combination of `_index`, `_type` and `_id` uniquely
-identifies a document.  So the easiest way to ensure that our document is new
-is by letting Elasticsearch autogenerate a new unique `_id`, using the `POST`
-version of the index request:
+请记住`_index`、`_type`、`_id`三者唯一确定一个文档。所以要想保证文档时新加入的，最简单的方式是使用`POST`方法让Elasticsearch自动生成唯一`_id`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 POST /website/blog/
 { ... }
---------------------------------------------------
+```
 
-However, if we already have an `_id` that we want to use, then we have to tell
-Elasticsearch that it should only accept our index request if a document with
-the same `_index`, `_type` and `_id` doesn't exist already. There are two ways
-of doing this, both of which amount to the same thing. Use whichever method is
-more convenient for you.
+然而，如果想使用自定义的`_id`，我们必须告诉Elasticsearch应该在`_index`、`_type`、`_id`三者都不同时才接受请求。为了做到这点有两种方法，它们其实做的是同一件事情。你可以选择适合自己的方式：
 
-The first method uses the `op_type` query string parameter:
+第一种方法使用`op_type`查询参数：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /website/blog/123?op_type=create
 { ... }
---------------------------------------------------
+```
 
-And the second uses the `/_create` endpoint in the URL:
+或者第二种方法是在URL后加`/_create`做为端点：
 
-[source,js]
---------------------------------------------------
+```Javascript
 PUT /website/blog/123/_create
 { ... }
---------------------------------------------------
+```
 
-If the request succeeds in creating a new document, then Elasticsearch will
-return the usual metadata and an HTTP response code of `201 Created`.
+如果请求成功的创建了一个新文档，Elasticsearch将返回正常的元数据且响应状态码是`201 Created`。
 
-On the other hand, if a document with the same `_index`, `_type` and `_id`
-already exists, Elasticsearch will respond with a `409 Conflict` response
-code, and an error message like the following:
+另一方面，如果包含相同的`_index`、`_type`和`_id`的文档已经存在，Elasticsearch将返回`409 Conflict`响应状态码，错误信息类似如下：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "error" : "DocumentAlreadyExistsException[[website][4] [blog][123]:
              document already exists]",
   "status" : 409
 }
---------------------------------------------------
-// SENSE: 030_Data/30_Create_doc.json
-
+```

@@ -1,29 +1,12 @@
-[[partial-updates]]
-=== Partial updates to documents
+## 文档局部更新
 
-In <<update-doc>>, we said that the way to update a document is to retrieve
-it, change it, then reindex the whole document. This is true. However, using
-the `update` API, we can make partial updates like incrementing a counter in a
-single request.
+在《更新文档》一章，我们说了一种通过检索，修改，然后重建整文档的索引方法来更新文档。这是对的。然而，使用`update` API，我们可以使用一个请求来实现局部更新，例如增加数量的操作。
 
-We also said that documents are immutable -- they cannot be changed, only
-replaced.  The `update` API *must* obey the same rules.  Externally, it
-appears as though we are partially updating a document in place. Internally,
-however, the `update` API simply manages the same _retrieve-change-reindex_
-process that we have already described. The difference is that this process
-happens within a shard, thus avoiding the network overhead of multiple
-requests. By reducing the time between the _retrieve_ and _reindex_ steps, we
-also reduce the likelihood of there being conflicting changes from other
-processes.
+我们也说过文档是不可变的——它们不能被更改，只能被替换。`update` API**必须**遵循相同的规则。表面看来，我们似乎是局部更新了文档的位置，内部却是像我们之前说的一样简单的使用`update` API处理相同的*检索-修改-重建索引*流程，我们也减少了其他进程可能导致冲突的修改。
 
-The simplest form of the `update` request accepts a partial document as the
-`"doc"` parameter which just gets merged with the existing document -- objects
-are merged together, existing scalar fields are overwritten and new fields are
-added. For instance, we could add a `tags` field and a `views` field to our
-blog post with:
+最简单的`update`请求表单接受一个局部文档参数`doc`，它会合并到现有文档中——对象合并在一起，存在的标量字段被覆盖，新字段被添加。举个例子，我们可以使用以下请求为博客添加一个`tags`字段和一个`views`字段：
 
-[source,js]
---------------------------------------------------
+```Javascript
 POST /website/blog/1/_update
 {
    "doc" : {
@@ -31,26 +14,22 @@ POST /website/blog/1/_update
       "views": 0
    }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Partial_update.json
+```
 
-If the request succeeds, we see a response similar to that
-of the `index` request:
+如果请求成功，我们将看到类似`index`请求的响应结果：
 
-[source,js]
---------------------------------------------------
+```
 {
    "_index" :   "website",
    "_id" :      "1",
    "_type" :    "blog",
    "_version" : 3
 }
---------------------------------------------------
+```
 
-Retrieving the document shows the updated `_source` field:
+检索文档文档显示被更新的`_source`字段：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "_index":    "website",
    "_type":     "blog",
@@ -64,55 +43,32 @@ Retrieving the document shows the updated `_source` field:
       "views":  0 <1>
    }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Partial_update.json
+```
 
-<1> Our new fields have been added to the `_source`.
+- <1> 我们新添加的字段已经被添加到`_source`字段中。
 
-==== Using scripts to make partial updates
+### 使用脚本局部更新
 
-.Scripting with Groovy
-****
+> ### 使用Groovy脚本
 
-For those moments when the API just isn't enough, Elasticsearch allows you to
-write your own custom logic in a script. Scripting is supported in many APIs
-like search, sorting, aggregations, and document updates. Scripts can be
-passed in as part of the  request, retrieved from the special `.scripts`
-index, or loaded from disk.
+> 这时候当API不能满足要求时，Elasticsearch允许你使用脚本实现自己的逻辑。脚本支持非常多的API，例如搜索、排序、聚合和文档更新。脚本可以通过请求的一部分、检索特殊的`.scripts`索引或者从磁盘加载方式执行。
 
-The default scripting language is a http://groovy.codehaus.org/[Groovy], a
-fast and expressive scripting language, similar in syntax to Javascript.  It
-runs in a _sandbox_ to prevent malicious users from breaking out of
-Elasticsearch and attacking the server.
+> 默认的脚本语言是[Groovy](http://groovy.codehaus.org/)，一个快速且功能丰富的脚本语言，语法类似于Javascript。它在一个**沙盒(sandbox)**中运行，以防止恶意用户毁坏Elasticsearch或攻击服务器。
 
-You can read more about scripting in the
-{ref}modules-scripting.html[scripting reference documentation].
+> 你可以在《脚本参考文档》中获得更多信息。
 
-****
+脚本能够使用`update` API改变`_source`字段的内容，它在脚本内部以`ctx._source`表示。例如，我们可以使用脚本增加博客的`views`数量：
 
-Scripts can be used in the `update` API to change the contents of the `_source`
-field, which is referred to inside an update script as `ctx._source`. For
-instance, we could use a script to increment the number of `views` that our
-blog post has had:
-
-[source,js]
---------------------------------------------------
+```Javascript
 POST /website/blog/1/_update
 {
    "script" : "ctx._source.views+=1"
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Partial_update.json
+```
 
+我们还可以使用脚本增加一个新标签到`tags`数组中。在这个例子中，我们定义了一个新标签做为参数而不是硬编码在脚本里。这允许Elasticsearch未来可以重复利用脚本，而不是在想要增加新标签时必须每次编译新脚本：
 
-We can also use a script to add a new tag to the `tags` array.  In this
-example we specify the new tag as a parameter rather than hard coding it in
-the script itself. This allows Elasticsearch to reuse the script in the
-future, without having to compile a new script every time we want to add
-another tag:
-
-[source,js]
---------------------------------------------------
+```Javascript
 POST /website/blog/1/_update
 {
    "script" : "ctx._source.tags+=new_tag",
@@ -120,14 +76,11 @@ POST /website/blog/1/_update
       "new_tag" : "search"
    }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Partial_update.json
+```
 
+获取最后两个有效请求的文档：
 
-Fetching the document shows the effect of the last two requests:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "_index":    "website",
    "_type":     "blog",
@@ -141,15 +94,14 @@ Fetching the document shows the effect of the last two requests:
       "views":  1 <2>
    }
 }
---------------------------------------------------
-<1> The `search` tag has been appended to the `tags` array.
-<2> The `views` field has been incremented.
+```
 
-We can even choose to delete a document based on it contents,
-by setting `ctx.op` to `delete`:
+- <1> `search`标签已经被添加到`tags`数组。
+- <2> `views`字段已经被增加。
 
-[source,js]
---------------------------------------------------
+通过设置`ctx.op`为`delete`我们可以根据内容删除文档：
+
+```Javascript
 POST /website/blog/1/_update
 {
    "script" : "ctx.op = ctx._source.views == count ? 'delete' : 'none'",
@@ -157,21 +109,15 @@ POST /website/blog/1/_update
         "count": 1
     }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Partial_update.json
+```
 
-==== Updating a document which may not yet exist
+### 更新可能不存在的文档
 
-Imagine that we need to store a pageview counter in Elasticsearch. Every time
-that a user views a page, we increment the counter for that page.  But if it
-is a new page, we can't be sure that the counter already exists. If we try to
-update a non-existent document, the update will fail.
+想象我们要在Elasticsearch中存储浏览量计数器。每当有用户访问页面，我们增加这个页面的浏览量。但如果这是个新页面，我们并不确定这个计数器存在与否。当我们试图更新一个不存在的文档，更新将失败。
 
-In cases like these, we can use the `upsert` parameter to specify the
-document that should be created if it doesn't already exist:
+在这种情况下，我们可以使用`upsert`参数定义文档来使其不存在时被创建。
 
-[source,js]
---------------------------------------------------
+```Javascrupt
 POST /website/pageviews/1/_update
 {
    "script" : "ctx._source.views+=1",
@@ -179,15 +125,11 @@ POST /website/pageviews/1/_update
        "views": 1
    }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Upsert.json
+```
 
-The first time we run this request, the `upsert` value is indexed as a new
-document, which  initializes the `views` field to `1`. On subsequent runs the
-document already exists so the `script` update is applied instead,
-incrementing the `views` counter.
+第一次执行这个请求，`upsert`值被索引为一个新文档，初始化`views`字段为`1`.接下来文档已经存在，所以`script`被更新代替，增加`views`数量。
 
-==== Updates and conflicts
+### 更新和冲突
 
 In the introduction to this section, we said that the smaller the window between
 the _retrieve_ and _reindex_ steps, the smaller the opportunity for

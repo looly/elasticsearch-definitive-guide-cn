@@ -131,29 +131,17 @@ POST /website/pageviews/1/_update
 
 ### 更新和冲突
 
-In the introduction to this section, we said that the smaller the window between
-the _retrieve_ and _reindex_ steps, the smaller the opportunity for
-conflicting changes. But it doesn't eliminate the possibility completely. It
-is still possible that a request from another process could change the
-document before `update` has managed to reindex it.
+在这一节介绍中，我们说了如何在**检索(retrieve)**和**重建索引(reindex)**间使用更小的窗口，如何更小的机会发生冲突性的变更的话题。但它并不能完全排除这种可能性。
 
-To avoid losing data, the `update` API retrieves the current `_version`
-of the document in the _retrieve_ step, and passes that to the `index` request
-during the _reindex_ step.
-If another process has changed the document in between _retrieve_ and _reindex_,
-then the `_version` number won't match and the update request will fail.
+这这一节的介绍中，我们介绍了如何在**检索(retrieve)**和**重建索引(reindex)**中保持更小的窗口，如何减少冲突性变更发生的概率，不过这些无法被完全避免，像一个其他进程在`update`进行重建索引时修改了文档这种情况依旧可能发生。
 
-For many uses of partial update, it doesn't matter that a document has been
-changed.  For instance, if two processes are both incrementing the page
-view counter, it doesn't matter in which order it happens -- if a conflict
-occurs, the only thing we need to do is to reattempt the update.
+为了避免丢失数据，`update` API在**检索(retrieve)**阶段检索文档的当前`_version`，然后在**重建索引(reindex)**阶段通过`index`请求提交。如果其他进程在**检索(retrieve)**和**重加索引(reindex)**阶段修改了文档，`_version`将不能被匹配，然后更新失败。
 
-This can be done automatically by setting the `retry_on_conflict` parameter to
-the number of times that `update` should retry before failing -- it defaults
-to `0`.
+对于多用户的局部更新，文档被修改了并不要紧。例如，两个进程都要增加页面浏览量，增加的顺序我们并不关心——如果冲突发生，我们唯一要做的仅仅是重新尝试更新既可。
 
-[source,js]
---------------------------------------------------
+这些可以通过`retry_on_conflict`参数设置重试次数来自动完成，这样`update`操作将会在发生错误前重试——这个值默认为0。
+
+```Javascript
 POST /website/pageviews/1/_update?retry_on_conflict=5 <1>
 {
    "script" : "ctx._source.views+=1",
@@ -161,15 +149,8 @@ POST /website/pageviews/1/_update?retry_on_conflict=5 <1>
        "views": 0
    }
 }
---------------------------------------------------
-// SENSE: 030_Data/45_Upsert.json
-<1> Retry this update 5 times before failing.
+```
+- <1> 在错误发生前重试更新5次
 
-This works well for operations like incrementing a counter where the order of
-increments does not matter, but there are other situations where the order of
-changes *is* important. Like the <<index-doc,`index` API>>, the `update` API
-adopts a ``last-write-wins'' approach by default, but it also accepts a
-`version` parameter which allows you to use
-<<optimistic-concurrency-control,optimistic concurrency control>> to specify
-which version of the document you intend to update.
+这适用于像增加计数这种顺序无关的操作，但是还有一种顺序非常重要的情况。例如`index` API，使用**“保留最后更新(last-write-wins)”**的`update` API，但它依旧接受一个`version`参数以允许你使用**乐观并发控制(optimistic concurrency control)**来指定你要更细文档的版本。
 

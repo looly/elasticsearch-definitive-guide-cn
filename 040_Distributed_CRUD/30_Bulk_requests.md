@@ -1,53 +1,26 @@
-[[distrib-multi-doc]]
-=== Multi-document patterns
+## 多文档模式
 
-The patterns for the `mget` and `bulk` APIs are similar to those for
-individual documents. The difference is that the requesting node knows in
-which shard each document lives. It breaks up the multi-document request into
-a multi-document request _per shard_, and forwards these in parallel to each
-participating node.
+`mget`和`bulk` API与单独的文档类似。差别是请求节点知道每个文档所在的分片。它把多文档请求拆成**每个分片**的对文档请求，然后转发每个参与的节点。
 
-Once it receives answers from each node, it collates their responses
-into a single response, which it returns to the client.
+一旦接收到每个节点的应答，然后整理这些响应组合为一个单独的响应，最后返回给客户端。
 
-[[img-distrib-mget]]
-.Retrieving multiple documents with `mget`
-image::images/04-05_mget.png["Retrieving multiple documents with mget"]
+![通过mget检索多个文档](../images/04-05_mget.png)
 
-Below we list the sequence of steps necessary to retrieve multiple documents
-with a single `mget` request, as depicted in <<img-distrib-mget>>:
+下面我们将罗列通过一个`mget`请求检索多个文档的顺序步骤：
 
-1. The client sends an `mget` request to `Node 1`.
+1. 客户端向`Node 1`发送`mget`请求。
+2. `Node 1`为每个分片构建一个多条数据检索请求，然后转发到这些请求所需的主分片或复制分片上。当所有回复被接收，`Node 1`构建响应并返回给客户端。
 
-2. `Node 1` builds a multi-get request per shard, and forwards these
-   requests in parallel to the nodes hosting each required primary or replica
-   shard. Once all replies have been received, `Node 1` builds the response
-   and returns it to the client.
+`routing` 参数可以被`docs`中的每个文档设置。
 
-A `routing` parameter can be set for each document in the `docs` array.
+![通过打包批量修改文档](../images/04-06_bulk.png)
 
-[[img-distrib-bulk]]
-.Multiple document changes with `bulk`
-image::images/04-06_bulk.png["Multiple document changes with bulk"]
+下面我们将罗列使用一个`bulk`执行多个`create`、`index`、`delete`和`update`请求的顺序步骤：
 
-Below we list the sequence of steps necessary to execute multiple
-`create`, `index`, `delete` and `update` requests within a single
-`bulk` request, as depicted in <<img-distrib-bulk>>:
+1. 客户端向`Node 1`发送`bulk`请求。
+2. `Node 1`为每个分片构建批量请求，然后转发到这些请求所需的主分片上。
+3. 主分片一个接一个的按序执行操作。当一个操作执行完，主分片转发新文档（或者删除部分）给对应的复制节点，然后执行下一个操作。复制节点为报告所有操作完成，节点报告给请求节点，请求节点整理响应并返回给客户端。
 
-1. The client sends a `bulk` request to `Node 1`.
-
-2. `Node 1` builds a bulk request per shard, and forwards these requests in
-    parallel to the nodes hosting each involved primary shard.
-
-3. The primary shard executes each action serially, one after another. As each
-   action succeeds, the primary forwards the new document (or deletion) to its
-   replica shards in parallel, then moves on to the next action. Once all
-   replica shards report success for all actions, the node reports success to
-   the requesting node, which collates the responses and returns them to the
-   client.
-
-The `bulk` API also accepts the `replication` and `consistency` parameters
-at the top-level for the whole `bulk` request, and the `routing` parameter
-in the metadata for each request.
+`bulk` API还可以在最上层使用`replication`和`consistency`参数，`routing`参数则在每个请求的元数据中使用。
 
 

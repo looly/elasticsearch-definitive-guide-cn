@@ -1,41 +1,15 @@
-[[routing-value]]
-=== Routing a document to a shard
+## 路由文档到分片
 
-When you index a document, it is stored on a single primary shard. How does
-Elasticsearch know which shard a document belongs to?  When we create a new
-document, how does it know whether it should store that document on shard 1 or
-shard 2?
+当你索引一个文档，它被存储在单独一个主分片上。Elasticsearch是如何知道文档属于哪个分片的呢？当你创建一个新文档，它是如何知道是应该存储在分片1还是分片2上的呢？
 
-The process can't be random, since we may need to retrieve the document in the
-future. In fact, it is determined by a very simple formula:
+进程不能是随机的，因为我们将来要检索文档。事实上，它根据一个简单的算法决定：
 
     shard = hash(routing) % number_of_primary_shards
 
-The `routing` value is an arbitrary string, which defaults to the document's
-`_id` but can also be set to a custom value. This `routing` string is passed
-through a hashing function to generate a number, which is divided by the
-number of primary shards in the index to return the _remainder_. The remainder
-will always be in the range `0` to `number_of_primary_shards - 1`, and gives
-us the number of the shard where a particular document lives.
+`routing`值是一个任意字符串，它默认是`_id`但也可以自定义。这个`routing`字符串通过哈希函数生成一个数字，然后除以主切片的数量得到一个**余数(remainder)**，余数的范围永远是`0`到`number_of_primary_shards - 1`，这个数字就是特定文档所在的分片。
 
-This explains why the number of primary shards can only be set when an index
-is created and never changed:  if the number of primary shards ever changed in
-the future, all previous routing values would be invalid and documents would
-never be found.
+这也解释了为什么主切片的数量只能在创建索引时定义且不能修改：如果主切片的数量在未来改变了，所有先前的路由值就失效了，文档也就永远找不到了。
 
-*************************************
+> 有时用户认为固定数量的主切片会让之后的扩展变得很困难。现实中，有些技术会在你需要的时候让扩展变得容易。我们将在《扩展》章节讨论。
 
-Users sometimes think that having a fixed number of primary shards makes it
-difficult to scale out an index later on.  In reality, there are techniques
-that make it easy to scale out as and when you need. We talk more about these
-in <<scale>>.
-
-*************************************
-
-
-All document APIs (`get`, `index`, `delete`, `bulk`, `update` and `mget`)
-accept a `routing` parameter that can be used to customize the document-to-
-shard mapping. A custom routing value could be used to ensure that all related
-documents -- for instance all the documents belonging to the same user -- are
-stored on the same shard. We discuss in detail why you may want to do this in
-<<scale>>.
+所有的文档API（`get`、`index`、`delete`、`bulk`、`update`、`mget`）都接收一个`routing`参数，它用来自定义文档到分片的映射。自定义路由值可以确保所有相关文档——例如属于同一个人的文档——被保存在同一分片上。我们将在《扩展》章节说明你为什么需要这么做。

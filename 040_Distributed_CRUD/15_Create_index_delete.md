@@ -1,96 +1,46 @@
-[[distrib-write]]
-=== Creating, indexing and deleting a document
+## 新建、索引和删除文档
 
-Create, index and delete requests are _write_ operations, which must be
-successfully completed on the primary shard before they can be copied to any
-associated replica shards.
+新建、索引和删除请求都是**写(write)**操作，它们必须在主分片上成功完成才能复制到相关的复制分片上。
 
-[[img-distrib-write]]
-.Creating, indexing or deleting a single document
-image::images/04-02_write.png["Creating, indexing or deleting a single document"]
+![新建、索引或删除单一文档](../images/04-02_write.png)
 
-Below we list the sequence of steps necessary to successfully create, index or
-delete a document on both the primary and any replica shards, as depicted in
-<<img-distrib-write>>:
+下面我们罗列在主分片和复制分片上成功新建、索引或删除一个文档必要的顺序步骤：
 
-1. The client sends a create, index or delete request to `Node 1`.
+1. 客户端给`Node 1`发送新建、索引或删除请求。
+2. 节点使用文档的`_id`确定文档属于分片`0`。它转发请求到`Node 3`，分片`0`位于这个节点上。
+3. `Node 3`在主分片上执行请求，如果成功，它转发请求到相应的位于`Node 1`和`Node 2`的复制节点上。当所有的复制节点报告成功，`Node 3`报告成功到请求的节点，请求的节点再报告给客户端。
 
-2. The node uses the document's `_id` to determine that the document
-   belongs to shard `0`. It forwards the request to `Node 3`,
-   where the primary copy of shard `0` is currently allocated.
+客户端接收到成功响应的时候，文档的修改已经被应用于主分片和所有的复制分片。你的修改生效了。
 
-3. `Node 3` executes the request on the primary shard. If it is successful,
-   it forwards the request in parallel to the replica shards on `Node 1` and
-   `Node 2`. Once all of the replica shards report success, `Node 3` reports
-   success to the requesting node, which reports success to the client.
+有很多可选的请求参数允许你更改这一过程。你可能想牺牲一些安全来提高性能。这一选项很少使用因为Elasticsearch已经足够快，不过为了内容的完整我们将做一些阐述。
 
-By the time the client receives a successful response, the document change has
-been executed on the primary shard and on all replica shards. Your change is
-safe.
+### `replication`
 
-There are a number of optional request parameters which allow you to influence
-this process, possibly increasing performance at the cost of data security.
-These options are seldom used because Elasticsearch is already fast, but they
-are explained here for the sake of completeness.
+复制默认的值是`sync`。这将导致主分片得到复制分片的成功响应后才返回。
 
-`replication`::
-+
---
-The default value for replication is `sync`. This causes the primary shard to
-wait for successful responses from the replica shards before returning.
+如果你设置`replication`为`async`，请求在主分片上被执行后就会返回给客户端。它依旧会转发请求给复制节点，但你将不知道复制节点成功与否。
 
-If you set `replication` to `async`, then it will return success to the client
-as soon as the request has been executed on the primary shard. It will still
-forward the request to the replicas, but you will not know if the replicas
-succeeded or not.
+上面的这个选项不建议使用。默认的`sync`复制允许Elasticsearch强制反馈传输。`async`复制可能会因为在不等待其它分片就绪的情况下发送过多的请求而使Elasticsearch过载。
 
-This option is mentioned specifically to advise against using it.  The default
-`sync` replication allows Elasticsearch to exert back pressure on whatever
-system is feeding it with data. With `async` replication it is possible to
-overload Elasticsearch by sending too many requests without waiting for their
-completion.
+### `consistency`
 
---
-
-`consistency`::
-+
---
-By default, the primary shard requires a _quorum_ or majority of shard copies
-(where a shard copy can be a primary or a replica shard) to be available
-before even attempting a write operation.  This is to prevent writing data to the
-``wrong side'' of a network partition.  A quorum is defined as:
+默认主分片在尝试写入时需要**规定数量(quorum)**或过半的分片（可以是主节点或复制节点）可用。这是防止数据被写入到错的网络分区。规定的数量计算公式如下：
 
     int( (primary + number_of_replicas) / 2 ) + 1
 
-The allowed values for `consistency` are `one` (just the primary shard), `all`
-(the primary and all replicas) or the default `quorum` or majority of shard
-copies.
+`consistency`允许的值为`one`（只有一个主分片），`all`（所有主分片和复制分片）或者默认的`quorum`或过半分片。
 
-Note that the `number_of_replicas` is the number of replicas *specified* in
-the index settings, not the number of replicas that are currently active.  If
-you have specified that an index should have 3 replicas then a quorum would
-be:
+注意`number_of_replicas`是在索引中的的设置，用来定义复制分片的数量，而不是现在活动的复制节点的数量。如果你定义了索引有3个复制节点，那规定数量是：
 
     int( (primary + 3 replicas) / 2 ) + 1 = 3
 
-But if you only start 2 nodes, then there will be insufficient active shard
-copies to satisfy the quorum and you will be unable to index or delete any
-documents.
+但如果你只有2个节点，那你的活动分片不够规定数量，也就不能索引或删除任何文档。
 
---
 
-`timeout`::
+### `timeout`
 
-What happens if insufficient shard copies are available? Elasticsearch waits,
-in the hope that more shards will appear.  By default it will wait up to one
-minute. If you need to, you can use the `timeout` parameter to make it abort
-sooner: `100` is 100 milliseconds, `30s` is 30 seconds.
+当分片副本不足时会怎样？Elasticsearch会等待更多的分片出现。默认等待一分钟。如果需要，你可以设置`timeout`参数让它终止的更早：`100`表示100毫秒，`30s`表示30秒。
 
-[NOTE]
-===================================================
-A new index has `1` replica by default, which means that two active shard
-copies *should* be required in order to satisfy the need for a `quorum`.
-However, these default settings would prevent us from doing anything useful
-with a single-node cluster.  To avoid this problem, the requirement for
-a quorum is only enforced when `number_of_replicas` is greater than `1`.
-===================================================
+> 注意：
+
+> 新索引默认有`1`个复制分片，这意味着为了满足`quorum`的要求**需要**两个活动的分片。当然，这个默认设置将阻止我们在单一节点集群中进行操作。为了避开这个问题，规定数量只有在`number_of_replicas`大于一时才生效。

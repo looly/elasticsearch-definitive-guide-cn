@@ -1,38 +1,22 @@
-[[bulk-format]]
-==== Why the funny format?
+为什么是奇怪的格式？
 
-When we learned about Bulk requests earlier in <<bulk>>, you may have asked
-yourself: ``Why does the `bulk` API require the funny format with the newline
-characters, instead of just sending the requests wrapped in a JSON array, like
-the `mget` API?''
+当我们在《批量》一章中学习了批量请求后，你可能会问：“为什么`bulk` API需要带换行符的奇怪格式，而不是像`mget` API一样使用JSON数组？”
 
-To answer this, we need to explain a little background:
+为了回答这个问题，我们需要简单的介绍一下背景：
 
-Each document referenced in a bulk request may belong to a different primary
-shard, each of which may be allocated to any of the nodes in the cluster. This
-means that every _action_ inside a `bulk` request needs to be forwarded to the
-correct shard on the correct node.
+批量中每个引用的文档属于不同的主分片，每个分片可能被分布于集群中的某个节点上。这意味着批量中的每个**操作(action)**需要被转发到对应的分片和节点上。
 
-If the individual requests were wrapped up in a JSON array, that would mean
-that we would need to:
+如果每个单独的请求被包装到JSON数组中国，那意味着我们需要：
 
- * parse the JSON into an array (including the document data, which
-   can be very large)
- * look at each request to determine which shard it should go to
- * create an array of requests for each shard
- * serialize these arrays into the internal transport format
- * send the requests to each shard
+* 解析JSON为数组（包括文档数据，可能非常大）
+* 检查每个请求决定应该到哪个分片上
+* 为每个分片创建一个请求的数组
+* 序列化这些数组为内部传输格式
+* 发送请求到每个分片
 
-It would work, but would need a lot of RAM to hold copies of essentially
-the same data, and would create many more data structures that the JVM
-would have to spend time garbage collecting.
+这可行，但需要大量的RAM来承载本质上相同的数据，还要创建更多的数据结构使得JVM花更多的时间执行垃圾回收。
 
-Instead, Elasticsearch reaches up into the networking buffer, where the raw
-request has been received and reads the data directly. It uses the newline
-characters to identify and parse just the small _action/metadata_ lines in
-order to decide which shard should handle each request.
+取而代之的，Elasticsearch则是从网络缓冲区中一行一行的直接读取数据。它使用换行符识别和解析**action/metadata**行，以决定哪些分片来处理这个请求。
 
-These raw requests are forwarded directly to the correct shard. There
-is no redundant copying of data, no wasted data structures. The entire
-request process is handled in the smallest amount of memory possible.
+这些行请求直接转发到对应的分片上。这些没有冗余复制，没有多余的数据结构。整个请求过程使用最小的内存在进行。
 

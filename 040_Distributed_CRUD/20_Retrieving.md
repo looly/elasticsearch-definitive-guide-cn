@@ -1,31 +1,15 @@
-[[distrib-read]]
-=== Retrieving a document
+## 检索文档
 
-A document can be retrieved from a primary shard or from any of its replicas.
+文档能够从主分片或任意一个复制分片被检索。
 
-[[img-distrib-read]]
-.Retrieving a single document
-image::images/04-03_get.png["Retrieving a single document"]
+![检索一个文档](../images/04-03_get.png)
 
-Below we list the sequence of steps to retrieve a document from either a
-primary or replica shard, as depicted in <<img-distrib-read>>:
+下面我们罗列在主分片或复制分片上检索一个文档必要的顺序步骤：
 
-1. The client sends a get request to `Node 1`.
+1. 客户端给`Node 1`发送get请求。
+2. 节点使用文档的`_id`确定文档属于分片`0`。分片`0`对应的复制分片在三个节点上都有。此时，它转发请求到`Node 2`。
+3. `Node 2`返回endangered给`Node 1`然后返回给客户端。
 
-2. The node uses the document's `_id` to determine that the document
-   belongs to shard `0`. Copies of shard `0` exist on all three nodes.
-   On this occasion, it forwards the request to `Node 2`.
+对于读请求，为了平衡负载，请求节点会为每个请求选择不同的分片——它会循环所有分片副本。
 
-3. `Node 2` returns the document to `Node 1` which returns the document
-   to the client.
-
-For read requests, the requesting node will choose a different shard copy on
-every request in order to balance the load -- it round-robins through all
-shard copies.
-
-It is possible that, while a document is being indexed, the document will
-already be present on the primary shard but not yet copied to the replica
-shards. In this case a replica might report that the document doesn't exist,
-while the primary would have returned the document successfully. Once the
-indexing request has returned success to the user, the document will be
-available on the primary and all replica shards.
+可能的情况是，一个被索引的文档已经存在于主分片上却还没来得及同步到复制分片上。这时复制分片会报告文档未找到，主分片会成功返回文档。一旦索引请求成功返回给用户，文档则在主分片和复制分片都是可用的。

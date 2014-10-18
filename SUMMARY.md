@@ -41,3 +41,8 @@
    * [局部更新](040_Distributed_CRUD/25_Partial_updates.md)
    * [批量请求](040_Distributed_CRUD/30_Bulk_requests.md)
    * [批量格式](040_Distributed_CRUD/35_Bulk_format.md)
+* [搜索](050_Search/00_Intro.md)
+   * [空搜索](050_Search/05_Empty_search.md)
+   * [多索引和多类型](050_Search/10_Multi_index_multi_type.md)
+   * [分页](050_Search/15_Pagination.md)
+   * [查询语句](050_Search/20_Query_string.md)

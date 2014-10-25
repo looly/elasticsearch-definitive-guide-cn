@@ -1,20 +1,14 @@
-[[empty-search]]
-=== The empty search
+#空搜索
 
-The most basic form of the search API is the _empty search_ which doesn't
-specify any query, but simply returns all documents in all indices in the
-cluster:
-
-[source,js]
---------------------------------------------------
+最近本的搜索API表单是**空搜索(empty search)**，它没有指定任何的查询条件，只返回集群索引中的所有文档：
+```Javascript
 GET /_search
---------------------------------------------------
-// SENSE: 050_Search/05_Empty_search.json
+```
 
 The response (edited for brevity) looks something like this:
+响应内容（为了编辑简洁）类似于这样：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "hits" : {
       "total" :       14,
@@ -43,14 +37,11 @@ The response (edited for brevity) looks something like this:
    },
    "timed_out" :      false
 }
---------------------------------------------------
+```
 
+## `hits`
 
-==== `hits`
-
-The most important section of the response is `hits`, which contains the
-`total` number of documents that matched our query, and a `hits` array
-containing the first 10 of those matching documents -- the results.
+响应中最重要的部分是`hits`，它包含了`total`字段来表示匹配到的文档总数，`hits`数组还包含了匹配到的前10条数据。
 
 Each result in the `hits` array contains the `_index`, `_type` and `_id` of
 the document, plus the `_source` field.  This means that the whole document is

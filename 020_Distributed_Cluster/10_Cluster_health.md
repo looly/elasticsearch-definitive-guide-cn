@@ -32,4 +32,4 @@ GET /_cluster/health
 | `yellow` | 所有主分片可用，但不是所有复制分片都可用 |
 | `red`    | 不是所有的主分片都可用                   |
 
-在接下来的章节，我们将说明什么是**主要分片(primary shared)**和**复制分片(replica shards)**，并说明这些颜色在实际环境中的意义。
+在接下来的章节，我们将说明什么是**主要分片(primary shard)**和**复制分片(replica shard)**，并说明这些颜色在实际环境中的意义。

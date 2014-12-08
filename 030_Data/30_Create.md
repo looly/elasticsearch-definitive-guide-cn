@@ -2,7 +2,7 @@
 
 当索引一个文档，我们如何确定是完全创建了一个新的还是覆盖了一个已经存在的呢？
 
-请记住`_index`、`_type`、`_id`三者唯一确定一个文档。所以要想保证文档时新加入的，最简单的方式是使用`POST`方法让Elasticsearch自动生成唯一`_id`：
+请记住`_index`、`_type`、`_id`三者唯一确定一个文档。所以要想保证文档是新加入的，最简单的方式是使用`POST`方法让Elasticsearch自动生成唯一`_id`：
 
 ```Javascript
 POST /website/blog/

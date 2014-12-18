@@ -29,10 +29,6 @@ PUT /blogs
 附带索引的单一节点集群：
 ![附带索引的单一节点集群](../images/02-02_one_node.png)
 
-Our cluster now looks like <<cluster-one-node>> -- all 3 primary shards have
-been allocated to `Node 1`. If we were to check the
-<<cluster-health,`cluster-health`>> now, we would see this:
-
 我们的集群现在看起来像**单节点集群(cluster-one-node)**——三个主分片都被分配到`Node 1`。如果我们现在想检查**集群健康(cluster-health)**，我们将见到以下信息：
 
 ```Javascript

@@ -43,11 +43,7 @@ The response (edited for brevity) looks something like this:
 
 响应中最重要的部分是`hits`，它包含了`total`字段来表示匹配到的文档总数，`hits`数组还包含了匹配到的前10条数据。
 
-Each result in the `hits` array contains the `_index`, `_type` and `_id` of
-the document, plus the `_source` field.  This means that the whole document is
-immediately available to us directly from the search results. This is unlike
-other search engines which return just the document ID, requiring you to fetch
-the document itself in a separate step.
+`hits`数组中的每个结果都包含`_index`、`_type`和文档的`_id`字段，被加入到`_source`字段中这意味着在搜索结果中我们将可以直接使用全部文档。这不像其他搜索引擎只返回文档ID，需要你单独去获取文档。
 
 Each element also has a `_score`.  This is the _relevance score_, which is a
 measure of how well the document matches the query.  By default, results are

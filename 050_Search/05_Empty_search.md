@@ -1,11 +1,10 @@
 #空搜索
 
-最近本的搜索API表单是**空搜索(empty search)**，它没有指定任何的查询条件，只返回集群索引中的所有文档：
+最基本的搜索API表单是**空搜索(empty search)**，它没有指定任何的查询条件，只返回集群索引中的所有文档：
 ```Javascript
 GET /_search
 ```
 
-The response (edited for brevity) looks something like this:
 响应内容（为了编辑简洁）类似于这样：
 
 ```Javascript
@@ -45,57 +44,34 @@ The response (edited for brevity) looks something like this:
 
 `hits`数组中的每个结果都包含`_index`、`_type`和文档的`_id`字段，被加入到`_source`字段中这意味着在搜索结果中我们将可以直接使用全部文档。这不像其他搜索引擎只返回文档ID，需要你单独去获取文档。
 
-Each element also has a `_score`.  This is the _relevance score_, which is a
-measure of how well the document matches the query.  By default, results are
-returned with the most relevant documents first; that is, in descending order
-of `_score`. In this case, we didn't specify any query so all documents are
-equally relevant, hence the neutral `_score` of `1` for all results.
+每个节点都有一个`_score`字段，这是**相关性得分(relevance score)**，它衡量了文档与查询的匹配程度。默认的，返回的结果中关联性最大的文档排在首位；这意味着，它是按照`_score`降序排列的。这种情况下，我们没有指定任何查询，所以所有文档的相关性是一样的，因此所有结果的`_score`都是取得一个中间值`1`
 
-The `max_score` value is the highest `_score` of any document that matches our
-query.
+`max_score`指的是所有文档匹配查询中`_score`的最大值。
 
-==== `took`
+## `took`
 
-The `took` value tells us how many milliseconds the entire search request took
-to execute.
+`took`告诉我们整个搜索请求花费的毫秒数。
 
-==== `shards`
+## `shards`
 
-The `_shards` element tells us the `total` number of shards that were involved
-in the query and, of them, how many were `successful` and how many `failed`.
-We wouldn't normally expect shards to fail, but it can happen. If we were to
-suffer a major disaster in which we lost both the primary and the replica copy
-of the same shard, there would be no copies of that shard available to respond
-to search requests. In this case, Elasticsearch would report the shard as
-`failed`, but continue to return results from the remaining shards.
+`_shards`节点告诉我们参与查询的分片数（`total`字段），有多少是成功的（`successful`字段），有多少的是失败的（`failed`字段）。通常我们不希望分片失败，不过这个有可能发生。如果我们遭受一些重大的故障导致主分片和复制分片都故障，那这个分片的数据将无法响应给搜索请求。这种情况下，Elasticsearch将报告分片`failed`，但仍将继续返回剩余分片上的结果。
 
 ==== `timeout`
+## `timeout`
 
-The `timed_out` value tells us whether the query timed out or not.  By
-default, search requests do not timeout.  If low response times are more
-important to you than complete results, you can specify a `timeout` as `10`
-or `"10ms"` (10 milliseconds), or `"1s"` (1 second):
+`time_out`值告诉我们查询超时与否。一般的，搜索请求不会超时。如果响应速度比完整的结果更重要，你可以定义`timeout`参数为`10`或者`10ms`（10毫秒），或者`1s`（1秒）
 
-[source,js]
---------------------------------------------------
+
+```javascript
 GET /_search?timeout=10ms
---------------------------------------------------
+```
 
+Elasticsearch将返回在请求超时前收集到的结果。
 
-Elasticsearch will return any results that it has managed to gather from
-shards which responded before the request timed out.
+超时不是一个断路器（circuit breaker）（译者注：关于断路器的理解请看警告）。
 
-.Timeout is not a circuit breaker
-[WARNING]
-================================================
+> ## 警告
 
-It should be noted that this `timeout` does not halt the execution of the
-query, it merely tells the coordinating node to return the results collected
-_so far_ and to close the connection.  In the background, other shards may
-still be processing the query even though results have been sent.
+> 需要注意的是`timeout`不会停止执行查询，它仅仅告诉你**目前**顺利返回结果的节点然后关闭连接。在后台，其他分片可能依旧执行查询，尽管结果已经被发送。
 
-Use the timeout because it is important to your SLA, not because you want
-to abort the execution of long running queries.
-
-================================================
-
+> 使用超时是因为对于你的业务需求（译者注：SLA，Service-Level Agreement服务等级协议，在此我翻译为业务需求）来说非常重要，而不是因为你想中断执行长时间运行的查询。

@@ -1,5 +1,4 @@
-[[pagination]]
-=== Pagination
+## 分页
 
 Our <<empty-search,empty search above>> told us that there are 14 documents in the
 cluster which match our (empty) query.  But there were only 10 documents in

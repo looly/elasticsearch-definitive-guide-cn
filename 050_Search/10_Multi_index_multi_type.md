@@ -1,20 +1,12 @@
-[[multi-index-multi-type]]
-=== Multi-index, multi-type
+## 多索引和多类别
 
-Did you notice that the results from the <<empty-search,empty search>> above
-contained documents of different types -- `user` and `tweet` -- from two
-different indices -- `us` and `gb`?
+你注意到空搜索的结果中不同类型的文档——`user`和`tweet`——来自于不同的索引——`us`和`gb`。
 
-By not limiting our search to a particular index or type, we have searched
-across *all* documents in the cluster. Elasticsearch forwarded the search
-request in parallel to a primary or replica of every shard in the cluster,
-gathered the results to select the overall top ten, and returned them to us.
+通过限制我们的搜索到不同的索引或类型，我们可以在集群中跨**所有**文档搜索。Elasticsearch转发搜索请求到集群中平行的主分片或每个分片的复制分片上，收集结果然后选择顶部十个返回给我们。
 
-Usually, however, you will want to search within one or more specific indices,
-and probably one or more specific types. We can do this by specifying the
-index and type in the URL, as follows:
+通常，当然，你可能想搜索一个或几个自定的索引或类型，我们能通过定义URL中的索引或类型达到这个目的，像这样：
 
-[horizontal]
+```javascript
 `/_search`::
 
     search all types in all indices
@@ -42,20 +34,12 @@ index and type in the URL, as follows:
 `/_all/user,tweet/_search`::
 
     search types `user` and `tweet` in all indices
+```
 
+当你搜索包含单一索引时，Elasticsearch转发搜索请求到这个索引的主分片或每个分片的复制分片上，然后聚集每个分片的结果。搜索包含多个索引也是同样的方式——只不过或有更多的分片被关联。
 
-When you search within a single index, Elasticsearch forwards the search
-request to a primary or replica of every shard in that index, then gathers the
-results from each shard. Searching within multiple indices works in exactly
-the same way -- there are just more shards involved.
+> ## 重要
 
-[IMPORTANT]
-================================================
+> 搜索一个索引有5个主分片和5个索引各有一个分片**事实上是一样的**。
 
-Searching one index which has 5 primary shards is *exactly equivalent* to
-searching 5 indices which have one primary shard each.
-
-================================================
-
-Later, you will see how this simple fact makes it easy to scale flexibly
-as your requirements change.
+接下来，你将看到这些简单的情况如何灵活的扩展以适应你需求的变更。

@@ -1,5 +1,4 @@
-[[search-lite]]
-=== Search _Lite_
+## 简易搜素
 
 There are two forms of the `search` API: a ``lite'' _query string_ version
 that expects all its parameters to be passed in the query string, and the full

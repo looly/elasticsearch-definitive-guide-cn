@@ -1,6 +1,6 @@
 # Summary
 
-* [Introduction](README.md)
+* [简介](README.md)
 * [入门](010_Intro/00_README.md)
    * [是什么](010_Intro/05_What_is_it.md)
    * [安装](010_Intro/10_Installing_ES.md)
@@ -66,3 +66,4 @@
    * [字符串排序](056_Sorting/88_String_sorting.md)
    * [相关性](056_Sorting/90_What_is_relevance.md)
    * [字段数据](056_Sorting/95_Fielddata.md)
+

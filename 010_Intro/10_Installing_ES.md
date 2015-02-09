@@ -20,11 +20,11 @@ cd  elasticsearch-$VERSION
 
 ## 安装Marvel
 
-[Marvel](http://www.elasticsearch.com/marvel)是Elasticsearch的管理和监控工具，对于开发使用免费的。它配备了一个叫做`Sense`的交互式控制台，方便通过浏览器直接与Elasticsearch交互。
+[Marvel](http://www.elasticsearch.com/marvel)是Elasticsearch的管理和监控工具，对于开发使用是免费的。它配备了一个叫做`Sense`的交互式控制台，方便通过浏览器直接与Elasticsearch交互。
 
 很多代码样例包含叫做`View in Sense` 的链接，点击会后会在Sense控制台上打开代码样例。
 
-安装Marvel不是必须，但是它可以通过在你本地Elasticsearch集群中运行样例代码而增加与此书的互动性。
+安装Marvel不是必须的，但是它可以通过在你本地Elasticsearch集群中运行样例代码而增加与此书的互动性。
 
 Marvel是一个插件，在Elasticsearch目录中运行以下代码来下载和安装：
 

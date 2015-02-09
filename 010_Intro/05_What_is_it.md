@@ -14,7 +14,7 @@ Elasticsearch也是使用Java编写并使用Lucene来建立索引并实现搜索
 
 而且，所有的这些功能被集成到一台服务器，你的应用可以通过简单的`RESTful API`、各种语言的客户端甚至命令行与之交互。
 
-上手Elasticsearch非常。它提供了许多合理的缺省值，并对初学者隐藏了复杂的搜索引擎理论。它开箱即用（安装即可使用），只需很少的学习既可在生产环境中使用。
+上手Elasticsearch非常容易。它提供了许多合理的缺省值，并对初学者隐藏了复杂的搜索引擎理论。它开箱即用（安装即可使用），只需很少的学习既可在生产环境中使用。
 
 Elasticsearch在[Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.html)下许可使用，可以免费下载、使用和修改。
 

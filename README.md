@@ -24,6 +24,10 @@
 
 [http://git.oschina.net/loolly/elasticsearch-definitive-guide-cn](http://git.oschina.net/loolly/elasticsearch-definitive-guide-cn)
 
+#### 阅读地址：
+
+[http://es.xiaoleilu.com/](http://es.xiaoleilu.com/)
+
 ## 说明
 之前接触Elasticsearch只是最简单的使用，想要深入了解内部功能，借助翻译同时系统学习。由于英语比较菜，第一次翻译文档，如有不妥，欢迎提issue:
 
@@ -33,5 +37,5 @@
 
 ## 注意
 
-1. 文档还未翻译完成，现在是源代码状态，使用gitbook格式，完成后会提交到gitbook。
+1. 文档还未翻译完成，使用gitbook格式，已经翻译完成的章节会陆续提交到gitbook。
 2. 为了便于翻译，未翻译部分拷贝自官方英文文档。

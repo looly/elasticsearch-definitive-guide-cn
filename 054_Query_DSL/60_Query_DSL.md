@@ -1,54 +1,45 @@
-[[query-dsl-intro]]
-=== Query DSL
+## 结构化查询 Query DSL
 
-The Query DSL is a flexible, expressive search language that Elasticsearch
-uses to expose most of the power of Lucene through a simple JSON interface. It
-is what you should be using to write your queries in production. It makes your
-queries more flexible, more precise, easier to read and easier to debug.
+结构化查询是一种灵活的，多表现形式的查询语言。
+Elasticsearch在一个简单的JSON接口中用结构化查询来展现Lucene绝大多数能力。
+你应当在你的产品中采用这种方式进行查询。它使得你的查询更加灵活，精准，易于阅读并且易于debug。
 
-To use the query DSL, pass a query in the `query` parameter:
+使用结构化查询，你需要传递`query`参数：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": YOUR_QUERY_HERE
 }
---------------------------------------------------
+```
 
-The ``empty search'' -- `{}` -- is functionally equivalent to using the
-`match_all` query clause which, as the name suggests, matches all documents:
+空查询 - `{}` - 在功能上等同于使用`match_all`查询子句，正如其名字一样，匹配所有的文档：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
         "match_all": {}
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/60_Empty_query.json
+```
 
-==== Structure of a query clause
+### 查询子句
 
-A query clause typically has the structure:
+一个查询子句一般使用这种结构：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
     QUERY_NAME: {
         ARGUMENT: VALUE,
         ARGUMENT: VALUE,...
     }
 }
---------------------------------------------------
+```
 
+或指向一个指定的字段：
 
-or, if it references one particular field:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
     QUERY_NAME: {
         FIELD_NAME: {
@@ -57,27 +48,21 @@ or, if it references one particular field:
         }
     }
 }
---------------------------------------------------
+```
 
+例如，你可以使用`match`查询子句用来找寻在`tweet`字段中找寻包含`elasticsearch`的成员：
 
-
-For instance, you can use a `match` query clause to find tweets that
-mention `"elasticsearch"` in the `tweet` field:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
     "match": {
         "tweet": "elasticsearch"
     }
 }
---------------------------------------------------
+```
 
+完整的查询请求会是这样：
 
-The full search request would look like this:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
@@ -86,23 +71,17 @@ GET /_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/60_Match_query.json
+```
 
-==== Combining multiple clauses
+### 合并多子句
 
-Query clauses are simple building blocks, that can be combined with each
-other to create complex queries. Clauses can be:
+查询子句就像是搭积木一样，可以合并简单的子句为一个复杂的查询语句，比如：
 
-* _leaf clauses_ (like the `match` clause) that are used to
-  compare a field (or fields) to a query string.
+* 简单子句(_leaf clauses_)(比如`match`子句)用以在将查询字符串与一个字段(或多字段)进行比较
 
-* _compound_ clauses that are used to combine other query clauses.
-  For instance, a `bool` clause allows you to combine other clauses that
-  either `must` match,  `must_not` match, or `should` match if possible:
+* 复合子句(_compound_)用以合并其他的子句。例如，`bool`子句允许你合并其他的合法子句，无论是`must`，`must_not`还是`should`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
     "bool": {
         "must":     { "match": { "tweet": "elasticsearch" }},
@@ -110,21 +89,13 @@ other to create complex queries. Clauses can be:
         "should":   { "match": { "tweet": "full text" }}
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/60_Bool_query.json
+```
 
+复合子句能合并 **任意**其他查询子句，包括其他的复合子句。
+这就意味着复合子句可以相互嵌套，从而实现非常复杂的逻辑。
 
-It is important to note that a compound clause can combine *any* other
-query clauses, including other compound clauses. This means that compound
-clauses can be nested within each other, allowing the expression
-of very complex logic.
-
-As an example, the following query looks for emails that contain
-`"business opportunity"` and must either be starred, or both be in the Inbox
-and not marked as spam:
-
-[source,js]
---------------------------------------------------
+以下实例查询在inbox中或未标记spam的邮件中找出包含`"business opportunity"`的星标(starred)邮件：
+```Javascript
 {
     "bool": {
         "must": { "match":      { "email": "business opportunity" }},
@@ -138,10 +109,7 @@ and not marked as spam:
         "minimum_should_match": 1
     }
 }
---------------------------------------------------
+```
 
-
-Don't worry about the details of this example yet -- we will explain in
-full later. The important thing to take away is that a compound query
-clause can combine multiple clauses -- both leaf clauses and other
-compound clauses -- into a single query.
+不用担心这个例子的细节，我们将在后面详细解释它。
+重点是复合子句可以合并多种子句为一个单一的查询，无论是简单子句还是其他的复合子句。

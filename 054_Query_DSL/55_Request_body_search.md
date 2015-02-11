@@ -1,85 +1,62 @@
-[[full-body-search]]
-== Full body search
+## 请求体查询
 
-Search _lite_ -- <<search-lite,query string search>> --  is useful for _ad
-hoc_ queries from the command line. To harness the full power of search,
-however, you should use the _request body_ `search` API, so called because
-most parameters are passed in the JSON request body instead of in the query
-string.
+简单查询语句(lite)是一种有效的命令行_adhoc_查询。但是，如果你想要善用搜索，你必须使用请求体查询(request body `search`)API。之所以这么称呼，是因为大多数的参数以JSON格式所容纳而非查询字符串。
 
-Request body search -- henceforth known just as ``search'' -- not only handles
-the query itself, but also allows you to return highlighted snippets from your
-results, aggregate analytics across all results or subsets of results, and
-return _did-you-mean?_ suggestions, which will help guide your users to the
-best results quickly.
+请求体查询(下文简称查询)，并不仅仅用来处理查询，而且还可以高亮返回结果中的片段，并且给出帮助你的用户找寻最好结果的相关数据建议。
 
-=== Empty search
+### 空查询
 
-Let's start with the simplest form of the `search` API, the empty search,
-which returns all documents in all indices.
+我们以最简单的 `search` API开始，空查询将会返回索引中所有的文档。
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {} <1>
---------------------------------------------------
-// SENSE: 054_Query_DSL/60_Empty_query.json
-<1> This is an empty request body.
+```
 
-Just as with query-string search, you can search on one, many or `_all`
-indices, and one, many or all types:
+- <1> 这是一个空查询数据。
 
-[source,js]
---------------------------------------------------
+同字符串查询一样，你可以查询一个，多个或`_all`索引(indices)或类型(types)：
+
+```Javascript
 GET /index_2014*/type1,type2/_search
 {}
---------------------------------------------------
+```
 
-And you can use the `from` and `size` parameters for pagination:
+你可以使用`from`及`size`参数进行分页：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
   "from": 30,
   "size": 10
 }
---------------------------------------------------
+```
 
 
-.A `GET` request with a body?
 *************************************************
+携带内容的`GET`请求？
 
-The HTTP libraries of certain languages (notably Javascript) don't allow `GET`
-requests to have a request body.  In fact, some users are suprised that `GET`
-requests are ever allowed to have a body.
+任何一种语言(特别是js)的HTTP库都不允许`GET`请求中携带交互数据。
+事实上，有些用户很惊讶`GET`请求中居然会允许携带交互数据。
 
-The truth is that http://tools.ietf.org/html/rfc7231#page-24[RFC 7231] -- the
-RFC which deals with HTTP semantics and content -- does not define what should
-happen to a `GET` request with a body!  As a result, some HTTP servers allow
-it, and some -- especially caching proxies -- don't.
+真实情况是，http://tools.ietf.org/html/rfc7231#page-24[RFC 7231]，
+一份规定HTTP语义及内容的RFC中并未规定`GET`请求中允许携带交互数据！
+所以，有些HTTP服务允许这种行为，而另一些(特别是缓存代理)，则不允许这种行为。
 
-The authors of Elasticsearch prefer using `GET` for a search request because
-they feel that it describes the action -- retrieving information -- better
-than the `POST` verb.  However, because `GET` with a request body is not
-universally supported, the `search` API also accepts `POST` requests:
-
-[source,js]
---------------------------------------------------
+Elasticsearch的作者们倾向于使用`GET`提交查询请求，因为他们觉得这个词相比`POST`来说，能更好的描述这种行为。
+然而，因为携带交互数据的`GET`请求并不被广泛支持，所以`search`API同样支持`POST`请求，类似于这样：
+```Javascript
 POST /_search
 {
   "from": 30,
   "size": 10
 }
---------------------------------------------------
+```
 
-The same rule applies to any other `GET` API which requires a request body.
+这个原理同样应用于其他携带交互数据的`GET`API请求中。
 
 *************************************************
 
-We will talk about aggregations in depth in <<aggregations>>, but for now,
-we're going to focus just on the query.
+我们将在后续的章节中讨论聚合查询，但是现在我们把关注点仅放在查询语义上。
 
-Instead of the cryptic query-string approach, request body search allows us
-to write queries using the _Query Domain Specific Language_, or Query DSL.
-
+相对于神秘的查询字符串方法，请求体查询允许我们使用结构化查询Query DSL(Query Domain Specific Language)

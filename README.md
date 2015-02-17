@@ -12,6 +12,10 @@
 
 **译者：** [Looly](http://www.xiaoleilu.com)
 
+**参与翻译：** [iridiumcao](https://github.com/iridiumcao) [cvvnx1](https://github.com/cvvnx1) [conan007ai](https://github.com/conan007ai)
+
+感谢参与翻译的小伙伴们~~
+
 **邮箱：** loolly@gmail.com
 
 **微博：** [@路小磊](http://weibo.com/loolly)

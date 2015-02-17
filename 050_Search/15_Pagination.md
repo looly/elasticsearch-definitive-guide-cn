@@ -1,52 +1,33 @@
 ## 分页
 
-Our <<empty-search,empty search above>> told us that there are 14 documents in the
-cluster which match our (empty) query.  But there were only 10 documents in
-the `hits` array.  How can we see the other documents?
+《空搜索》一节告诉我们在集群中有14个文档匹配我们的（空）搜索语句。单数只有10个文档在`hits`数组中。我们如何看到其他文档？
 
-In the same way as SQL uses the `LIMIT` keyword to return a single ``page'' of
-results, Elasticsearch accepts the `from` and `size` parameters:
+和SQL使用`LIMIT`关键字返回只有一页的结果一样，Elasticsearch接受`from`和`size`参数：
 
-[horizontal]
-`size`:: How many results should be returned, defaults to `10`
-`from`:: How many initial results should be skipped, defaults to `0`
+`size`: 果数，默认`10`
 
-If you wanted to show 5 results per page, then pages 1 to 3
-could be requested as:
+`from`: 跳过开始的结果数，默认`0`
 
-[source,js]
+如果你想每页显示5个结果，页码从1到3，那请求如下：
+
 --------------------------------------------------
+```javascript
 GET /_search?size=5
 GET /_search?size=5&from=5
 GET /_search?size=5&from=10
+```
 --------------------------------------------------
-// SENSE: 050_Search/15_Pagination.json
 
+应该当心分页太深或者一次请求太多的结果。结果在返回前会被排序。但是记住一个搜索请求常常涉及多个分片。每个分片生成自己排好序的结果，它们接着需要集中起来排序以确保整体排序正确。
 
-Beware of paging too deep or requesting too many results at once. Results are
-sorted before being returned. But remember that a search request usually spans
-multiple shards. Each shard generates its own sorted results, which then need
-to be sorted centrally to ensure that the overall order is correct.
+> ### 在集群系统中深度分页
 
-.Deep paging in distributed systems
-****
+> 为了理解为什么深度分页是有问题的，让我们假设在一个有5个主分片的索引中搜索。当我们请求结果的第一页（结果1到10）时，每个分片产生自己最顶端10个结果然后返回它们给**请求节点(requesting node)**，它再排序这所有的50个结果以选出顶端的10个结果。
 
-To understand why deep paging is problematic, let's imagine that we are
-searching within a single index with 5 primary shards.  When we request the
-first page of results (results 1 to 10), each shard produces its own top 10
-results and returns them to the _requesting node_, which then sorts all 50
-results in order to select the overall top 10.
+> 现在假设我们请求第1000页——结果10001到10010。工作方式都相同，不同的是每个分片都必须产生顶端的10010个结果。然后请求节点排序这50050个结果并丢弃50040个！
 
-Now imagine that we ask for page 1,000 -- results 10,001 to 10,010. Everything
-works in the same way except that each shard has to produce its top 10,010
-results. The requesting node then sorts through all 50,050 results and
-discards 50,040 of them!
+> 你可以看到在分布式系统中，排序结果的花费随着分页的深入而成倍增长。这也是为什么网络搜索引擎中任何语句不能返回多于1000个结果的原因。
 
-You can see that, in a distributed system, the cost of sorting results
-grows exponentially the deeper we page.  There is a very good reason
-why web search engines don't return more than 1,000 results for any query.
+> ### TIP
 
-****
-
-TIP: In <<reindex>> we will explain how you *can* retrieve large numbers of
-documents efficiently.
+>在《重建索引》章节我们将阐述如何能高效的检索大量。文档

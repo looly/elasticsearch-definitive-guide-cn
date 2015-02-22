@@ -1,35 +1,23 @@
-[[analysis-intro]]
-=== Analysis and analyzers
+## 分析和分析器
 
-_Analysis_ is the process of:
+**分析(analysis)**是这样一个过程：
 
-*  first, tokenizing a block of text into
-   individual _terms_ suitable for use in an inverted index,
-*  then normalizing these terms into a standard form to improve their
-   ``searchability'' or _recall_.
+* 首先，表征化一个文本块为适用于倒排索引单独的**词(term)**
+* 然后标准化这些词为标准形式，提高它们的“可搜索性”或“查全率”
 
-This job is performed by _analyzers_. An _analyzer_ is really just a wrapper
-which combines three functions into a single package:
+这个工作是**分析器(analyzer)**完成的。一个**分析器(analyzer)**只是一个包装用于将三个功能放到一个包里：
 
-Character filters::
+### 字符过滤器
 
-    First, the string is passed through any _character filters_ in turn. Their
-    job is to tidy up the string before tokenization. A character filter could
-    be used to strip out HTML, or to convert `"&"` characters to the word
-    `"and"`.
+首先字符串经过**字符过滤器(character filter)**，它们的工作是在表征化（译者注：这个词叫做断词更合适）前处理字符串。字符过滤器能够去除HTML标记，或者转换`"&"`为`"and"`。
 
-Tokenizer::
+### 分词器
 
-   Next, the string is tokenized into individual terms by a _tokenizer_. A
-   simple tokenizer might split the text up into terms whenever it encounters
-   whitespace or punctuation.
+下一步，**分词器(tokenizer)**被表征化（断词）为独立的词。一个简单的**分词器(tokenizer)**可以根据空格或逗号将单词分开（译者注：这个在中文中不适用）。
 
-Token filters::
+### 表征过滤
 
-   Last, each term is passed through any _token filters_ in turn, which can
-   change terms (eg lowercasing `"Quick"`), remove terms (eg stopwords like
-   `"a"`, `"and"`, `"the"` etc) or add terms (eg synonyms like `"jump"` and
-   `"leap"`)
+最后，每个词都通过所有**表征过滤(token filters)**，它可以修改词（例如将`"Quick"`转为小写），去掉词（例如停用词像`"a"`、`"and"``"the"`等等），或者增加词（例如同义词像`"jump"`和`"leap"`）
 
 Elasticsearch provides many character filters, tokenizers and token filters
 out of the box. These can be combined to create custom analyzers suitable

@@ -43,7 +43,7 @@ WHERE name    = "John Smith"
 
 * `"fox news hunting"`能返回有关hunting on Fox News的故事，而`"fox hunting news"`也能返回关于fox hunting的新闻故事。
 
-为了方便在全文文本字段中进行这些类型的查询，Elasticsearch首先_分析_(analyzes)文本，然后使用结果建立一个_倒排索引_。我们将在以下两个章节讨论倒排索引及分析过程。
+为了方便在全文文本字段中进行这些类型的查询，Elasticsearch首先对文本**分析(analyzes)**，然后使用结果建立一个**倒排索引**。我们将在以下两个章节讨论倒排索引及分析过程。
 
 
 

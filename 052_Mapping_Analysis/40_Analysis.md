@@ -19,144 +19,92 @@
 
 最后，每个词都通过所有**表征过滤(token filters)**，它可以修改词（例如将`"Quick"`转为小写），去掉词（例如停用词像`"a"`、`"and"``"the"`等等），或者增加词（例如同义词像`"jump"`和`"leap"`）
 
-Elasticsearch provides many character filters, tokenizers and token filters
-out of the box. These can be combined to create custom analyzers suitable
-for different purposes. We will discuss these in detail in <<custom-analyzers>>.
+Elasticsearch提供很多开箱即用的字符过滤器，分词器和表征过滤器。这些可以组合来创建自定义的分析器以应对不同的需求。我们将在《自定义分析器》章节详细讨论。
 
-==== Built-in analyzers
+### 内建的分析器
 
-However, Elasticsearch also ships with a number of pre-packaged analyzers that
-you can use directly. We list the most important ones below and, to demonstrate
-the difference in behaviour, we show what terms each would produce
-from this string:
+不过，Elasticsearch还附带了一些预装的分析器，你可以直接使用它们。下面我们列出了最重要的几个分析器，来演示这个字符串分词后的表现差异：
 
     "Set the shape to semi-transparent by calling set_trans(5)"
 
 
-Standard analyzer::
+### 标准分析器
 
-The standard analyzer is the default analyzer that Elasticsearch uses. It is
-the best general choice for analyzing text which may be in any language. It
-splits the text on _word boundaries_, as defined by the
-http://www.unicode.org/reports/tr29/[Unicode Consortium], and removes most
-punctuation. Finally, it lowercases all terms. It would produce:
-+
+标准分析器是Elasticsearch默认使用的分析器。对于文本分析，它对于任何语言都是最佳选择（译者注：就是没啥特殊需求，对于任何一个国家的语言，这个分析器就够用了）。它根据[Unicode Consortium](http://www.unicode.org/reports/tr29/)的定义的**单词边界(word boundaries)**来切分文本，然后去掉大部分标点符号。最后，把所有词转为小写。产生的结果为：
+
     set, the, shape, to, semi, transparent, by, calling, set_trans, 5
 
-Simple analyzer::
+### 简单分析器
 
-The simple analyzer splits the text on anything that isn't a letter,
-and lowercases the terms. It would produce:
-+
+简单分析器将非单个字母的文本切分，然后把每个词转为小写。产生的结果为：
+
     set, the, shape, to, semi, transparent, by, calling, set, trans
 
-Whitespace analyzer::
+### 空格分析器
 
-The whitespace analyzer splits the text on whitespace. It doesn't
-lowercase. It would produce:
-+
+空格分析器依据空格切分文本。它不转换小写。产生结果为：
+
     Set, the, shape, to, semi-transparent, by, calling, set_trans(5)
 
-Language analyzers::
+### 语言分析器
 
-Language-specific analyzers are available for many languages. They are able to
-take the peculiarities of the specified language into account. For instance,
-the `english` analyzer comes with a set of English stopwords -- common words
-like `and` or `the` which don't have much impact on relevance -- which it
-removes, and it is able to _stem_ English words because it understands the
-rules of English grammar.
-+
-The `english` analyzer would produce the following:
-+
+特定语言分析器适用于很多语言。它们能够考虑到特定语言的特性。例如，`english`分析器自带一套英语停用词库——像`and`或`the`这些与语义无关的通用词。这些词被移除后，因为语法规则的存在，英语单词的主体含义依旧能被理解（译者注：`stem English words`这句不知道该如何翻译，查了字典，我理解的大概意思应该是将英语语句比作一株植物，去掉无用的枝叶，主干依旧存在，停用词好比枝叶，存在与否并不影响对这句话的理解。）。
+
+`english`分析器将会产生以下结果：
+
     set, shape, semi, transpar, call, set_tran, 5
-+
-Note how `"transparent"`, `"calling"`, and `"set_trans"` have been stemmed to
-their root form.
 
-==== When analyzers are used
+注意`"transparent"`、`"calling"`和`"set_trans"`是如何转为词干的。
 
-When we *index* a document, its full text fields are analyzed into terms which
-are used to create the inverted index.  However, when we *search* on a full
-text field,  we need to pass the query string through the *same analysis
-process*, to ensure that we are searching for terms in the same form as those
-that exist in the index.
+### 当分析器被使用
 
-Full text queries, which we will discuss later, understand how each field is
-defined, and so they can do the right thing:
+当我们**索引(index)**一个文档，全文字段会被分析为单独的词来创建倒排索引。不过，当我们在全文字段**搜索(search)**时，我们要让查询字符串经过**同样的分析流程**处理，以确保这些词在索引中存在。
 
- * When you query a *full text* field, the query will apply the same analyzer
-   to the query string to produce the correct list of terms to search for.
+全文查询我们将在稍后讨论，理解每个字段是如何定义的，这样才可以让它们做正确的事：
 
- * When you query an *exact value* field, the query will not analyze the
-   query string, but instead search for the exact value that you have
-   specified.
+* 当你查询**全文(full text)**字段，查询将使用相同的分析器来分析查询字符串，以产生正确的词列表。
+* 当你查询一个**确切值(exact value)**字段，查询将不分析查询字符串，但是你可以自己指定。
 
-Now you can understand why the queries that we demonstrated at the
-<<mapping-analysis,start of this chapter>> return what they do:
+现在你可以明白为什么《映射和分析》的开头会产生那种结果：
+* `date`字段包含一个确切值：单独的一个词`"2014-09-15"`。
+* `_all`字段是一个全文字段，所以分析过程将日期转为三个词：`"2014"`、`"09"`和`"15"`。
 
-* The `date` field contains an exact value: the single term `"2014-09-15"`.
-* The `_all` field is a full text field, so the analysis process has
-  converted the date into the three terms: `"2014"`, `"09"` and `"15"`.
+当我们在`_all`字段查询`2014`，它一个匹配到12条推文，因为这些推文都包含词`2014`：
 
-When we query the `_all` field for `2014`, it matches all 12 tweets, because
-all of them contain the term `2014`:
-
-[source,sh]
---------------------------------------------------
+```sh
 GET /_search?q=2014              # 12 results
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/25_Data_type_differences.json
+```
 
-When we query the `_all` field for `2014-09-15`, it first analyzes the query
-string to produce a query which matches *any* of the terms `2014`, `09` or
-`15`. This also matches all 12 tweets, because all of them contain the term
-`2014`:
+当我们在`_all`字段中查询`2014-09-15`，首先分析查询字符串，产生匹配**任一**词`2014`、`09`或`15`的查询语句，它依旧匹配12个推文，因为它们都包含词`2014`。
 
-[source,sh]
---------------------------------------------------
+```sh
 GET /_search?q=2014-09-15        # 12 results !
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/25_Data_type_differences.json
+```
 
-When we query the `date` field for `2014-09-15`, it looks for that *exact*
-date, and finds one tweet only:
+当我们在`date`字段中查询`2014-09-15`，它查询一个**确切**的日期，然后只找到一条推文：
 
-[source,sh]
---------------------------------------------------
+```sh
 GET /_search?q=date:2014-09-15   # 1  result
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/25_Data_type_differences.json
+```
 
-When we query the `date` field for `2014`, it finds no documents
-because none contain that exact date:
+当我们在`date`字段中查询`2014`，没有找到文档，因为没有文档包含那个确切的日期：
 
-[source,sh]
---------------------------------------------------
+```sh
 GET /_search?q=date:2014         # 0  results !
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/25_Data_type_differences.json
+```
 
-[[analyze-api]]
-==== Testing analyzers
+### 测试分析器
 
-Especially when you are new to Elasticsearch, it is sometimes difficult to
-understand what is actually being tokenized and stored into your index.  To
-better understand what is going on, you can use the `analyze` API to see how
-text is analyzed. Specify which analyzer to use in the query string
-parameters,  and the text to analyze in the body:
+尤其当你是Elasticsearch新手时，对于如何分词以及存储到索引中理解起来比较困难。为了更好的理解如何进行，你可以使用`analyze` API来查看文本是如何被分析的。在查询字符串参数中指定要使用的分析器，被分析的文本做为请求体：
 
-[source,js]
---------------------------------------------------
+```javascript
 GET /_analyze?analyzer=standard
 Text to analyze
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/40_Analyze.json
+```
 
+结果中每个节点在代表一个词：
 
-Each element in the result represents a single term:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
    "tokens": [
       {
@@ -182,27 +130,16 @@ Each element in the result represents a single term:
       }
    ]
 }
---------------------------------------------------
+```
 
-The `token` is the actual term that will be stored in the index. The
-`position` indicates the order in which the terms appeared in the original
-text. The `start_offset` and `end_offset` indicate the character positions
-that the original word occupied in the original string.
+`token`是一个实际被存储在索引中的词。`position`指明词在原文本中是第几个出现的。`start_offset`和`end_offset`表示词在原文本中占据的位置。
 
-The `analyze` API is a really useful tool for understanding what is happening
-inside Elasticsearch indices, and we will talk more about it as we progress.
+`analyze` API 对于理解Elasticsearch索引的内在细节是个非常有用的工具，随着内容的推进，我们将继续讨论它。
 
-==== Specifying analyzers
+### 指定分析器
 
-When Elasticsearch detects a new string field in your documents, it
-automatically configures it as a full text `string` field and analyzes it with
-the `standard` analyzer.
+当Elasticsearch在你的文档中探测到一个新的字符串字段，它将自动设置它为全文`string`字段并用`standard`分析器分析。
 
-You don't always want this. Perhaps you want to apply a different analyzer
-which suits the language your data is in. And sometimes you want a
-string field to be just a string field -- to index the exact value that
-you pass in, without any analysis, such as a string user ID or an
-internal status field or tag.
+你不可能总是想要这样做。也许你想使用一个更适合这个数据的语言分析器。或者，你只想把字符串字段当作一个普通的字段——不做任何分析，只存储确切值，就像字符串类型的用户ID或者内部状态字段或者标签。
 
-In order to achieve this, we have to configure these fields manually
-by specifying the _mapping_.
+为了达到这种效果，我们必须通过**映射(mapping)**人工设置这些字段。

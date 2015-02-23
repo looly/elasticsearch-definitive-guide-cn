@@ -2,7 +2,7 @@
 
 如果我们启动一个单独的节点，没有数据和索引，这个集群我们称作“只有一个空节点的集群”。
 
-![A cluster with one empty node](../images/02-01_cluster.png)
+![A cluster with one empty node](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/02-01_cluster.png)
 
 一个**节点(node)**就是一个Elasticsearch实例，而一个**集群(cluster)**由一个或多个节点组成，它们具有相同的`cluster.name`，它们协同工作，分享数据和负载。当有新的节点加入或者删除节点，集群就会感知到并平衡数据。
 

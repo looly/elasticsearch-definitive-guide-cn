@@ -1,20 +1,19 @@
 [[multi-match-query]]
-=== `multi_match` query
+=== multi_match Query
 
-The `multi_match` query provides us with a convenient shorthand way of running
+The `multi_match` query provides ((("multifield search", "multi_match query")))((("multi_match queries")))((("match query", "multi_match queries"))) a convenient shorthand way of running
 the same query against multiple fields.
 
-****
-
-There are several ``types'' of `multi_match` query, three of which just
+[NOTE]
+====
+There are several types of `multi_match` query, three of which just
 happen to coincide with the three scenarios that we listed in
 <<know-your-data>>:  `best_fields`, `most_fields`, and `cross_fields`.
+====
 
-****
-
-By default it runs as type `best_fields`, which means that it generates a
+By default, this query runs as type `best_fields`, which means((("best fields queries", "multi-match queries")))((("dis_max (disjunction max) query", "multi_match query wrapped in"))) that it generates a
 `match` query for each field and wraps them in a `dis_max` query. This
-`dis_max` query:
+`dis_max` query
 
 [source,js]
 --------------------------------------------------
@@ -43,7 +42,7 @@ By default it runs as type `best_fields`, which means that it generates a
 }
 --------------------------------------------------
 
-could be rewritten more concisely with `multi_match` as:
+could be rewritten more concisely with `multi_match` as follows:
 
 [source,js]
 --------------------------------------------------
@@ -63,11 +62,11 @@ could be rewritten more concisely with `multi_match` as:
 <2> Parameters like `minimum_should_match` or `operator` are passed through to
     the generated `match` queries.
 
-==== Wildcards in field names
+==== Using Wildcards in Field Names
 
-Field names can be specified with wildcards -- any field which matches the
-wildcard pattern will be included in the search. You could match on the
-`book_title`, `chapter_title` and `section_title` fields, with the following:
+Field names can be specified with wildcards: any field that matches the
+wildcard pattern((("multi_match queries", "wildcards in field names")))((("wildcards in field names")))((("fields", "wildcards in field names"))) will be included in the search. You could match on the
+`book_title`, `chapter_title`, and `section_title` fields, with the following:
 
 [source,js]
 --------------------------------------------------
@@ -79,10 +78,10 @@ wildcard pattern will be included in the search. You could match on the
 }
 --------------------------------------------------
 
-==== Boosting individual fields
+==== Boosting Individual Fields
 
-Individual fields can be boosted using the caret (`^`) syntax: just add
-`^boost` after the field name, where `boost` is a floating point number:
+Individual fields can be boosted by using the caret (`^`) syntax: just add
+`^boost` after the field((("multi_match queries", "boosting individual fields")))((("boost parameter", "boosting individual fields in multi_match queries"))) name, where `boost` is a floating-point number:
 
 [source,js]
 --------------------------------------------------
@@ -94,5 +93,5 @@ Individual fields can be boosted using the caret (`^`) syntax: just add
 }
 --------------------------------------------------
 
-<1> The `chapter_title` field has a `boost` of 2, while the `book_title` and
-    `section_title` fields have a default boost of 1.
+<1> The `chapter_title` field has a `boost` of `2`, while the `book_title` and
+    `section_title` fields have a default boost of `1`.

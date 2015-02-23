@@ -1,7 +1,7 @@
 [[nested-mapping]]
-=== Nested object mapping
+=== Nested Object Mapping
 
-Setting up a `nested` field is simple -- where you would normally specify type
+Setting up a `nested` field is simple--where ((("mapping (types)", "nested object")))((("nested object mapping")))you would normally specify type
 `object`, make it type `nested` instead:
 
 [source,json]
@@ -30,5 +30,5 @@ PUT /my_index
 
 That's all that is required.  Any `comments` objects would now be indexed as
 separate nested documents. See the
-{ref}mapping-nested-type.html[`nested` type reference docs] for more.
+http://bit.ly/1KNQEP9[`nested` type reference docs] for more.
 

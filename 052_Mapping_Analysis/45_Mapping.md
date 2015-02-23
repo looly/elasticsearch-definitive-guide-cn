@@ -1,26 +1,20 @@
-[[mapping-intro]]
-=== Mapping
+## 映射
 
-As explained in <<data-in-data-out>>, each document in an index has a _type_.
-Every type has its own _mapping_ or _schema definition_. A mapping
-defines the fields within a type, the datatype for each field,
-and how the field should be handled by Elasticsearch. A mapping is also used
-to configure metadata associated with the type.
+正如《数据吞吐》一节所说，索引中每个文档都有一个**类型(type)**。
+每个类型拥有自己的**映射(mapping)**或者**模式定义(schema definition)**。一个映射定义了字段类型，每个字段的数据类型，以及字段被Elasticsearch处理的方式。映射还用于设置关联到类型上的元数据。
 
-We discuss mappings in detail in <<mapping>>. In this section we're going
-to look at just enough to get you started.
+在《映射》章节我们将探讨映射的细节。这节我们只是带你入门。
 
-[[core-fields]]
-==== Core simple field types
+### 核心简单字段类型
 
-Elasticsearch supports the following simple field types:
+Elasticsearch支持以下简单字段类型：
 
-[horizontal]
-String:         ::  `string`
-Whole number:   ::  `byte`, `short`, `integer`, `long`
-Floating point: ::  `float`, `double`
-Boolean:        ::  `boolean`
-Date:           ::  `date`
+|类型             |  表示 |
+|String:          |  `string`|
+|Whole number:    |  `byte`, `short`, `integer`, `long`
+|Floating point:  |  `float`, `double`
+|Boolean:         |  `boolean`
+|Date:            |  `date`
 
 When you index a document which contains a new field -- one previously not
 seen -- Elasticsearch will use <<dynamic-mapping,_dynamic mapping_>> to try

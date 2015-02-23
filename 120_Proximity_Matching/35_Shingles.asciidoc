@@ -1,65 +1,66 @@
 [[shingles]]
-=== Finding associated words
+=== Finding Associated Words
 
 As useful as phrase and proximity queries can be, they still have a downside.
 They are overly strict: all terms must be present for a phrase query to match,
-even when using `slop`.
+even when using `slop`.((("proximity matching", "finding associated words", range="startofrange", id="ix_proxmatchassoc")))
 
 The flexibility in word ordering that you gain with `slop` also comes at a
 price, because you lose the association between word pairs.  While you can
-identify documents where `sue`, `alligator` and `ate` occur close together,
-you can't tell whether ``Sue ate...'' or the ``alligator ate...''.
+identify documents in which `sue`, `alligator`, and `ate` occur close together,
+you can't tell whether _Sue ate_ or the _alligator ate_.
 
 When words are used in conjunction with each other, they express an idea that
 is bigger or more meaningful than each word in isolation. The two clauses
-``I'm not happy...'' and ``Happy I'm not...'' contain the sames words, in
+_I'm not happy I'm working_ and _I'm happy I'm not working_ contain the sames words, in
 close proximity, but have quite different meanings.
 
 If, instead of indexing each word independently, we were to index pairs of
-words then we could retain more of the context in which the words were used.
+words, then we could retain more of the context in which the words were used.
 
-For the sentence `"Sue ate the alligator"`, we would not only index each word
-(or _unigram_) as a term:
+For the sentence `Sue ate the alligator`, we would not only index each word
+(or _unigram_) as((("unigrams"))) a term
 
     ["sue", "ate", "the", "alligator"]
 
-but also each word *and its neighbour* as single terms:
+but also each word _and its neighbor_ as single terms:
 
     ["sue ate", "ate the", "the alligator"]
 
-These word pairs (or _bigrams_) are known as _shingles_.
+These word ((("bigrams")))pairs (or _bigrams_) are ((("shingles")))known as _shingles_.
 
-**************************************************************************
+[TIP]
+==================================================
 
 Shingles are not restricted to being pairs of words; you could index word
-triplets (_trigrams_) as well:
+triplets (_trigrams_) as ((("trigrams")))well:
 
     ["sue ate the", "ate the alligator"]
 
-Trigrams give you a higher degree of precision, but greatly increases the
+Trigrams give you a higher degree of precision, but greatly increase the
 number of unique terms in the index. Bigrams are sufficient for most use
 cases.
 
-**************************************************************************
+==================================================
 
-Of course, shingles are only useful if the user enters their query in the same
-order as in the original document; a query for `"sue alligator"` would match
+Of course, shingles are useful only if the user enters the query in the same
+order as in the original document; a query for `sue alligator` would match
 the individual words but none of our shingles.
 
-Fortunately, users tend to express themselves using similar constructs to
+Fortunately, users tend to express themselves using constructs similar to
 those that appear in the data they are searching. But this point is an
 important one: it is not enough to index just bigrams; we still need unigrams,
 but we can use matching bigrams as a signal to increase the relevance score.
 
-==== Producing shingles
+==== Producing Shingles
 
-Shingles need to be created at index time as part of the analysis process. We
+Shingles need to be created at index time as part of the analysis process.((("shingles", "producing at index time"))) We
 could index both unigrams and bigrams into a single field, but it is cleaner
-to keep unigrams and bigrams in separate fields which can be queried
+to keep unigrams and bigrams in separate fields that can be queried
 independently.  The unigram field would form the basis of our search, with the
 bigram field being used to boost relevance.
 
-First, we need to create an analyzer which uses the `shingle` token filter:
+First, we need to create an analyzer that uses the `shingle` token filter:
 
 [source,js]
 --------------------------------------------------
@@ -113,16 +114,16 @@ Sue ate the alligator
 
 Sure enough, we get back three terms:
 
-* `"sue ate"`
-* `"ate the"`
-* `"the alligator"`
+* `sue ate`
+* `ate the`
+* `the alligator`
 
 Now we can proceed to setting up a field to use the new analyzer.
 
-==== Multi-fields
+==== Multifields
 
 We said that it is cleaner to index unigrams and bigrams separately, so we
-will create the `title` field as a multi-field (see <<multi-fields>>):
+will create the `title` field ((("multifields")))as a multifield (see <<multi-fields>>):
 
 [source,js]
 --------------------------------------------------
@@ -161,9 +162,9 @@ POST /my_index/my_type/_bulk
 { "title": "Sue never goes anywhere without her alligator skin purse" }
 --------------------------------------------------
 
-==== Searching for shingles
+==== Searching for Shingles
 
-To understand the benefit that the `shingles` field adds, let's first look at
+To understand the benefit ((("shingles", "searching for")))that the `shingles` field adds, let's first look at
 the results from a simple `match` query for ``The hungry alligator ate Sue'':
 
 [source,js]
@@ -178,7 +179,7 @@ GET /my_index/my_type/_search
 }
 --------------------------------------------------
 
-This query returns all three documents, but note that documents `1` and `2`
+This query returns all three documents, but note that documents 1 and 2
 have the same relevance score because they contain the same words:
 
 [source,js]
@@ -209,14 +210,14 @@ have the same relevance score because they contain the same words:
   ]
 }
 --------------------------------------------------
-<1> Both documents contain `the`, `alligator` and `ate` and so have the
+<1> Both documents contain `the`, `alligator`, and `ate` and so have the
     same score.
-<2> We could have excluded document `3` by setting the `minimum_should_match`
+<2> We could have excluded document 3 by setting the `minimum_should_match`
     parameter. See <<match-precision>>.
 
 Now let's add the `shingles` field into the query.  Remember that we want
-matches on the `shingles` field to act as a signal -- to increase the
-relevance score -- so we still need to include the query on the main `title`
+matches on the `shingles` field to act as a signal--to increase the
+relevance score--so we still need to include the query on the main `title`
 field:
 
 [source,js]
@@ -240,8 +241,8 @@ GET /my_index/my_type/_search
 }
 --------------------------------------------------
 
-We still match all three documents, but document `2` has now been bumped into
-first place because it matched the shingled term `"ate sue"`.
+We still match all three documents, but document 2 has now been bumped into
+first place because it matched the shingled term `ate sue`.
 
 [source,js]
 --------------------------------------------------
@@ -272,23 +273,20 @@ first place because it matched the shingled term `"ate sue"`.
 }
 --------------------------------------------------
 
-Even though our query included the word `"hungry"`, which doesn't appear in
+Even though our query included the word `hungry`, which doesn't appear in
 any of our documents, we still managed to use word proximity to return the
 most relevant document first.
 
 ==== Performance
 
-Not only are shingles more flexible than phrase queries, they perform better
+Not only are shingles more flexible than phrase queries,((("shingles", "better performance than phrase queries"))) but they perform better
 as well.  Instead of paying the price of a phrase query every time you search,
-queries for shingles are just as efficient as a simple `match` query.
-
-There is a small cost that is payed at index time because more terms need to
+queries for shingles are just as efficient as a simple `match` query. A small price is paid at index time, because more terms need to
 be indexed, which also means that fields with shingles use more disk space.
 However, most applications write once and read many times, so it makes sense
 to optimize for fast queries.
 
-This is a theme that you will encounter frequently in Elasticsearch: it makes
-it possible to achieve a lot with your existing data, without requiring any
-setup.  But once you understand your requirements better it is worth putting
-in the extra effort to model your data at index time.  A little bit of
-preparation will help you to achieve better results with better performance.
+This is a theme that you will encounter frequently in Elasticsearch: enables you to achieve a lot at search time, without requiring any up-front
+setup. Once you understand your requirements more clearly, you can achieve better results with better performance by modeling your data correctly at index time.
+((("proximity matching", "finding associated words", range="endofrange", startref ="ix_proxmatchassoc")))
+

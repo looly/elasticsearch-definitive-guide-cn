@@ -1,9 +1,9 @@
 [[phrase-matching]]
-=== Phrase matching
+=== Phrase Matching
 
-In the same way that the `match` query is the ``go-to'' query for standard
-full text search, the `match_phrase` query is the one you should reach for
-when you want to find words that are near to each other:
+In the same way that the `match` query is the go-to query for standard
+full-text search, the `match_phrase` query((("proximity matching", "phrase matching")))((("phrase matching")))((("match_phrase query"))) is the one you should reach for
+when you want to find words that are near each other:
 
 [source,js]
 --------------------------------------------------
@@ -20,12 +20,13 @@ GET /my_index/my_type/_search
 
 Like the `match` query, the `match_phrase` query first analyzes the query
 string to produce a list of terms. It then searches for all the terms, but
-only keeps documents which contain *all* of the search terms in the same
-*positions*, relative to each other.  A query for the phrase `"quick fox"`
-would not match any of our documents because no document contains the word
-`"quick"` immediately followed by `"fox"`.
+keeps only documents that contain _all_ of the search terms, in the same
+_positions_ relative to each other.  A query for the phrase `quick fox`
+would not match any of our documents, because no document contains the word
+`quick` immediately followed by `fox`.
 
-****
+[TIP]
+==================================================
 
 The `match_phrase` query can also be written as a `match` query with type
 `phrase`:
@@ -41,12 +42,12 @@ The `match_phrase` query can also be written as a `match` query with type
 --------------------------------------------------
 // SENSE: 120_Proximity_Matching/05_Match_phrase_query.json
 
-****
+==================================================
 
-==== Term positions
+==== Term Positions
 
-When a string is analyzed, the analyzer returns not only a list of terms, but
-also the _position_ or order of each term in the original string:
+When a string is analyzed, the analyzer returns not((("phrase matching", "term positions")))((("match_phrase query", "position of terms")))((("position-aware matching"))) only a list of terms, but
+also the _position_, or order, of each term in the original string:
 
 [source,js]
 --------------------------------------------------
@@ -55,8 +56,9 @@ Quick brown fox
 --------------------------------------------------
 // SENSE: 120_Proximity_Matching/05_Term_positions.json
 
-This returns:
+This returns the following:
 
+[role="pagebreak-before"]
 [source,js]
 --------------------------------------------------
 {
@@ -88,30 +90,31 @@ This returns:
 <1> The `position` of each term in the original string.
 
 Positions can be stored in the inverted index, and position-aware queries like
-the `match_phrase` query can use them to match only documents which contains
-all of the words in exactly the order specified, with no words inbetween.
+the `match_phrase` query can use them to match only documents that contain
+all the words in exactly the order specified, with no words in-between.
 
-==== What is a phrase
+==== What Is a Phrase
 
-For a document to be considered a match for the phrase ``quick brown fox'':
+For a document to be considered a((("match_phrase query", "documents matching a phrase")))((("phrase matching", "criteria for matching documents"))) match for the phrase ``quick brown fox,'' the following must be true:
 
-* `quick`, `brown` and `fox` must all appear in the field
+* `quick`, `brown`, and `fox` must all appear in the field.
 
-* the position of `brown` must be `1` greater than the position of `quick`
+* The position of `brown` must be `1` greater than the position of `quick`.
 
-* the position of `fox` must be `2` greater than the position of `quick`
+* The position of `fox` must be `2` greater than the position of `quick`.
 
 If any of these conditions is not met, the document is not considered a match.
 
-**************************************************
+[TIP]
+==================================================
 
-Internally, the `match_phrase` query use the low-level `span` query family to
-do position-aware matching. Span queries are term-level queries, so they have
-no analysis phase -- they search for the exact term specified.
+Internally, the `match_phrase` query uses the low-level `span` query family to
+do position-aware matching. ((("match_phrase query", "use of span queries for position-aware matching")))((("span queries")))Span queries are term-level queries, so they have
+no analysis phase; they search for the exact term specified.
 
-Thankfully, most people never need to use the `span` queries directly as the
+Thankfully, most people never need to use the `span` queries directly, as the
 `match_phrase` query is usually good enough. However, certain specialized
 fields, like patent searches, use these low-level queries to perform very
-specific carefully constructed positional searches.
+specific, carefully constructed positional searches.
 
-**************************************************
+==================================================

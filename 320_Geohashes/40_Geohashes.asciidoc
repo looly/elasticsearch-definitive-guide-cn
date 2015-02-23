@@ -2,21 +2,20 @@
 == Geohashes
 
 http://en.wikipedia.org/wiki/Geohash[Geohashes] are a way of encoding
-`lat/lon` points as strings.  The original intention was to have a
+`lat/lon` points as strings.((("geohashes")))((("latitude/longitude pairs", "encoding lat/lon points as strings with geohashes")))((("strings", "geohash")))  The original intention was to have a
 URL-friendly way of specifying geolocations, but geohashes have turned out to
-be a useful way of indexing geo-points and geo- shapes in databases.
+be a useful way of indexing geo-points and geo-shapes in databases.
 
-Geohashes divide the world up into a grid of 32 cells -- 4 rows and 8 columns
--- each represented by a letter or number.  The `g` cell covers half of
-Greenland, all of Iceland and most of Great Britian. Each cell can be further
-divided into anokther 32 cells, which can be divided into another 32 cells,
-and so on.  The `gc`, cell covers Ireland and England, `gcp` covers most of
+Geohashes divide the world into a grid of 32 cells--4 rows and 8 columns--each represented by a letter or number.  The `g` cell covers half of
+Greenland, all of Iceland, and most of Great Britian. Each cell can be further
+divided into another 32 cells, which can be divided into another 32 cells,
+and so on.  The `gc` cell covers Ireland and England, `gcp` covers most of
 London and part of Southern England, and `gcpuuz94k` is the entrance to
-Buckingham Palace, accurate to about 5 metres.
+Buckingham Palace, accurate to about 5 meters.
 
 In other words, the longer the geohash string, the more accurate it is.  If
-two geohashes share a prefix -- `gcpuux` and `gcpuuz` -- then it implies that
-they are near to each other.  The longer the shared prefix, the closer they
+two geohashes share a prefix&#x2014; and `gcpuuz`&#x2014;then it implies that
+they are near each other.  The longer the shared prefix, the closer they
 are.
 
 That said, two locations that are right next to each other may have completely
@@ -26,9 +25,9 @@ geohash `u10hbp`, because it falls into the `u` cell, the next top-level cell
 to the east of the `g` cell.
 
 Geo-points can index their associated geohashes automatically, but more
-importantly, they can also index all geohash *prefixes*. Indexing the location
-of the entrance to Buckingham Palace -- latitude `51.501568` and longitude
-`-0.141257` -- would index all of the geohashes listed in the table below,
+important, they can also index all geohash _prefixes_. Indexing the location
+of the entrance to Buckingham Palace--latitude `51.501568` and longitude
+`-0.141257`&#x2014;would index all of the geohashes listed in the following table,
 along with  the approximate dimensions of each geohash cell:
 
 [cols="1m,1m,3d",options="header"]
@@ -48,6 +47,6 @@ along with  the approximate dimensions of each geohash cell:
 |gcpuuz94kkp5   |12   | ~ 3.7cm x 1.8cm
 |=============================================
 
-The {ref}query-dsl-geohash-cell-filter.html[`geohash_cell` filter] can use
-these geohash prefixes to find locations near a specified `lat/lon` point.
+The http://bit.ly/1DIqyex[`geohash_cell` filter] can use
+these geohash prefixes((("geohash_cell filter")))((("filters", "geohash_cell"))) to find locations near a specified `lat/lon` point.
 

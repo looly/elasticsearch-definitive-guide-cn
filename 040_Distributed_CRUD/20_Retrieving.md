@@ -2,7 +2,7 @@
 
 文档能够从主分片或任意一个复制分片被检索。
 
-![检索一个文档](../images/04-03_get.png)
+![检索一个文档](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0403.png)
 
 下面我们罗列在主分片或复制分片上检索一个文档必要的顺序步骤：
 

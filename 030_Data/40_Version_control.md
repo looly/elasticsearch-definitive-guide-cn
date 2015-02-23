@@ -8,7 +8,7 @@
 
 一天，老板决定做一个促销。瞬间，我们每秒就销售了几个商品。想象两个同时运行的web进程，两者同时处理一件商品的订单：
 
-![img-data-lww](../images/03-01_concurrency.png)
+![img-data-lww](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0301.png)
 
 `web_1`让`stock_count`失效是因为`web_2`没有察觉到`stock_count`的拷贝已经过期（译者注：`web_1`取数据，减一后更新了`stock_count`。可惜在`web_1`更新`stock_count`前它就拿到了数据，这个数据已经是过期的了，当`web_2`再回来更新`stock_count`时这个数字就是错的。这样就会造成看似卖了一件东西，其实是卖了两件，这个应该属于幻读。）。结果是我们认为自己确实还有更多的商品，最终顾客会因为销售给他们没有的东西而失望。
 

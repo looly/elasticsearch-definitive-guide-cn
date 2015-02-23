@@ -2,7 +2,7 @@
 
 `update` API 结合了之前提到的读和写的模式。
 
-![局部更新文档](../images/04-04_update.png)
+![局部更新文档](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0404.png)
 
 下面我们罗列执行局部更新必要的顺序步骤：
 

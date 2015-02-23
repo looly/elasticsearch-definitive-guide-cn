@@ -2,7 +2,7 @@
 
 为了阐述意图，我们假设有三个节点的集群。它包含一个叫做`bblogs`的索引并拥有两个主分片。每个主分片有两个复制分片。相同的分片不会放在同一个节点上，所以我们的集群是这样的：
 
-![有三个节点一个索引的集群](../images/04-01_index.png)
+![有三个节点一个索引的集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0401.png)
 
 我们能够发送请求给集群中任意一个节点。每个节点都有能力处理任意请求。每个节点都知道任意文档所在的节点，所以也可以将请求转发到需要的节点。下面的例子中，我们将发送所有请求给`Node 1`，这个节点我们将会称之为**请求节点(requesting node)**
 

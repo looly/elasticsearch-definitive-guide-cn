@@ -1,4 +1,5 @@
-![cover](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/cover_small.jpg)
+<center>![cover](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/cover_small.jpg)</center>
+
 # Elasticsearch 权威指南（中文版）
 
 ## 阅读地址：[Elasticsearch权威指南（中文版）](https://www.gitbook.io/book/looly/elasticsearch-the-definitive-guide-cn/)

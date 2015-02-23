@@ -27,7 +27,7 @@ PUT /blogs
 ```
 
 附带索引的单一节点集群：
-![附带索引的单一节点集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/02-02_one_node.png)
+![附带索引的单一节点集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0202.png)
 
 我们的集群现在看起来像**单节点集群(cluster-one-node)**——三个主分片都被分配到`Node 1`。如果我们现在想检查**集群健康(cluster-health)**，我们将见到以下信息：
 

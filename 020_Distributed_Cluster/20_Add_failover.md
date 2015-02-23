@@ -11,7 +11,7 @@
 如果我们启动了第二个节点，这个集群应该叫做**双节点集群(cluster-two-nodes)**
 
 双节点集群——所有的主分片和复制分片都被分配:
-![双节点集群](../images/02-03_two_nodes.png)
+![双节点集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0203.png)
 
 第二个节点加入集群时，三个**复制碎片(replica shards)**已经被分配了——与三个主分片一一对应。那意味着在丢失一个节点的情况下依旧可以保证数据的完整性。
 

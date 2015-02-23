@@ -13,7 +13,7 @@ PUT /blogs/_settings
 ```
 
 增加`number_of_replicas`到2：
-![三节点两复制集群](../images/02-05_replicas.png)
+![三节点两复制集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0205.png)
 
 从图中可以看出，`blogs`索引现在有9个分片：三个主分片和6个复制分片。这意味着我们能够扩展到9个节点，再次的变成每个节点一个分片。这样使我们的搜索性能相比标准的三节点集群扩展**三倍**。
 

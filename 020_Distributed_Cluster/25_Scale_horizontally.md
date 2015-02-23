@@ -3,7 +3,7 @@
 随着应用需求的增长，我们该如何扩展？如果我们启动第三个节点，我们的集群会自我感知，这时便成为了**三节点集群(cluster-three-nodes)**
 
 分片已经被重新分配以平衡负载：
-![三节点集群](../images/02-04_three_nodes.png)
+![三节点集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0204.png)
 
 从`Node 1`和`Node 2`来的分片已经被移动到新的`Node 3`上，这样每个节点就有两个分片，以代替之前的三个。这意味着每个节点的硬件资源（CPU、RAM、I/O）被较少的分片共享，这样每个分片就会有更好的表现。
 

@@ -4,7 +4,7 @@
 
 一旦接收到每个节点的应答，然后整理这些响应组合为一个单独的响应，最后返回给客户端。
 
-![通过mget检索多个文档](../images/04-05_mget.png)
+![通过mget检索多个文档](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0405.png)
 
 下面我们将罗列通过一个`mget`请求检索多个文档的顺序步骤：
 
@@ -13,7 +13,7 @@
 
 `routing` 参数可以被`docs`中的每个文档设置。
 
-![通过打包批量修改文档](../images/04-06_bulk.png)
+![通过打包批量修改文档](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0406.png)
 
 下面我们将罗列使用一个`bulk`执行多个`create`、`index`、`delete`和`update`请求的顺序步骤：
 

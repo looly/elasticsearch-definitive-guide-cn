@@ -2,7 +2,7 @@
 
 新建、索引和删除请求都是**写(write)**操作，它们必须在主分片上成功完成才能复制到相关的复制分片上。
 
-![新建、索引或删除单一文档](../images/04-02_write.png)
+![新建、索引或删除单一文档](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0402.png)
 
 下面我们罗列在主分片和复制分片上成功新建、索引或删除一个文档必要的顺序步骤：
 

@@ -2,7 +2,7 @@
 
 我们已经说过Elasticsearch可以应对节点失效，所以让我们继续尝试。如果我们杀掉第一个节点的进程（以下简称杀掉节点），看起来像如此：
 
-![杀掉一个节点后的集群](../images/02-06_node_failure.png)
+![杀掉一个节点后的集群](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/images/elas_0206.png)
 
 我们杀掉的节点是一个主节点。必须有一个主节点来让集群的功能可用，所以发生的第一件事就是各节点选举了一个新的主节点：`Node 2`。
 

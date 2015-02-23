@@ -9,54 +9,38 @@
 
 Elasticsearch支持以下简单字段类型：
 
-|类型             |  表示 |
-|String:          |  `string`|
-|Whole number:    |  `byte`, `short`, `integer`, `long`
-|Floating point:  |  `float`, `double`
-|Boolean:         |  `boolean`
-|Date:            |  `date`
+|类型            |  表示的数据类型                    |
+|----------------|------------------------------------|
+|String          |  `string`                          |
+|Whole number    |  `byte`, `short`, `integer`, `long`|
+|Floating point  |  `float`, `double`                 |
+|Boolean         |  `boolean`                         |
+|Date            |  `date`                            |
 
-When you index a document which contains a new field -- one previously not
-seen -- Elasticsearch will use <<dynamic-mapping,_dynamic mapping_>> to try
-to guess the field type from the basic datatypes available in JSON,
-using the following rules:
+当你索引一个包含新字段的文档——一个之前没有的字段——Elasticsearch将使用动态映射猜测字段类型，这类型来自于JSON的基本数据类型，使用以下规则：
 
-[horizontal]
-*JSON type:*                       ::          *Field type:*
+|JSON type                          |          Field type    |
+|-----------------------------------|------------------------|
+|Boolean: `true` or `false`         |          `"boolean"`   |
+|Whole number: `123`                |          `"long"`      |
+|Floating point: `123.45`           |          `"double"`    |
+|String, valid date: `"2014-09-15"` |          `"date"`      |
+|String: `"foo bar"`                |          `"string"`    |
 
-Boolean: `true` or `false`         ::          `"boolean"`
+> ### 注意
+> 这意味着，如果你索引一个带引号的数字——`"123"`，它将被映射为`"string"`类型，而不是`"long"`类型。然而，如果字段已经被映射为`"long"`类型，Elasticsearch将尝试转换字符串为long，并在转换失败时会抛出异常。
 
-Whole number: `123`                ::          `"long"`
+### 查看映射
 
-Floating point: `123.45`           ::          `"double"`
+我们可以使用`_mapping`后缀来查看Elasticsearch中的映射。在本章开始我们已经找到索引`gb`类型`tweet`中的映射：
 
-String, valid date: `"2014-09-15"` ::          `"date"`
-
-String: `"foo bar"`                ::          `"string"`
-
-
-NOTE: This means that, if you index a number in quotes -- `"123"` it will be
-mapped as type `"string"`, not type `"long"`. However, if the field is
-already mapped as type `"long"`, then Elasticsearch will try to convert
-the string into a long, and throw an exception if it can't.
-
-==== Viewing the mapping
-
-We can view the mapping that Elasticsearch has for one or more types in one or
-more indices using the `/_mapping` endpoint. At the <<mapping-analysis,start
-of this chapter>> we already retrieved the mapping for type `tweet` in index
-`gb`:
-
-[source,js]
---------------------------------------------------
+```javascript
 GET /gb/_mapping/tweet
---------------------------------------------------
+```
 
-This shows us the mapping for the fields (called _properties_) that
-Elasticsearch generated dynamically from the documents that we indexed:
+这展示给了我们字段的映射（叫做**属性(properties)**），这些映射是Elasticsearch在创建索引时动态生成的：
 
-[source,js]
---------------------------------------------------
+```javascript
 {
    "gb": {
       "mappings": {
@@ -80,80 +64,58 @@ Elasticsearch generated dynamically from the documents that we indexed:
       }
    }
 }
---------------------------------------------------
+```
 
-[TIP]
-==================================================
-Incorrect mappings, such as having an `age` field mapped as type `string`
-instead of `integer`, can produce confusing results to your queries.
+> ### 小提示
+> 错误的映射，例如把`age`字段映射为`string`类型而不是`integer`类型，会造成查询结果混乱。
 
-Instead of assuming that your mapping is correct, check it!
-==================================================
+> 要检查映射类型，而不是假设它是正确的！
 
-[[custom-field-mappings]]
-==== Customizing field mappings
+### 自定义字段映射
 
 The most important attribute of a field is the `type`. For fields
 other than `string` fields, you will seldom need to map anything other
 than `type`:
 
-[source,js]
---------------------------------------------------
+映射中最重要的字段参数是`type`。除了`string`类型的字段，你可能很少需要映射其他的`type`：
+
+```javascript
 {
     "number_of_clicks": {
         "type": "integer"
     }
 }
---------------------------------------------------
+```
 
+`string`类型的字段，默认的，考虑到包含全文本，它们的值在索引前要经过分析器分析，并且在全文搜索此字段前要把查询语句做分析处理。
 
-Fields of type `"string"` are, by default, considered to contain full text.
-That is, their value will be passed through an analyzer before being indexed
-and a full text query on the field will pass the query string through an
-analyzer before searching.
-
-The two most important mapping attributes for `string` fields are
-`index` and `analyzer`.
+对于`string`字段，两个最重要的映射参数是`index`和`analyer`。
 
 ===== `index`
+### `index`
 
-The `index` attribute controls how the string will be indexed. It
-can contain one of three values:
+`index`参数控制字符串以何种方式被索引。它包含以下三个值当中的一个：
 
-[horizontal]
-`analyzed`::        First analyze the string, then index it.  In other words,
-                    index this field as full text.
+|值            |解释                                  |
+|--------------|--------------------------------------|
+|`analyzed`    |首先分析这个字符串，然后索引。换言之，以全文形式索引此字段。                                          |
+|`not_analyzed`|索引这个字段，使之可以被搜索，但是索引内容和指定值一样。不分析此字段。                                |
+|`no`          |不索引这个字段。这个字段不能为搜索到。|
 
-`not_analyzed`::    Index this field, so it is searchable, but index the
-                    value exactly as specified. Do not analyze it.
+`string`类型字段默认值是`analyzed`。如果我们想映射字段为确切值，我们需要设置它为`not_analyzed`：
 
-`no`::              Don't index this field at all. This field
-                    will not be searchable.
-
-The default value of `index` for a `string` field is `analyzed`.  If we
-want to map the field as an exact value, then we need to set it to
-`not_analyzed`:
-
-[source,js]
---------------------------------------------------
+```javascript
 {
     "tag": {
         "type":     "string",
         "index":    "not_analyzed"
     }
 }
---------------------------------------------------
+```
 
+> 其他简单类型——`long`、`double`、`date`等等——也接受`index`参数，但相应的值只能是`no`和`not_analyzed`，它们的值不能被分析。
 
-****
-
-The other simple types -- `long`, `double`, `date` etc -- also accept the
-`index` parameter, but the only relevant values are `no` and `not_analyzed`,
-as their values are never analyzed.
-
-****
-
-===== `analyzer`
+### 分析
 
 For `analyzed` string fields, use the `analyzer` attribute to
 specify which analyzer to apply both at search time and at index time. By
@@ -161,52 +123,37 @@ default, Elasticsearch uses the `standard` analyzer, but you can change this
 by specifying one of the built-in analyzers, such as
 `whitespace`, `simple`, or `english`:
 
-[source,js]
---------------------------------------------------
+对于`analyzed`类型的字符串字段，使用`analyzer`参数来指定哪一种分析器将在搜索和索引的时候使用。默认的，Elasticsearch使用`standard`分析器，但是你可以通过指定一个内建的分析器来更改它，例如`whitespace`、`simple`或`english`。
+
+```javascript
 {
     "tweet": {
         "type":     "string",
         "analyzer": "english"
     }
 }
---------------------------------------------------
+```
 
+在《自定义分析器》章节我们将告诉你如何定义和使用自定义的分析器。
 
-In <<custom-analyzers>> we will show you how to define and use custom analyzers
-as well.
+### 更新映射
 
-[[updating-a-mapping]]
-==== Updating a mapping
+你可以在第一次创建索引的时候指定映射的类型。此外，你也可以晚些时候为新类型添加映射（或者为已有的类型更新映射）。
 
-You can specify the mapping for a type when you first create an index.
-Alternatively, you can add the mapping for a new type (or update the mapping
-for an existing type) later, using the `/_mapping` endpoint.
+> ### 重要
+> 你可以向已有映射中**增加**字段，但你不能**修改**它。如果一个字段在映射中已经存在，这可能意味着那个字段的数据已经被索引。如果你改变了字段映射，那已经被索引的数据将错误并且不能被正确的搜索到。
 
-[IMPORTANT]
-================================================
-While you can *add* to an existing mapping, you can't *change* it.  If a field
-already exists in the mapping, then it probably means that data from that
-field has already been indexed.  If you were to change the field mapping, then
-the already indexed data would be wrong and would not be properly searchable.
-================================================
+我们可以更新一个映射来增加一个新字段，但是不能把已有字段的类型那个从`analyzed`改到`not_analyzed`。
 
-We can update a mapping to add a new field, but we can't change an existing
-field from `analyzed` to `not_analyzed`.
+为了演示两个指定的映射方法，让我们首先删除索引`gb`：
 
-To demonstrate both ways of specifying mappings, let's first delete the `gb`
-index:
-
-[source,sh]
---------------------------------------------------
+```sh
 DELETE /gb
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/45_Mapping.json
+```
 
-Then create a new index, specifying that the `tweet` field should use
-the `english` analyzer:
+然后创建一个新索引，指定`tweet`字段的分析器为`english`：
 
-[source,js]
---------------------------------------------------
+```javascript
 PUT /gb <1>
 {
   "mappings": {
@@ -229,15 +176,12 @@ PUT /gb <1>
     }
   }
 }
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/45_Mapping.json
-<1> This creates the index with the `mappings` specified in the body.
+```
+`<1>` 这将创建包含`mappings`的索引，映射在请求体中指定。
 
-Later on, we decide to add a new `not_analyzed` text field called `tag` to the
-`tweet` mapping, using the `_mapping` endpoint:
+再后来，我们决定在`tweet`的映射中增加一个新的`not_analyzed`类型的文本字段，叫做`tag`，使用`_mapping`后缀:
 
-[source,js]
---------------------------------------------------
+```javascript
 PUT /gb/_mapping/tweet
 {
   "properties" : {
@@ -247,28 +191,22 @@ PUT /gb/_mapping/tweet
     }
   }
 }
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/45_Mapping.json
+```
 
-Note that we didn't need to list all of the existing fields again, as we can't
-change them anyway.  Our new field has been merged into the existing mapping.
+注意到我们不再需要列出所有的已经存在的字段，因为我们没法修改他们。我们的新字段已经被合并至存在的那个映射中。
 
-==== Testing the mapping
+### 测试映射
 
-You can use the `analyze` API to test the mapping for string fields by
-name. Compare the output of these two requests:
+你可以通过名字使用`analyze` API测试字符串字段的映射。对比这两个请求的输出：
 
-[source,js]
---------------------------------------------------
+```javascript
 GET /gb/_analyze?field=tweet
 Black-cats <1>
 
 GET /gb/_analyze?field=tag
 Black-cats <1>
---------------------------------------------------
-// SENSE: 052_Mapping_Analysis/45_Mapping.json
-<1> The text we want to analyze is passed in the body.
+```
 
-The `tweet` field produces the two terms `"black"` and `"cat"`, while the
-`tag` field produces the single term `"Black-cats"`. In other words, our
-mapping is working correctly.
+`<1>` 我们想要分析的文本被放在请求体中。
+
+`tweet`字段产生两个词，`"black"`和`"cat"`,`tag`字段产生单独的一个词`"Black-cats"`。换言之，我们的映射工作正常。

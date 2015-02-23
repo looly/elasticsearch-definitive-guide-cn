@@ -9,34 +9,33 @@ Elasticsearch使用一种叫做**倒排索引(inverted index)**的结构来做�
 
 为了创建倒排索引，我们首先切分每个文档的`content`字段为单独的单词（我们把它们叫做**词(terms)**或者**表征(tokens)**）（译者注：关于`terms`和`tokens`的翻译比较生硬，只需知道语句分词后的个体叫做这两个。），把所有的唯一词放入列表并排序，结果是这个样子的：
 
-    Term      Doc_1  Doc_2
-    -------------------------
-    Quick   |       |  X
-    The     |   X   |
-    brown   |   X   |  X
-    dog     |   X   |
-    dogs    |       |  X
-    fox     |   X   |
-    foxes   |       |  X
-    in      |       |  X
-    jumped  |   X   |
-    lazy    |   X   |  X
-    leap    |       |  X
-    over    |   X   |  X
-    quick   |   X   |
-    summer  |       |  X
-    the     |   X   |
-    ------------------------
+|Term    | Doc_1 |Doc_2|
+|--------|-------|-----|
+|Quick   |       |  X  |
+|The     |   X   |     |
+|brown   |   X   |  X  |
+|dog     |   X   |     |
+|dogs    |       |  X  |
+|fox     |   X   |     |
+|foxes   |       |  X  |
+|in      |       |  X  |
+|jumped  |   X   |     |
+|lazy    |   X   |  X  |
+|leap    |       |  X  |
+|over    |   X   |  X  |
+|quick   |   X   |     |
+|summer  |       |  X  |
+|the     |   X   |     ||
 
 现在，如果我们想搜索`"quick brown"`，我们只需要找到每个词在哪个文档中出现既可：
 
 
-    Term      Doc_1  Doc_2
-    -------------------------
-    brown   |   X   |  X
-    quick   |   X   |
-    ------------------------
-    Total   |   2   |  1
+|Term | Doc_1 |Doc_2|
+|-----|-------|-----|
+|brown|   X   |  X  |
+|quick|   X   |     |
+|-----|-------|-----|
+|Total|   2   |  1  |
 
 两个文档都匹配，但是第一个比第二个有更多的匹配项。
 如果我们加入简单的**相似度算法(similarity algorithm)**，计算匹配单词的数目，这样我们就可以说第一个文档比第二个匹配度更高——对于我们的查询具有更多相关性。
@@ -59,19 +58,18 @@ Elasticsearch使用一种叫做**倒排索引(inverted index)**的结构来做�
 
 现在的索引：
 
-    Term      Doc_1  Doc_2
-    -------------------------
-    brown   |   X   |  X
-    dog     |   X   |  X
-    fox     |   X   |  X
-    in      |       |  X
-    jump    |   X   |  X
-    lazy    |   X   |  X
-    over    |   X   |  X
-    quick   |   X   |  X
-    summer  |       |  X
-    the     |   X   |  X
-    ------------------------
+|Term    | Doc_1 |Doc_2|
+|--------|-------|-----|
+|brown   |   X   |  X  |
+|dog     |   X   |  X  |
+|fox     |   X   |  X  |
+|in      |       |  X  |
+|jump    |   X   |  X  |
+|lazy    |   X   |  X  |
+|over    |   X   |  X  |
+|quick   |   X   |  X  |
+|summer  |       |  X  |
+|the     |   X   |  X  |
 
 但我们还未成功。我们的搜索`"+Quick +fox"`*依旧*失败，因为`"Quick"`的确切值已经不在索引里，不过，如果我们使用相同的标准化规则处理查询字符串的`content`字段，查询将变成`"+quick +fox"`，这样就可以匹配到两个文档。
 

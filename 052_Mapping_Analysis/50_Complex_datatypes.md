@@ -1,30 +1,18 @@
-[[complex-core-fields]]
-=== Complex core field types
+## 复合核心字段类型
 
-Besides the simple scalar datatypes that we mentioned above, JSON also
-has `null` values, arrays and objects, all of which are supported by
-Elasticsearch:
+除了之前提到的简单的标量类型，JSON还有`null`值，数组和对象，所有这些Elasticsearch都支持：
 
-==== Multi-value fields
+### 多值字段
 
-It is quite possible that we want our `tag` field to contain more
-than one tag. Instead of a single string, we could index an array of tags:
+我们想让`tag`字段包含多个字段，这非常有可能发生。我们可以索引一个标签数组来代替单一字符串：
 
-[source,js]
---------------------------------------------------
+```javascript
 { "tag": [ "search", "nosql" ]}
---------------------------------------------------
+```
 
+对于数组不需要特殊的映射。任何一个字段可以包含零个、一个或多个值，同样对于全文字段被分析产生多个词。
 
-There is no special mapping required for arrays. Any field can contain zero,
-one or more values, in the same way as a full text field is analyzed to
-produce multiple terms.
-
-By implication, this means that *all of the values of an array must be
-of the same datatype*.  You can't mix dates with strings. If you create
-a new field by indexing an array, Elasticsearch will use the
-datatype of the first value in the array to determine the `type` of the
-new field.
+言外之意，这意味着**数组中所有值必须为同一类型**。你不能把日期和字符窜混合。如果你创建一个新字段，这个字段索引了一个数组，Elasticsearch将使用第一个值的类型来确定这个新字段的类型。
 
 ****
 

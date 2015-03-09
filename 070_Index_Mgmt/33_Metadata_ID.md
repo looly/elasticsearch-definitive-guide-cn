@@ -2,16 +2,16 @@
 
 There are four metadata fields ((("metadata, document", "identity")))associated with document identity:
 
-`_id`::    
+`_id`::
    The string ID of the document
-   
-`_type`::  
+
+`_type`::
    The type name of the document
-   
-`_index`:: 
+
+`_index`::
    The index where the document lives
-   
-`_uid`::   
+
+`_uid`::
    The `_type` and `_id` concatenated together as `type#id`
 
 By default, the `_uid` field is((("id field"))) stored (can be retrieved) and

@@ -11,7 +11,7 @@ to reflect more-recent changes. Each inverted index can be queried in turn--star
 Lucene, the Java libraries on which Elasticsearch is based, introduced  the
 concept of _per-segment search_. ((("per-segment search")))((("segments")))((("indices", "in Lucene"))) A _segment_ is an inverted index in its own
 right,  but now the word _index_ in Lucene came to mean a _collection of
-segments_ plus a _commit point_&#x2014;a file((("commit point"))) that lists all known segments, as depicted in <<img-index-segments>>. New documents are first added to an in-memory indexing buffer, as shown in <<img-memory-buffer>>, before being written to an on-disk segment, as in <<img-post-commit>> 
+segments_ plus a _commit point_&#x2014;a file((("commit point"))) that lists all known segments, as depicted in <<img-index-segments>>. New documents are first added to an in-memory indexing buffer, as shown in <<img-memory-buffer>>, before being written to an on-disk segment, as in <<img-post-commit>>
 
 [[img-index-segments]]
 .A Lucene index with a commit point and three segments

@@ -1,8 +1,8 @@
 ## 扁平化你的数据
 
-Elasticsearch 鼓励你在创建索引的时候就 [扁平化](http://en.wikipedia.org/wiki/Denormalization) 你的数据，这样做可以获取最好的搜索性能。在每一篇文档里面冗余一些数据可以避免join操作。
+Elasticsearch 鼓励你在创建索引的时候就 [扁平化（denormalizing）](http://en.wikipedia.org/wiki/Denormalization) 你的数据，这样做可以获取最好的搜索性能。在每一篇文档里面冗余一些数据可以避免join操作。
 
-举个例子，如果我们想通过作者姓名来查找某一篇博客，那么就把作者的姓名包含在「博客」这个 文档里面，就像这样：
+举个例子，如果我们想通过 `user` 来查找某一篇 `blog`，那么就把 `user` 的姓名包含在 `blog` 这个 document 里面，就像这样：
 
 ``` json
 

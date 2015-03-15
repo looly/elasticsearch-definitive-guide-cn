@@ -4,7 +4,7 @@ fix by [wxlfight](https://github.com/wxlfight)
 
 Elasticsearch是一个实时分布式搜索和分析引擎。它让你以前所未有的速度处理大数据成为可能。
 
-它用于全文搜索、结构化搜索、分析以及将分析以及将这三者混合使用：
+它用于全文搜索、结构化搜索、分析以及将这三者混合使用：
 
 * 维基百科使用Elasticsearch提供全文搜索并高亮关键字，以及**输入实时搜索(search-as-you-type)**和**搜索纠错(did-you-mean)**等搜索建议功能。
 

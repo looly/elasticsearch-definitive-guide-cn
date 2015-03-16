@@ -73,10 +73,6 @@ GET /gb/_mapping/tweet
 
 ### 自定义字段映射
 
-The most important attribute of a field is the `type`. For fields
-other than `string` fields, you will seldom need to map anything other
-than `type`:
-
 映射中最重要的字段参数是`type`。除了`string`类型的字段，你可能很少需要映射其他的`type`：
 
 ```javascript
@@ -91,7 +87,6 @@ than `type`:
 
 对于`string`字段，两个最重要的映射参数是`index`和`analyer`。
 
-===== `index`
 ### `index`
 
 `index`参数控制字符串以何种方式被索引。它包含以下三个值当中的一个：
@@ -116,12 +111,6 @@ than `type`:
 > 其他简单类型——`long`、`double`、`date`等等——也接受`index`参数，但相应的值只能是`no`和`not_analyzed`，它们的值不能被分析。
 
 ### 分析
-
-For `analyzed` string fields, use the `analyzer` attribute to
-specify which analyzer to apply both at search time and at index time. By
-default, Elasticsearch uses the `standard` analyzer, but you can change this
-by specifying one of the built-in analyzers, such as
-`whitespace`, `simple`, or `english`:
 
 对于`analyzed`类型的字符串字段，使用`analyzer`参数来指定哪一种分析器将在搜索和索引的时候使用。默认的，Elasticsearch使用`standard`分析器，但是你可以通过指定一个内建的分析器来更改它，例如`whitespace`、`simple`或`english`。
 

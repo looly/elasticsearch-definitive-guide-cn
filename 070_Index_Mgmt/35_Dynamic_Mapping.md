@@ -15,13 +15,13 @@ to alert you to the problem.
 Fortunately, you can control this behavior((("dynamic setting"))) with the `dynamic` setting,
 which accepts the following options:
 
-`true`::    
+`true`::
    Add new fields dynamically--the default
-   
-`false`::   
+
+`false`::
    Ignore new fields
-   
-`strict`::  
+
+`strict`::
    Throw an exception if an unknown field is encountered
 
 The `dynamic` setting may be applied to the root object or to any field

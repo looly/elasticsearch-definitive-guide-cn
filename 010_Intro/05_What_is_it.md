@@ -1,6 +1,6 @@
 ## 为了搜索，你懂的
 
-Elasticsearch是一个基于[Apache Lucene(TM)](https://lucene.apache.org/core/)的开源搜索引擎，无论在开源还是专有领域，Lucene可以被认为是迄今为止最先进、性能最好的、功能最全的搜素引擎库。
+Elasticsearch是一个基于[Apache Lucene(TM)](https://lucene.apache.org/core/)的开源搜索引擎，无论在开源还是专有领域，Lucene可以被认为是迄今为止最先进、性能最好的、功能最全的搜索引擎库。
 
 但是，Lucene只是一个库。想要发挥其强大的作用，你需使用Java并要将其集成到你的应用中，Lucene的确非常复杂，你需要深入的了解检索相关知识来理解它是如何工作的。
 

@@ -1,62 +1,52 @@
-=== Queries and Filters
+translate by [williamzhao](https://github.com/williamzhao)
 
-Although we refer to the Query DSL, in reality there are two DSLs: the
-Query DSL and the Filter DSL. Query clauses and filter clauses are similar
-in nature, but have slightly different purposes.
+## 查询与过滤
 
-A _filter_ asks a `yes|no` question of every document and is used
-for fields that contain exact values:
+前面我们讲到的是关于结构化查询语句，事实上我们可以使用两种结构化语句：
+结构化查询（Query DSL）和结构化过滤（Filter DSL）。
+查询与过滤语句非常相似，但是它们由于使用目的不同而稍有差异。
 
-* is the `created` date in the range `2013` .. `2014`?
+一条过滤语句会询问每个文档的字段值是否包含着特定值：
 
-* does the `status` field contain the term `"published"`?
+* 是否 `created` 的日期范围在 `2013` 到 `2014` ?
 
-* is the `lat_lon` field within `10km` of a specified point?
+* 是否 `status` 字段中包含单词 "published" ?
 
-A _query_ is similar to a filter, but also asks the question:
-_How *well* does this document match?_
+* 是否 `lat_lon` 字段中的地理位置与目标点相距不超过10km ?
 
-Typical uses for a query would be to find documents:
+一条查询语句与过滤语句相似，但问法不同：
 
-* that best match the words: `full text search`
+查询语句会询问每个文档的字段值与特定值的匹配程度如何？
 
-* that contain the word `run`, but may also match `runs`, `running`,
-  `jog` or `sprint`
+查询语句的典型用法是为了找到文档：
 
-* containing the words `quick`, `brown` and `fox` --- the closer together they
-  are, the more relevant the document
+* 查找与 `full text search` 这个词语最佳匹配的文档
 
-* tagged with `lucene`,  `search` or `java` -- the more tags, the more
-  relevant the document
+* 查找包含单词 `run` ，但是也包含`runs`, `running`, `jog` 或 `sprint`的文档
 
-A query calculates how _relevant_ each document is to the
-query, and assigns it a relevance `_score`, which is later used to
-sort matching documents by relevance. This concept of relevance is
-well suited to full text search where there is seldom a completely
-``correct'' answer.
+* 同时包含着 `quick`, `brown` 和 `fox`  --- 单词间离得越近，该文档的相关性越高
 
-==== Performance differences
+* 标识着 `lucene`,  `search` 或 `java`  --- 标识词越多，该文档的相关性越高
 
-The output from most filter clauses -- a simple list of the documents that match
-the filter -- is quick to calculate and easy to cache in memory, using
-only one bit per document. These cached filters can be reused
-very efficiently for subsequent requests.
+一条查询语句会计算每个文档与查询语句的相关性，会给出一个相关性评分 `_score`，并且
+按照相关性对匹配到的文档进行排序。
+这种评分方式非常适用于一个没有完全配置结果的全文本搜索。
 
-Queries not only have to find matching documents, but also to calculate how
-relevant each document is, which typically makes queries heavier than filters.
-Also, query results are not cachable.
+## 性能差异
 
-Thanks to the inverted index, a simple query which matches just a few documents
-may perform as well or better than a cached filter which spans millions
-of documents.  In general, however, a cached filter will outperform a
-query, and will do so consistently.
+使用过滤语句得到的结果集 --  一个简单的文档列表，快速匹配运算并存入内存是十分方便的，
+每个文档仅需要1个字节。这些缓存的过滤结果集与后续请求的结合使用是非常高效的。
 
-The goal of filters is to *reduce the number of documents that have to
-be examined by the query*.
+查询语句不仅要查找相匹配的文档，还需要计算每个文档的相关性，所以一般来说查询语句要比
+过滤语句更耗时，并且查询结果也不可缓存。
 
-==== When to use which
+幸亏有了倒排索引，一个只匹配少量文档的简单查询语句在百万级文档中的查询效率会与一条经过缓存
+的过滤语句旗鼓相当，甚至略占上风。
+但是一般情况下，一条经过缓存的过滤查询要远胜一条查询语句的执行效率。
 
-As a general rule, use query clauses for *full text* search or
-for any condition that should affect the *relevance score*, and
-use filter clauses for everything else.
+过滤语句的目的就是缩小匹配的文档结果集，所以需要仔细检查过滤条件。
+
+## 什么情况下使用
+
+原则上来说，使用查询语句做全文本搜索或其他需要进行相关性评分的时候，剩下的全部用过滤语句
 

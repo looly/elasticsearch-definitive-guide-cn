@@ -10,53 +10,35 @@
 { "tag": [ "search", "nosql" ]}
 ```
 
-对于数组不需要特殊的映射。任何一个字段可以包含零个、一个或多个值，同样对于全文字段被分析产生多个词。
+对于数组不需要特殊的映射。任何一个字段可以包含零个、一个或多个值，同样对于全文字段将被分析并产生多个词。
 
 言外之意，这意味着**数组中所有值必须为同一类型**。你不能把日期和字符窜混合。如果你创建一个新字段，这个字段索引了一个数组，Elasticsearch将使用第一个值的类型来确定这个新字段的类型。
 
-****
+当你从Elasticsearch中取回一个文档，任何一个数组的顺序和你索引它们的顺序一致。你取回的`_source`字段的顺序同样与索引它们的顺序相同。
 
-When you get a document back from Elasticsearch, any arrays will be in the
-same order as when you indexed the document.  The `_source` field that you get
-back contains exactly the same JSON document that you indexed.
-
-However, arrays are _indexed_ -- made searchable -- as multi-value fields,
-which are unordered.  At search time you can't refer to ``the first element''
-or ``the last element''.  Rather think of an array as a _bag of values_.
-
-****
+然而，数组是做为多值字段被**索引**的，它们没有顺序。在搜索阶段你不能指定“第一个值”或者“最后一个值”。倒不如把数组当作一个**值集合(gag of values)**
 
 ==== Empty fields
+### 空字段
 
-Arrays can, of course, be empty. This is the equivalent of having zero
-values. In fact, there is no way of storing a `null` value in Lucene, so
-a field with a `null` value is also considered to be an empty
-field.
+当然数组可以是空的。这等价于有零个值。事实上，Lucene没法存放`null`值，所以一个`null`值的字段被认为是空字段。
 
-These four fields would all be considered to be empty, and would not be
-indexed:
+这四个字段将被识别为空字段而不被索引：
 
-[source,js]
---------------------------------------------------
+```javascript
 "empty_string":             "",
 "null_value":               null,
 "empty_array":              [],
 "array_with_null_value":    [ null ]
---------------------------------------------------
+```
 
-[[inner-objects]]
-==== Multi-level objects
+### 多层对象
 
-The last native JSON datatype that we need to discuss is the _object_
--- known in other languages as hashes, hashmaps, dictionaries or
-associative arrays.
+我们需要讨论的最后一个自然JSON数据类型是**对象(object)**——在其它语言中叫做hashed、hashmaps、dictionaries 或者 associative arrays.
 
-_Inner objects_ are often used to embed one entity or object inside
-another. For instance, instead of having fields called `user_name`
-and `user_id` inside our `tweet` document, we could write it as:
+**内部对象(inner objects)**经常用于嵌入一个实体或对象里的另一个地方。例如，做在`tweet`文档中`user_name`和`user_id`的替代，我们可以这样写：
 
-[source,js]
---------------------------------------------------
+```javascript
 {
     "tweet":            "Elasticsearch is very flexible",
     "user": {
@@ -70,10 +52,10 @@ and `user_id` inside our `tweet` document, we could write it as:
         }
     }
 }
---------------------------------------------------
+```
 
 
-==== Mapping for inner objects
+### 内部对象的映射
 
 Elasticsearch will detect new object fields dynamically and map them as
 type `object`, with each inner field listed under `properties`:
@@ -106,8 +88,8 @@ type `object`, with each inner field listed under `properties`:
   }
 }
 --------------------------------------------------
-<1> Root object.
-<2> Inner objects.
+<1> 根对象.
+<2> 内部对象.
 
 The mapping for the `user` and `name` fields have a similar structure
 to the mapping for the `tweet` type itself.  In fact, the `type` mapping
@@ -115,6 +97,8 @@ is just a special type of `object` mapping, which we refer to as the
 _root object_.  It is just the same as any other object, except that it has
 some special top-level fields for document metadata, like `_source`,
 the `_all` field etc.
+
+对`user`和`name`字段的映射与`tweet`类型自己很相似。事实上，`type`映射只是`object`映射的一种特殊类型，
 
 ==== How inner objects are indexed
 

@@ -2,7 +2,7 @@
 
 理解Elasticsearch最好的方式是去运行它，让我们开始吧！
 
-安装Elasticsearch唯一的要求是官方新版的Java，地址：[www.java.com](http://www.java.com)
+安装Elasticsearch唯一的要求是安装官方新版的Java，地址：[www.java.com](http://www.java.com)
 
 你可以从 [elasticsearch.org/download](http://www.elasticsearch.org/download/) 下载最新版本的Elasticsearch。
 
@@ -20,19 +20,17 @@ cd  elasticsearch-$VERSION
 
 ## 安装Marvel
 
-[Marvel](http://www.elasticsearch.com/marvel)是Elasticsearch的管理和监控工具，对于开发使用免费的。它配备了一个叫做`Sense`的交互式控制台，方便通过浏览器直接与Elasticsearch交互。
+[Marvel](http://www.elasticsearch.com/marvel)是Elasticsearch的管理和监控工具，在开发环境下免费使用。它包含了一个叫做`Sense`的交互式控制台，使用户方便的通过浏览器直接与Elasticsearch进行交互。
 
-很多代码样例包含叫做`View in Sense` 的链接，点击会后会在Sense控制台上打开代码样例。
+Elasticsearch线上文档中的很多示例代码都附带一个`View in Sense`的链接。点击进去，就会在`Sense`控制台打开相应的实例。安装Marvel不是必须的，但是它可以通过在你本地Elasticsearch集群中运行示例代码而增加与此书的互动性。
 
-安装Marvel不是必须，但是它可以通过在你本地Elasticsearch集群中运行样例代码而增加与此书的互动性。
-
-Marvel是一个插件，在Elasticsearch目录中运行以下代码来下载和安装：
+Marvel是一个插件，可在Elasticsearch目录中运行以下命令来下载和安装：
 
 ```bash
 ./bin/plugin -i elasticsearch/marvel/latest
 ```
 
-你可能想要禁用监控，你可以通过以下代码关闭Marvel：
+你可能想要禁用监控，你可以通过以下命令关闭Marvel：
 
 ```bash
 echo 'marvel.agent.enabled: false' >> ./config/elasticsearch.yml

@@ -57,11 +57,9 @@
 
 ### 内部对象的映射
 
-Elasticsearch will detect new object fields dynamically and map them as
-type `object`, with each inner field listed under `properties`:
+Elasticsearch 会动态的检测新对象的字段，并且映射它们为 `object` 类型，将每个字段加到 `properties` 字段下
 
-[source,js]
---------------------------------------------------
+```javascript
 {
   "gb": {
     "tweet": { <1>
@@ -87,7 +85,8 @@ type `object`, with each inner field listed under `properties`:
     }
   }
 }
---------------------------------------------------
+```
+
 <1> 根对象.
 <2> 内部对象.
 
@@ -98,16 +97,15 @@ _root object_.  It is just the same as any other object, except that it has
 some special top-level fields for document metadata, like `_source`,
 the `_all` field etc.
 
-对`user`和`name`字段的映射与`tweet`类型自己很相似。事实上，`type`映射只是`object`映射的一种特殊类型，
+对`user`和`name`字段的映射与`tweet`类型自己很相似。事实上，`type`映射只是`object`映射的一种特殊类型，我们将 `object` 称为_根对象_。它与其他对象一模一样，除非它有一些特殊的顶层字段，比如 `_source`, `_all` 等等。
 
-==== How inner objects are indexed
+### 内部对象是怎样被映射的
 
 Lucene doesn't understand inner objects. A Lucene document consists of a flat
 list of key-value pairs.  In order for Elasticsearch to index inner objects
 usefully, it converts our document into something like this:
 
-[source,js]
---------------------------------------------------
+```javascript
 {
     "tweet":            [elasticsearch, flexible, very],
     "user.id":          [@johnsmith],
@@ -117,8 +115,7 @@ usefully, it converts our document into something like this:
     "user.name.first":  [john],
     "user.name.last":   [smith]
 }
---------------------------------------------------
-
+```
 
 _Inner fields_ can be referred to by name, eg `"first"`. To distinguish
 between two fields that have the same name we can use the full _path_,
@@ -172,4 +169,3 @@ but we can't get an accurate answer to:
 Correlated inner objects, which are able to answer queries like these,
 are called _nested_ objects, and we will discuss them later on in
 <<nested-objects>>.
-

@@ -1,36 +1,21 @@
-[[configuring-analyzers]]
-=== Configuring Analyzers
+### 配置分析器
 
-The third important index setting is the `analysis` section,((("index settings", "analysis"))) which is used
-to configure existing analyzers or to create new custom analyzers
-specific to your index.
+第三个重要的索引设置是 `analysis` 部分，用来配置已存在的分析器或创建自定义分析器来定制化你的索引。
 
-In <<analysis-intro>>, we introduced some of the built-in ((("analyzers", "built-in")))analyzers,
-which are used to convert full-text strings into an inverted index,
-suitable for searching.
+在<<分析器介绍>>中，我们介绍了一些内置的分析器，用于将全文字符串转换为适合搜索的倒排索引。
 
-The `standard` analyzer, which is the default analyzer
-used for full-text fields,((("standard analyzer", "components of"))) is a good choice for most Western languages.((("tokenization", "in standard analyzer")))((("standard token filter")))((("stop token filter")))((("standard tokenizer")))((("lowercase token filter")))
-It consists of the following:
+`standard` 分析器是用于全文字段的默认分析器，对于大部分西方语系来说是一个不错的选择。它考虑了以下几点：
 
-* The `standard` tokenizer, which splits the input text on word boundaries
-* The `standard` token filter, which is intended to tidy up the tokens
-  emitted by the tokenizer (but currently does nothing)
-* The `lowercase` token filter, which converts all tokens into lowercase
-* The `stop` token filter, which removes stopwords--common words
-  that have little impact on search relevance, such as `a`, `the`, `and`,
-  `is`.
+* `standard` 分词器，在词层级上分割输入的文本。
+* `standard` 过滤器，被设计用来整理分词器触发的所有表征（但是目前什么都没做）。
+* `lowercase` 过滤器，将所有表征转换为小写。
+* `stop` 过滤器，删除所有可能会造成搜索歧义的停用词，如 `a`，`the`，`and`，`is`。
 
-By default, the stopwords filter is disabled.  You can enable it by creating a
-custom analyzer based on the `standard` analyzer and setting the `stopwords`
-parameter.((("stopwords parameter"))) Either provide a list of stopwords or tell it to use a predefined
-stopwords list from a particular language.
+默认情况下，停用词过滤器是被禁用的。如需启用它，你可以通过创建一个基于 `standard` 分析器的自定义分析器，并且设置 `stopwords` 参数。可以提供一个停用词列表，或者使用一个特定语言的预定停用词列表。
 
-In the following example, we create a new analyzer called the `es_std`
-analyzer, which uses the predefined list of ((("Spanish", "analyzer using Spanish stopwords")))Spanish stopwords:
+在下面的例子中，我们创建了一个新的分析器，叫做 `es_std`，并使用预定义的西班牙语停用词：
 
-[source,js]
---------------------------------------------------
+```
 PUT /spanish_docs
 {
     "settings": {
@@ -44,25 +29,22 @@ PUT /spanish_docs
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/15_Configure_Analyzer.json
+```
 
-The `es_std` analyzer is not global--it exists only in the `spanish_docs`
-index where we have defined it. To test it with the `analyze` API, we must
-specify the index name:
+<!-- SENSE: 070_Index_Mgmt/15_Configure_Analyzer.json -->
 
-[source,js]
---------------------------------------------------
+`es_std` 分析器不是全局的，它仅仅存在于我们定义的 `spanish_docs` 索引中。为了用 `analyze` API 来测试它，我们需要使用特定的索引名。
+
+```
 GET /spanish_docs/_analyze?analyzer=es_std
 El veloz zorro marrón
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/15_Configure_Analyzer.json
+```
 
-The abbreviated results show that the Spanish stopword `El` has been
-removed correctly:
+<!-- SENSE: 070_Index_Mgmt/15_Configure_Analyzer.json -->
 
-[source,js]
---------------------------------------------------
+下面简化的结果中显示停用词 `El` 被正确的删除了：
+
+```
 {
   "tokens" : [
     { "token" :    "veloz",   "position" : 2 },
@@ -70,5 +52,4 @@ removed correctly:
     { "token" :    "marrón",  "position" : 4 }
   ]
 }
---------------------------------------------------
-
+```

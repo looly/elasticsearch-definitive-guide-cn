@@ -1,5 +1,4 @@
-[[custom-analyzers]]
-=== Custom Analyzers
+### 自定义分析器
 
 While Elasticsearch comes with a number of analyzers available out of the box,
 the real power comes from the ability to create your own custom analyzers

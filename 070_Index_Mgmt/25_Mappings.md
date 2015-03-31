@@ -1,73 +1,41 @@
-[[mapping]]
-=== Types and Mappings
+### 类型和映射
 
-A _type_ in Elasticsearch represents a class of similar documents.((("types", "defined"))) A type
-consists of a _name_&#x2014;such as `user` or `blogpost`&#x2014;and a _mapping_. The
-mapping, ((("mapping (types)")))like a database schema, describes the fields or _properties_ that
-documents of that type may have, ((("fields", "datatypes")))the datatype of each field--such as `string`,
-`integer`, or `date`&#x2014;and how those fields should be indexed and stored by
-Lucene.
+_类型_ 在 Elasticsearch 中表示一组相似的文档。_类型_ 由一个 _名称_（比如 `user` 或 `blogpost`）和一个类似数据库表结构的映射组成，描述了文档中可能包含的每个字段的 _属性_，数据类型（比如 `string`, `integer` 或 `date`），和是否这些字段需要被 Lucene 索引或储存。
 
-In <<document>>, we said that a type is like a table in a relational database.
-While this is a useful way to think about types initially, it is worth
-explaining in more detail exactly what a type is and how they are implemented
-on top of Lucene.
+在【文档】一章中，我们说过类型类似关系型数据库中的表格，一开始你可以这样做类比，但是现在值得更深入阐释一下什么是类型，且在 Lucene 中是怎么实现的。
 
-==== How Lucene Sees Documents
+### Lucene 如何处理文档
 
-A document in Lucene consists of a simple list of field-value pairs.((("documents", "in Lucene"))) A field
-must have at least one value, but any field can contain multiple values.
-Similarly, a single string value may be converted into multiple values by the
-analysis process.  Lucene doesn't care if the values are strings or numbers or
-dates--all values are just treated as _opaque bytes_.
+Lucene 中，一个文档由一组简单的键值对组成，一个字段至少需要有一个值，但是任何字段都可以有多个值。类似的，一个单独的字符串可能在分析过程中被转换成多个值。Lucene 不关心这些值是字符串，数字或日期，所有的值都被当成 _不透明字节_
 
-When we index a document in Lucene, the values for each field are added to the
-inverted index for the associated field.  Optionally, the original values may
-also be _stored_ unchanged so that they can be retrieved later.
+当我们在 Lucene 中索引一个文档时，每个字段的值都被加到相关字段的倒排索引中。你也可以选择将原始数据 _储存_ 起来以备今后取回。
 
-==== How Types Are Implemented
+### 类型是怎么实现的
 
-Elasticsearch types are ((("types", "implementation in Elasticsearch")))implemented on top of this simple foundation. An index
-may have several types, each with its own mapping, and documents of any of
-these types may be stored in the same index.
+Elasticsearch 类型是在这个简单基础上实现的。一个索引可能包含多个类型，每个类型有各自的映射和文档，保存在同一个索引中。
 
-Because Lucene has no concept of document types, the type name of each
-document is stored with the document in a metadata field called `_type`.((("type field"))) When
-we search for documents of a particular type, Elasticsearch simply uses a
-filter on the `_type` field to restrict results to documents of that type.
+因为 Lucene 没有文档类型的概念，每个文档的类型名被储存在一个叫 `_type` 的元数据字段上。当我们搜索一种特殊类型的文档时，Elasticsearch 简单的通过 `_type` 字段来过滤出这些文档。
 
-Lucene also has no concept of mappings.((("mapping (types)"))) Mappings are the layer
-that Elasticsearch uses to _map_ complex JSON documents into the
-simple flat documents that Lucene expects to receive.
+Lucene 同样没有映射的概念。映射是 Elasticsearch 将复杂 JSON 文档_映射_成 Lucene 需要的扁平化数据的方式。
 
-For instance, the mapping for the `name` field in the `user` type may declare
-that the field is a `string` field, and that its value should be analyzed
-by the `whitespace` analyzer before being indexed into the inverted
-index called `name`:
+例如，`user` 类型中 `name` 字段的映射声明这个字段是一个 `string` 类型，在被加入倒排索引之前，它的数据需要通过 `whitespace` 分析器来分析。
 
-[source,js]
---------------------------------------------------
+```
 "name": {
     "type":     "string",
     "analyzer": "whitespace"
 }
---------------------------------------------------
+```
 
+### 预防类型陷阱
 
-==== Avoiding Type Gotchas
+事实上不同类型的文档可以被加到同一个索引里带来了一些预想不到的困难。
 
-The fact that documents of different types can be added to the same index
-introduces some unexpected((("types", "gotchas, avoiding"))) complications.
+想象一下我们的索引中有两种类型：`blog_en` 表示英语版的博客，`blog_es` 表示西班牙语版的博客。两种类型都有 `title` 字段，但是其中一种类型使用 `english` 分析器，另一种使用 `spanish` 分析器。
 
-Imagine that we have two types in our index: `blog_en` for blog posts in
-English, and `blog_es` for blog posts in Spanish.  Both types have a
-`title` field, but one type uses the `english` analyzer and
-the other type uses the `spanish` analyzer.
+使用下面的查询就会遇到问题：
 
-The problem is illustrated by the following query:
-
-[source,js]
---------------------------------------------------
+```
 GET /_search
 {
     "query": {
@@ -76,19 +44,13 @@ GET /_search
         }
     }
 }
---------------------------------------------------
+```
 
+我们在两种类型中搜索 `title` 字段，首先需要分析查询语句，但是应该使用哪种分析器呢，`spanish` 还是 `english`？Elasticsearch 会采用第一个被找到的 `title` 字段使用的分析器，这对于这个字段的文档来说是正确的，但对另一个来说却是错误的。
 
-We are searching in the `title` field in both types.  The query string needs
-to be analyzed, but which analyzer does it use: `spanish` or `english`? It
-will use the analyzer for the first `title` field that it finds, which
-will be correct for some docs and incorrect for the others.
+我们可以通过给字段取不同的名字来避免这种错误 —— 比如，用 `title_en` 和 `title_es`。或者在查询中明确包含各自的类型名。
 
-We can avoid this problem either by naming the fields differently--for example, `title_en` and `title_es`&#x2014;or by explicitly including the type name in the
-field name and querying each field separately:
-
-[source,js]
---------------------------------------------------
+```
 GET /_search
 {
     "query": {
@@ -98,44 +60,30 @@ GET /_search
         }
     }
 }
---------------------------------------------------
-<1> The `multi_match` query runs a `match` query on multiple fields
-    and combines the results.
+```
 
-Our new query uses the `english` analyzer for the field `blog_en.title` and
-the `spanish` analyzer for the field `blog_es.title`, and combines the results
-from both fields into an overall relevance score.
+<1> `multi_match` 查询在多个字段上执行 `match` 查询并一起返回结果。
 
-This solution can help when both fields have the same datatype, but consider
-what would happen if you indexed these two documents into the same index:
+新的查询中 `english` 分析器用于 `blog_en.title` 字段，`spanish` 分析器用于 `blog_es.title` 字段，然后通过综合得分组合两种字段的结果。
 
-* Type: user
+这种办法对具有相同数据类型的字段有帮助，但是想象一下如果你将下面两个文档加入同一个索引，会发生什么：
 
-[source,js]
---------------------------------------------------
+* 类型: user
+
+```
  { "login": "john_smith" }
---------------------------------------------------
+```
 
-[role="pagebreak-before"]
-* Type: event
+* 类型: event
 
-[source,js]
---------------------------------------------------
+```
  { "login": "2014-06-01" }
---------------------------------------------------
+```
 
-Lucene doesn't care that one field contains a string and the other field
-contains a date. It will happily index the byte values from both fields.
+Lucene 不在乎一个字段是字符串而另一个字段是日期，它会一视同仁的索引这两个字段。
 
-However, if we now try to _sort_ on the `event.login` field, Elasticsearch
-needs to load the values in the `login` field into memory. As we said in
-<<fielddata-intro>>, it loads the values for  _all documents_ in the index
-regardless of their type.
+然而，假如我们试图 _排序_ `event.login` 字段，Elasticsearch 需要将 `login` 字段的值加载到内存中。像我们在 【字段数据介绍】中提到的，它将 _任意文档_ 的值加入索引而不管它们的类型。
 
-It will try to load these values either as a string or as a date, depending on
-which `login` field it sees first. This will either produce unexpected results
-or fail outright.
+它会尝试加载这些值为字符串或日期，取决于它遇到的第一个 `login` 字段。这可能会导致预想不到的结果或者以失败告终。
 
-TIP: To ensure that you don't run into these conflicts, it is advisable to
-ensure that fields with the _same name_ are mapped in the _same way_ in every
-type in an index.
+提示：为了保证你不会遇到这些冲突，建议在同一个索引的每一个类型中，确保用_同样的方式_映射_同名_的字段

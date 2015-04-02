@@ -1,18 +1,10 @@
-[[default-mapping]]
-=== Default Mapping
+### 默认映射
 
-Often, all types in an index share similar fields and settings. ((("mapping (types)", "default")))((("default mapping"))) It can be
-more convenient to specify these common settings in the `_default_` mapping,
-instead of having to repeat yourself every time you create a new type. The
-`_default_` mapping acts as a template for new types.  All types created
-_after_ the `_default_` mapping will include all of these default settings,
-unless explicitly overridden in the type mapping itself.
+通常，一个索引中的所有类型具有共享的字段和设置。用 `_default_` 映射来指定公用设置会更加方便，而不是每次创建新的类型时重复操作。`_default` 映射像新类型的模板。所有在 `_default_` 映射 _之后_ 的类型将包含所有的默认设置，除非在自己的类型映射中明确覆盖这些配置。
 
-For instance, we can disable the `_all` field for all types,((("_all field", sortas="all field"))) using the
-`_default_` mapping, but enable it just for the `blog` type, as follows:
+例如，我们可以使用 `_default_` 映射对所有类型禁用 `_all` 字段，而只在 `blog` 字段上开启它：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index
 {
     "mappings": {
@@ -24,9 +16,8 @@ PUT /my_index
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/45_Default_mapping.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/45_Default_mapping.json -->
 
-The `_default_` mapping can also be a good place to specify index-wide
-<<dynamic-templates,dynamic templates>>.
+`_default_` 映射也是定义索引级别的动态模板的好地方。

@@ -99,7 +99,7 @@ the `_all` field etc.
 
 对`user`和`name`字段的映射与`tweet`类型自己很相似。事实上，`type`映射只是`object`映射的一种特殊类型，我们将 `object` 称为_根对象_。它与其他对象一模一样，除非它有一些特殊的顶层字段，比如 `_source`, `_all` 等等。
 
-### 内部对象是怎样被映射的
+### 内部对象是怎样被索引的
 
 Lucene doesn't understand inner objects. A Lucene document consists of a flat
 list of key-value pairs.  In order for Elasticsearch to index inner objects

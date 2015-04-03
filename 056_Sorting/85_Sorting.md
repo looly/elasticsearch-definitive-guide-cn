@@ -1,24 +1,19 @@
-[[sorting]]
-== Sorting and relevance
+## 相关性排序
 
-By default, results are returned sorted by _relevance_ -- with the most
-relevant docs first. Later in this chapter we will explain what we mean by
-_relevance_ and how it is calculated, but let's start by looking at the `sort`
-parameter and how to use it.
+默认情况下，结果集会按照相关性进行排序 -- 相关性越高，排名越靠前。
+这一章我们会讲述相关性是什么以及它是如何计算的。
+在此之前，我们先看一下`sort`参数的使用方法。
 
-=== Sorting
+## 排序方式
 
-In order to sort by relevance, we need to represent relevance as a value. In
-Elasticsearch  the _relevance score_ is represented by the floating point
-number returned in the search results as the `_score`, so the default sort
-order is: `_score` descending.
+为了使结果可以按照相关性进行排序，我们需要一个相关性的值。在ElasticSearch的查询结果中，
+相关性分值会用`_score`字段来给出一个浮点型的数值，所以默认情况下，结果集以`_score`进行倒序排列。
 
-Sometimes, though, you don't have a meaningful relevance score. For instance,
-the following query just returns all tweets whose `user_id` field has the
-value `1`:
+有时，即便如此，你还是没有一个有意义的相关性分值。比如，以下语句返回所有tweets中 `user_id` 是否
+包含值 `1`：
 
-[source,js]
---------------------------------------------------
+
+```Javascript
 GET /_search
 {
     "query" : {
@@ -31,19 +26,16 @@ GET /_search
         }
     }
 }
---------------------------------------------------
+```
+过滤语句与 `_score` 没有关系，但是有隐含的查询条件 `match_all` 为所有的文档的 `_score` 设值为 `1`。
+也就相当于所有的文档相关性是相同的。
 
-Filters have no bearing on `_score`, and the missing-but-implied `match_all`
-query just sets the `_score` to a neutral value of `1` for all documents. In
-other words, all documents are considered to be equally relevant.
+## 字段值排序
 
-==== Sorting by field values
+下面例子中，对结果集按照时间排序，这也是最常见的情形，将最新的文档排列靠前。
+我们使用 `sort` 参数进行排序：
 
-In this case, it probably makes sense to sort tweets by recency, with the most
-recent tweets first.  We can do this with the `sort` parameter:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query" : {
@@ -53,13 +45,11 @@ GET /_search
     },
     "sort": { "date": { "order": "desc" }}
 }
---------------------------------------------------
-// SENSE: 056_Sorting/85_Sort_by_date.json
+```
 
-You will notice two differences in the results:
+你会发现这里有两个不同点：
 
-[source,js]
---------------------------------------------------
+```Javascript
 "hits" : {
     "total" :           6,
     "max_score" :       null, <1>
@@ -76,45 +66,36 @@ You will notice two differences in the results:
     },
     ...
 }
---------------------------------------------------
-<1> The `_score` is not calculated because it is not being used for sorting.
-<2> The value of the `date` field, expressed as milliseconds since the epoch,
-    is returned in the `sort` values.
+```
 
-The first is that we have a new element in each result called `sort`, which
-contains the value(s) that was used for sorting.  In this case, we sorted on
-`date` which internally is indexed as _milliseconds-since-the-epoch_. The long
-number `1411516800000` is equivalent to the date string `2014-09-24 00:00:00
-UTC`.
+<1> `_score` 字段没有经过计算，因为它没有用作排序。
+<2>  `date` 字段被转为毫秒当作排序依据。
 
-The second is that the `_score` and `max_score` are both `null`.  Calculating
-the `_score` can be quite expensive and usually its only purpose is for
-sorting -- we're not sorting by relevance, so it doesn't make sense to keep
-track of the `_score`.  If you want the `_score` to be calculated regardless,
-then you can set the `track_scores` parameter to `true`.
+首先，在每个结果中增加了一个 `sort` 字段，它所包含的值是用来排序的。
+在这个例子当中 `date` 字段在内部被转为毫秒，即长整型数字`1411516800000`等同于日期字符串 `2014-09-24 00:00:00 UTC`。
 
-.Default ordering
+其次就是 `_score` 和 `max_score` 字段都为 `null`。计算 `_score` 是比较消耗性能的,
+而且通常主要用作排序 -- 我们不是用相关性进行排序的时候，就不需要统计其相关性。
+如果你想强制计算其相关性，可以设置`track_scores`为 `true`。
+
+## 默认排序
 ****
 
-As a shortcut, you can specify just the name of the field to sort on:
+作为缩写，你可以只指定要排序的字段名称：
 
-[source,js]
---------------------------------------------------
+```Javascript
     "sort": "number_of_children"
---------------------------------------------------
+```
 
-Fields will be sorted in ascending order by default, and
-the `_score` value in descending order.
+字段值默认以顺序排列，而 `_score` 默认以倒序排列。
 
 ****
 
-==== Multi-level sorting
+## 多级排序
 
-Perhaps we want to combine the `_score` from a query with the `date`, and
-show all matching results sorted first by date, then by relevance:
+如果我们想要合并一个查询语句，并且展示所有匹配的结果集使用第一排序是`date`，第二排序是 `_score`：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query" : {
@@ -128,47 +109,38 @@ GET /_search
         { "_score": { "order": "desc" }}
     ]
 }
---------------------------------------------------
-// SENSE: 056_Sorting/85_Multilevel_sort.json
+```
 
-Order is important.  Results are sorted by the first criterion first. Only
-results whose first `sort` value is identical will then be sorted by the
-second criterion, and so on.
+排序是很重要的。结果集会先用第一排序字段来排序，当用用作第一字段排序的值相同的时候，
+然后再用第二字段对第一排序值相同的文档进行排序，以此类推。
 
-Multi-level sorting doesn't have to involve the `_score` -- you could sort
-using several different fields, on geo-distance or on a custom value
-calculated in a script.
+多级排序不需要包含 `_score` -- 你可以使用几个不同的字段，如位置距离或者自定义数值。
 
-.Sorting and query string search
+## 字符串参数排序
 ****
-Query string search also supports custom sorting, using the `sort` parameter
-in the query string:
+字符查询也支持自定义排序，在查询字符串使用`sort`参数就可以：
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search?sort=date:desc&sort=_score&q=search
---------------------------------------------------
+```
 ****
 
-==== Sorting on multi-value fields
+## 为多值字段排序
 
-When sorting on field with more than one value, remember that the values do
-not have any intrinsic order -- a multi-value field is just a bag of values.
-Which one do you choose to sort on?
+在为一个字段的多个值进行排序的时候， 其实这些值本来是没有固定的排序的-- 一个拥有多值的字段就是一个集合，
+你准备以哪一个作为排序依据呢？
 
-For numbers and dates, you can reduce a multi-value field to a single value
-using the `min`, `max`, `avg` or `sum` _sort modes_. For instance, you
-could sort on the earliest date in each `dates` field using:
+对于数字和日期，你可以从多个值中取出一个来进行排序，你可以使用`min`, `max`, `avg` 或 `sum`这些模式。
+比说你可以在 `dates` 字段中用最早的日期来进行排序：
 
-[source,js]
---------------------------------------------------
+```Javascript
 "sort": {
     "dates": {
         "order": "asc",
         "mode":  "min"
     }
 }
---------------------------------------------------
+```
 
 
 

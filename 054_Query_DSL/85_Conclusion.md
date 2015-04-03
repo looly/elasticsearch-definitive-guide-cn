@@ -1,10 +1,9 @@
-=== Conclusion
+## 结语
 
-This chapter provides you with enough information to start running simple
-queries effectively in production. That said, search and the query DSL are big
-subjects and the more time you invest in understanding how they work, the
-better your search results will be.  We will dive much deeper into these areas
-in <<search-in-depth>> but before we get there, we need to understand why
-Elasticsearch returns results in the order that it does.  In the next chapter
-we will look at how results are sorted by relevance and how you can control
-the sorting process.
+这一章详细介绍了如何在项目中使用常见的查询语句。
+
+也就是说，想要完全掌握搜索和结构化查询，还需要在工作中花费大量的时间来理解ES的工作方式。
+
+更高级的部分，我们将会在《深入搜索》中详细讲解，但是在讲解之前，你还需要理解查询结果是如何进行排序的，
+
+下一章我们将学习如何根据相关性对查询结果进行排序以及指定排序过程。

@@ -1,31 +1,22 @@
-=== Index Settings
+### 索引设置
 
-There are many many knobs((("index settings"))) that you can twiddle to
-customize index behavior, which you can read about in the
-http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_index_settings.html#_index_settings[Index Modules reference documentation],
-but...
+你可以通过很多种方式来自定义索引行为，你可以阅读[Index Modules reference documentation](http://www.elasticsearch.org/guide/en/elasticsearch/guide/current/_index_settings.html#_index_settings)，但是：
 
-TIP: Elasticsearch comes with good defaults. Don't twiddle these knobs until
-you understand what they do and why you should change them.
+提示: Elasticsearch 提供了优化好的默认配置。除非你明白这些配置的行为和为什么要这么做，请不要修改这些配置。
 
-Two of the most important((("shards", "number_of_shards index setting")))((("number_of_shards setting")))((("index settings", "number_of_shards"))) settings are as follows:
+下面是两个最重要的设置：
 
-`number_of_shards`::
+`number_of_shards`
 
-    The number of primary shards that an index should have,
-    which defaults to `5`.  This setting cannot be changed
-    after index creation.
+    定义一个索引的主分片个数，默认值是 `5`。这个配置在索引创建后不能修改。
 
-`number_of_replicas`::
+`number_of_replicas`
 
-    The number of replica shards (copies) that each primary shard
-    should have, which defaults to `1`.  This setting can be changed
-    at any time on a live index.
+    每个主分片的复制分片个数，默认是 `1`。这个配置可以随时在活跃的索引上修改。
 
-For instance, we could create a small index--just((("index settings", "number_of_replicas")))((("replica shards", "number_of_replicas index setting"))) one primary shard--and no replica shards with the following request:
+例如，我们可以创建只有一个主分片，没有复制分片的小索引。
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_temp_index
 {
     "settings": {
@@ -33,19 +24,17 @@ PUT /my_temp_index
         "number_of_replicas" : 0
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/10_Settings.json
+```
 
-Later, we can change the number of replica shards dynamically using the
-`update-index-settings` API as((("update-index-settings API"))) follows:
+<!-- SENSE: 070_Index_Mgmt/10_Settings.json -->
 
-[source,js]
---------------------------------------------------
+然后，我们可以用 `update-index-settings` API 动态修改复制分片个数：
+
+```
 PUT /my_temp_index/_settings
 {
     "number_of_replicas": 1
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/10_Settings.json
+```
 
-
+<!-- SENSE: 070_Index_Mgmt/10_Settings.json -->

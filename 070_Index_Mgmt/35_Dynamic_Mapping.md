@@ -1,35 +1,20 @@
-[[dynamic-mapping]]
-=== Dynamic Mapping
+### 动态映射
 
-When Elasticsearch encounters a previously ((("mapping (types)", "dynamic")))((("dynamic mapping")))unknown field in a document, it
-uses <<mapping-intro,_dynamic mapping_>> to determine the datatype for the
-field and automatically adds the new field to the type mapping.
+当 Elasticsearch 遭遇一个位置的字段时，它通过【动态映射】来确定字段的数据类型且自动将该字段加到类型映射中。
 
-Sometimes this is the desired behavior and sometimes it isn't. Perhaps
-you don't know what fields will be added to your documents later,
-but you want them to be indexed automatically.  Perhaps you just want
-to ignore them.  Or--especially if you are using Elasticsearch as a
-primary data store--perhaps you want unknown fields to throw an exception
-to alert you to the problem.
+有时这是理想的行为，有时却不是。或许你不知道今后会有哪些字段加到文档中，但是你希望它们能自动被索引。或许你仅仅想忽略它们。特别是当你使用 Elasticsearch 作为主数据源时，你希望未知字段能抛出一个异常来警示你。
 
-Fortunately, you can control this behavior((("dynamic setting"))) with the `dynamic` setting,
-which accepts the following options:
+幸运的是，你可以通过 `dynamic` 设置来控制这些行为，它接受下面几个选项：
 
-`true`::
-   Add new fields dynamically--the default
+`true`：自动添加字段（默认）
 
-`false`::
-   Ignore new fields
+`false`：忽略字段
 
-`strict`::
-   Throw an exception if an unknown field is encountered
+`strict`：当遇到未知字段时抛出异常
 
-The `dynamic` setting may be applied to the root object or to any field
-of type `object`.  You could set `dynamic` to `strict` by default,
-but enable it just for a specific inner object:
+`dynamic` 设置可以用在根对象或任何 `object` 对象上。你可以将 `dynamic` 默认设置为 `strict`，而在特定内部对象上启用它：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index
 {
     "mappings": {
@@ -45,40 +30,36 @@ PUT /my_index
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json
-<1> The `my_type` object will throw an exception if an unknown field
-    is encountered.
-<2> The `stash` object will create new fields dynamically.
+```
 
+<!-- SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json -->
 
-With this mapping, you can add new searchable fields into the `stash` object:
+<1> 当遇到未知字段时，`my_type` 对象将会抛出异常
 
-[source,js]
---------------------------------------------------
+<2> `stash` 对象会自动创建字段
+
+通过这个映射，你可以添加一个新的可搜索字段到 `stash` 对象中：
+
+```
 PUT /my_index/my_type/1
 {
     "title":   "This doc adds a new field",
     "stash": { "new_field": "Success!" }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json -->
 
-But trying to do the same at the top level will fail:
+但是在顶层做同样的操作则会失败：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index/my_type/1
 {
     "title":     "This throws a StrictDynamicMappingException",
     "new_field": "Fail!"
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/35_Dynamic_mapping.json -->
 
-NOTE: Setting `dynamic` to `false` doesn't alter the contents of the `_source`
-field at all. The `_source` will still contain the whole JSON document that
-you indexed.  However, any unknown fields will not be added to the mapping and
-will not be searchable.
+备注：将 `dynamic` 设置成 `false` 完全不会修改 `_source` 字段的内容。`_source` 将仍旧保持你索引时的完整 JSON 文档。然而，没有被添加到映射的未知字段将不可被搜索。

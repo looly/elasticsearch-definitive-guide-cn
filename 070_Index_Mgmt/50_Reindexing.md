@@ -1,32 +1,18 @@
-[[reindex]]
-=== Reindexing Your Data
+### 重新索引数据
 
-Although you can add new types to an index, or add new fields to a type, you
-can't add new analyzers or make changes to existing fields.((("reindexing")))((("indexing", "reindexing your data")))  If you were to do
-so, the data that had already been indexed would be incorrect and your
-searches would no longer work as expected.
+虽然你可以给索引添加新的类型，或给类型添加新的字段，但是你不能添加新的分析器或修改已有字段。假如你这样做，已被索引的数据会变得不正确而你的搜索也不会正常工作。
 
-The simplest way to apply these changes to your existing data is to
-reindex:  create a new index with the new settings and copy all of your
-documents from the old index to the new index.
+修改在已存在的数据最简单的方法是重新索引：创建一个新配置好的索引，然后将所有的文档从旧的索引复制到新的上。
 
-One of the advantages of the `_source` field is that you already have the
-whole document available to you in Elasticsearch itself. You don't have to
-rebuild your index from the database, which is usually much slower.
+`_source` 字段的一个最大的好处是你已经在 Elasticsearch 中有了完整的文档，你不再需要从数据库中重建你的索引，这样通常会比较慢。
 
-To reindex all of the documents from the old index efficiently,  use
-<<scan-scroll,_scan-and-scroll_>> to retrieve batches((("scan-and-scroll", "using in reindexing documents"))) of documents from the old index,
-and the <<bulk,`bulk` API>> to push them into the new index.
+为了更高效的索引旧索引中的文档，使用【scan-scoll】来批量读取旧索引的文档，然后将通过【bulk API】来将它们推送给新的索引。
 
-.Reindexing in Batches
-****
+批量重新索引：
 
-You can run multiple reindexing jobs at the same time, but you obviously don't
-want their results to overlap.  Instead, break a big reindex down into smaller
-jobs by filtering on a date or timestamp field:
+你可以在同一时间执行多个重新索引的任务，但是你显然不愿意它们的结果有重叠。所以，可以将重建大索引的任务通过日期或时间戳字段拆分成较小的任务：
 
-[source,js]
---------------------------------------------------
+```
 GET /old_index/_search?search_type=scan&scroll=1m
 {
     "query": {
@@ -39,15 +25,6 @@ GET /old_index/_search?search_type=scan&scroll=1m
     },
     "size":  1000
 }
---------------------------------------------------
+```
 
-
-If you continue making changes to the old index, you will want to make
-sure that you include the newly added documents in your new index as well.
-This can be done by rerunning the reindex process, but again filtering
-on a date field to match only documents that have been added since the
-last reindex process started.
-
-****
-
-
+假如你继续在旧索引上做修改，你可能想确保新增的文档被加到了新的索引中。这可以通过重新运行重建索引程序来完成，但是记得只要过滤出上次执行后新增的文档就行了。

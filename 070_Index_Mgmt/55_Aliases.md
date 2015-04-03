@@ -1,63 +1,50 @@
-[[index-aliases]]
-=== Index Aliases and Zero Downtime
+### 索引别名和零停机时间
 
-The problem with the reindexing process described previously is that you need
-to update your application to use the new index name.((("index aliases")))  Index aliases
-to the rescue!
+前面提到的重新索引过程中的问题是必须更新你的应用，来使用另一个索引名。索引别名正是用来解决这个问题的！
 
-An index _alias_ is like a shortcut or symbolic link, which can point to
-one or more indices, and can be used in any API that expects an index name.
-Aliases((("aliases, index"))) give us an enormous amount of flexibility. They allow us to do the following:
+索引 _别名_ 就像一个快捷方式或软连接，可以指向一个或多个索引，也可以给任何需要索引名的 API 使用。别名带给我们极大的灵活性，允许我们做到：
 
- * Switch transparently between one index and another on a running cluster
- * Group multiple indices (for example, `last_three_months`)
- * Create ``views'' on a subset of the documents in an index
+* 在一个运行的集群上无缝的从一个索引切换到另一个
+* 给多个索引分类（例如，`last_three_months`）
+* 给索引的一个子集创建 `视图`
 
-We will talk more about the other uses for aliases later in the book. For now
-we will explain how to use them to switch from an old index to a new index
-with zero downtime.
+我们以后会讨论更多别名的使用场景。现在我们将介绍用它们怎么在零停机时间内从旧的索引切换到新的索引。
 
-There are two endpoints for managing aliases: `_alias` for single
-operations, and `_aliases` to perform multiple operations atomically.
+这里有两种管理别名的途径：`_alias` 用于单个操作，`_aliases` 用于原子化多个操作。
 
-In this scenario, we will assume that your application is talking to an
-index called `my_index`. In reality, `my_index` will be an alias that
-points to the current real index.  We will include a version number in the
-name of the real index: `my_index_v1`, `my_index_v2`, and so forth.
+在这一章中，我们假设你的应用采用一个叫 `my_index` 的索引。而事实上，`my_index` 是一个指向当前真实索引的别名。真实的索引名将包含一个版本号：`my_index_v1`, `my_index_v2` 等等。
 
-To start off, create the index `my_index_v1`, and set up the alias
-`my_index` to point to it:
+开始，我们创建一个索引 `my_index_v1`，然后将别名 `my_index` 指向它：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index_v1 <1>
 PUT /my_index_v1/_alias/my_index <2>
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/55_Aliases.json
+```
 
-<1> Create the index `my_index_v1`.
-<2> Set the `my_index` alias to point to `my_index_v1`.
+<!-- SENSE: 070_Index_Mgmt/55_Aliases.json -->
 
-You can check which index the alias points to:
+<1> 创建索引 `my_index_v1`。
+<2> 将别名 `my_index` 指向 `my_index_v1`。
 
-[source,js]
---------------------------------------------------
+你可以检测这个别名指向哪个索引：
+
+```
 GET /*/_alias/my_index
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/55_Aliases.json
+```
 
-Or which aliases point to the index:
+<!-- SENSE: 070_Index_Mgmt/55_Aliases.json -->
 
-[source,js]
---------------------------------------------------
+或哪些别名指向这个索引：
+
+```
 GET /my_index_v1/_alias/*
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/55_Aliases.json
+```
 
-Both of these return the following:
+<!-- SENSE: 070_Index_Mgmt/55_Aliases.json -->
 
-[source,js]
---------------------------------------------------
+两者都将返回下列值：
+
+```
 {
     "my_index_v1" : {
         "aliases" : {
@@ -65,15 +52,11 @@ Both of these return the following:
         }
     }
 }
---------------------------------------------------
+```
 
+然后，我们决定修改索引中一个字段的映射。当然我们不能修改现存的映射，索引我们需要重新索引数据。首先，我们创建有新的映射的索引 `my_index_v2`。
 
-Later, we decide that we want to change the mappings for a field in our index.
-Of course, we can't change the existing mapping, so we have to reindex
-our data.((("reindexing", "using index aliases")))  To start, we create `my_index_v2` with the new mappings:
-
-[source,js]
---------------------------------------------------
+```
 PUT /my_index_v2
 {
     "mappings": {
@@ -87,21 +70,15 @@ PUT /my_index_v2
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/55_Aliases.json
+```
 
-Then we reindex our data from `my_index_v1` to `my_index_v2`, following
-the process described in <<reindex>>.  Once we are satisfied that our
-documents have been reindexed correctly, we switch our alias
-to point to the new index.
+<!-- SENSE: 070_Index_Mgmt/55_Aliases.json -->
 
-An alias can point to multiple indices, so we need to remove the alias
-from the old index at the same time as we add it to the new index.  The
-change needs to be atomic, which means that we must use the `_aliases`
-endpoint:
+然后我们从将数据从 `my_index_v1` 迁移到 `my_index_v2`，下面的过程在【重新索引】中描述过了。一旦我们认为数据已经被正确的索引了，我们就将别名指向新的索引。
 
-[source,js]
---------------------------------------------------
+别名可以指向多个索引，所以我们需要在新索引中添加别名的同时从旧索引中删除它。这个操作需要原子化，所以我们需要用 `_aliases` 操作：
+
+```
 POST /_aliases
 {
     "actions": [
@@ -109,20 +86,14 @@ POST /_aliases
         { "add":    { "index": "my_index_v2", "alias": "my_index" }}
     ]
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/55_Aliases.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/55_Aliases.json -->
 
-Your application has switched from using the old index to the new
-index transparently, with zero downtime.
+这样，你的应用就从旧索引迁移到了新的，而没有停机时间。
 
-[TIP]
-====
-Even when you think that your current index design is perfect, it is likely
-that you will need to make some change later, when your index
-is already being used in production.
+提示：
 
-Be prepared: use aliases instead of indices in your application. Then you
-will be able to reindex whenever you need to. Aliases are cheap and should
-be used liberally.
-====
+即使你认为现在的索引设计已经是完美的了，当你的应用在生产环境使用时，还是有可能在今后有一些改变的。
+
+所以请做好准备：在应用中使用别名而不是索引。然后你就可以在任何时候重建索引。别名的开销很小，应当广泛使用。

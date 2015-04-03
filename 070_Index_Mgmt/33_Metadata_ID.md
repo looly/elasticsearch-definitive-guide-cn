@@ -1,35 +1,22 @@
-==== Metadata: Document Identity
+### 文档 ID
 
-There are four metadata fields ((("metadata, document", "identity")))associated with document identity:
+文档唯一标识由四个元数据字段组成：
 
-`_id`::
-   The string ID of the document
+`_id`：文档的字符串 ID
 
-`_type`::
-   The type name of the document
+`_type`：文档的类型名
 
-`_index`::
-   The index where the document lives
+`_index`：文档所在的索引
 
-`_uid`::
-   The `_type` and `_id` concatenated together as `type#id`
+`_uid`：`_type` 和 `_id` 连接成的 `type#id`
 
-By default, the `_uid` field is((("id field"))) stored (can be retrieved) and
-indexed (searchable).  The `_type` field((("type field")))((("index field")))((("uid field"))) is indexed but not stored,
-and the `_id` and `_index` fields are neither indexed nor stored, meaning
-they don't really exist.
+默认情况下，`_uid` 是被保存（可取回）和索引（可搜索）的。`_type` 字段被索引但是没有保存，`_id` 和 `_index` 字段则既没有索引也没有储存，它们并不是真实存在的。
 
-In spite of this, you can query the `_id` field as though it were a real
-field.  Elasticsearch uses the `_uid` field to derive the `_id`. Although you
-can change the `index` and `store` settings for these fields, you almost
-never need to do so.
+尽管如此，你仍然可以像真实字段一样查询 `_id` 字段。Elasticsearch 使用 `_uid` 字段来追溯 `_id`。虽然你可以修改这些字段的 `index` 和 `store` 设置，但是基本上不需要这么做。
 
-The `_id` field does have one setting that you may want to use: the `path`
-setting tells((("id field", "path setting")))((("path setting, id field"))) Elasticsearch that it should extract the value for the
-`_id` from a field within the document itself.
+`_id` 字段有一个你可能用得到的设置：`path` 设置告诉 Elasticsearch 它需要从文档本身的哪个字段中生成 `_id`
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index
 {
     "mappings": {
@@ -46,27 +33,26 @@ PUT /my_index
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/33_ID_path.json
-<1> Extract the doc `_id` from the `doc_id` field.
+```
 
-Then, when you index a document:
+<!-- SENSE: 070_Index_Mgmt/33_ID_path.json -->
 
-[source,js]
---------------------------------------------------
+<1> 从 `doc_id` 字段生成 `_id`
+
+然后，当你索引一个文档时：
+
+```
 POST /my_index/my_type
 {
     "doc_id": "123"
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/33_ID_path.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/33_ID_path.json -->
 
-the `_id` value will be ((("doc_id field")))extracted from the `doc_id` field in the document
-body:
+`_id` 值由文档主体的 `doc_id` 字段生成。
 
-[source,js]
---------------------------------------------------
+```
 {
     "_index":   "my_index",
     "_type":    "my_type",
@@ -74,15 +60,8 @@ body:
     "_version": 1,
     "created":  true
 }
---------------------------------------------------
-<1> The `_id` has been extracted correctly.
+```
 
+<1> `_id` 正确的生成了。
 
-WARNING: While this is very convenient, be aware that it has a slight
-performance impact on `bulk` requests (see <<bulk-format>>). The node handling
-the request can no longer use the optimized bulk format to parse just
-the metadata line in order to decide which shard should receive the request.
-Instead, it has to parse the document body as well.
-
-
-
+警告：虽然这样很方便，但是注意它对 `bulk` 请求（见【bulk 格式】）有个轻微的性能影响。处理请求的节点将不能仅靠解析元数据行来决定将请求分配给哪一个分片，而需要解析整个文档主体。

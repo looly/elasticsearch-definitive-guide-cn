@@ -1,70 +1,40 @@
-[[all-field]]
-==== Metadata: _all Field
+### 元数据：_all 字段
 
-In <<search-lite>>, we introduced the `_all` field: a special field that
-indexes the ((("metadata, document", "_all field")))((("_all field", sortas="all field")))values from all other fields as one big string. The `query_string`
-query clause (and searches performed as `?q=john`) defaults to searching in
-the `_all` field if no other field is specified.
+在【简单搜索】中，我们介绍了 `_all` 字段：一个所有其他字段值的特殊字符串字段。`query_string` 在没有指定字段时默认用 `_all` 字段查询。
 
-The `_all` field is useful during the exploratory phase of a new application,
-while you are still unsure about the final structure that your documents will
-have. You can throw any query string at it and you have a good chance of
-finding the document you're after:
+`_all` 字段在新应用的探索阶段比较管用，当你还不清楚最终文档的结构时，可以将任何查询用于这个字段，就有机会得到你想要的文档：
 
-[source,js]
---------------------------------------------------
+```
 GET /_search
 {
     "match": {
         "_all": "john smith marketing"
     }
 }
---------------------------------------------------
+```
 
+随着你应用的发展，搜索需求会变得更加精准。你会越来越少的使用 `_all` 字段。`_all` 是一种简单粗暴的搜索方式。通过查询独立的字段，你能更灵活，强大和精准的控制搜索结果，提高相关性。
 
-As your application evolves and your search requirements become more exacting,
-you will find yourself using the `_all` field less and less. The `_all` field
-is a shotgun approach to search. By querying individual fields, you have more
-flexbility, power, and fine-grained control over which results are considered
-to be most relevant.
+**提示**
 
-[NOTE]
-====
-One of the important factors taken into account by the
-<<relevance-intro,relevance algorithm>>
-is the length of the field: the shorter the field, the more important. A term
-that appears in a short `title` field is likely to be more important than the
-same term that appears somewhere in a long `content` field. This distinction
-between field lengths disappears in the `_all` field.
-====
+【相关性算法】考虑的一个最重要的原则是字段的长度：字段越短，就越重要。在较短的 `title` 字段中的短语会比较长的 `content` 字段中的短语显得更重要。而字段间的这种差异在 `_all` 字段中就不会出现
 
-If you decide that you no longer need the `_all` field, you can disable it
-with this mapping:
+如果你决定不再使用 `_all` 字段，你可以通过下面的映射禁用它：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index/_mapping/my_type
 {
     "my_type": {
         "_all": { "enabled": false }
     }
 }
---------------------------------------------------
+```
 
+通过 `include_in_all` 选项可以控制字段是否要被包含在 `_all` 字段中，默认值是 `true`。在一个对象上设置 `include_in_all` 可以修改这个对象所有字段的默认行为。
 
-Inclusion in the `_all` field can be controlled on a field-by-field basis
-by using the `include_in_all` setting, ((("include_in_all setting")))which defaults to `true`.  Setting
-`include_in_all` on an object (or on the root object) changes the
-default for all fields within that object.
+你可能想要保留 `_all` 字段来查询所有特定的全文字段，例如 `title`, `overview`, `summary` 和 `tags`。相对于完全禁用 `_all` 字段，你可以先默认禁用 `include_in_all` 选项，而选定字段上启用 `include_in_all`。
 
-You may find that you want to keep the `_all` field around to use
-as a catchall full-text field just for specific fields, such as
-`title`, `overview`, `summary`, and `tags`. Instead of disabling the `_all`
-field completely, disable `include_in_all` for all fields by default,
-and enable it only on the fields you choose:
-
-[source,js]
---------------------------------------------------
+```
 PUT /my_index/my_type/_mapping
 {
     "my_type": {
@@ -78,26 +48,15 @@ PUT /my_index/my_type/_mapping
         }
     }
 }
---------------------------------------------------
+```
 
+谨记 `_all` 字段仅仅是一个经过分析的 `string` 字段。它使用默认的分析器来分析它的值，而不管这值本来所在的字段指定的分析器。而且像所有 `string` 类型字段一样，你可以配置 `_all` 字段使用的分析器：
 
-Remember that the `_all` field is just((("analyzers", "configuring for all field"))) an analyzed `string` field.  It
-uses the default analyzer to analyze its values, regardless of which
-analyzer has been set on the fields where the values originate.  And
-like any `string` field, you can configure which analyzer the `_all`
-field should use:
-
-[source,js]
---------------------------------------------------
+```
 PUT /my_index/my_type/_mapping
 {
     "my_type": {
         "_all": { "analyzer": "whitespace" }
     }
 }
---------------------------------------------------
-
-
-
-
-
+```

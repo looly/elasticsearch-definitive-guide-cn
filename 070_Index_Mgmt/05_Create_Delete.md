@@ -1,12 +1,10 @@
-=== Creating an Index
+### 创建索引
 
-Until now, we have created a new index((("indices", "creating"))) by simply indexing a document into it. The index is created with the default settings, and new fields are added to the type mapping by using dynamic mapping. Now we need more control over the process: we want to ensure that the index has been created with the appropriate number of primary shards, and that analyzers and mappings are set up _before_ we index any data.
+迄今为止，我们简单的通过添加一个文档的方式创建了一个索引。这个索引使用默认设置，新的属性通过动态映射添加到分类中。现在我们需要对这个过程有更多的控制：我们需要确保索引被创建在适当数量的分片上，在索引数据_之前_设置好分析器和类型映射。
 
-To do this, we have to create the index manually, passing in any settings or
-type mappings in the request body, as follows:
+为了达到目标，我们需要手动创建索引，在请求中加入所有设置和类型映射，如下所示：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index
 {
     "settings": { ... any settings ... },
@@ -15,53 +13,36 @@ PUT /my_index
         "type_two": { ... any mappings ... },
         ...
     }
-}
---------------------------------------------------
+```
 
+事实上，你可以通过在 `config/elasticsearch.yml` 中添加下面的配置来防止自动创建索引。
 
-In fact, if you want to, you ((("indices", "preventing automatic creation of")))can prevent the automatic creation of indices by
-adding the following setting to the `config/elasticsearch.yml` file on each
-node:
-
-[source,js]
---------------------------------------------------
+```yml
 action.auto_create_index: false
---------------------------------------------------
+```
 
-[NOTE]
-====
-Later, we discuss how you can use <<index-templates>> to preconfigure
-automatically created indices. This is particularly useful when indexing log
-data: you log into an index whose name includes the date and, as midnight
-rolls over, a new properly configured index automatically springs into
-existence.
-====
+> **NOTE**
 
-=== Deleting an Index
+> 今后，我们将介绍怎样用【索引模板】来自动预先配置索引。这在索引日志数据时尤其有效：
+> 你将日志数据索引在一个以日期结尾的索引上，第二天，一个新的配置好的索引会自动创建好。
 
-To delete an index, use ((("HTTP methods", "DELETE")))((("DELETE method", "deleting indices")))((("indices", "deleting")))the following request:
+### 删除索引
 
-[source,js]
---------------------------------------------------
+使用以下的请求来删除索引：
+
+```
 DELETE /my_index
---------------------------------------------------
+```
 
+你也可以用下面的方式删除多个索引
 
-You can delete multiple indices with this:
-
-[source,js]
---------------------------------------------------
+```
 DELETE /index_one,index_two
 DELETE /index_*
---------------------------------------------------
+```
 
+你甚至可以删除所有索引
 
-You can even delete _all_ indices with this:
-
-[source,js]
---------------------------------------------------
+```
 DELETE /_all
---------------------------------------------------
-
-
-
+```

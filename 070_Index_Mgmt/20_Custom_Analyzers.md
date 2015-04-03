@@ -1,77 +1,36 @@
-[[custom-analyzers]]
-=== Custom Analyzers
+### 自定义分析器
 
-While Elasticsearch comes with a number of analyzers available out of the box,
-the real power comes from the ability to create your own custom analyzers
-by combining character filters, tokenizers, and token filters in a
-configuration that suits your particular data.
+虽然 Elasticsearch 内置了一系列的分析器，但是真正的强大之处在于定制你自己的分析器。你可以通过在配置文件中组合字符过滤器，分词器和表征过滤器，来满足特定数据的需求。
 
-In <<analysis-intro>>, we said that an _analyzer_ is a wrapper that combines
-three functions into a single package,((("analyzers", "character filters, tokenizers, and token filters in"))) which are executed in sequence:
+在 【分析器介绍】 中，我们提到 _分析器_ 是三个顺序执行的组件的结合（字符过滤器，分词器，表征过滤器）。
 
-Character filters::
-+
---
-Character filters((("character filters"))) are used to ``tidy up'' a string before it is tokenized.
-For instance, if our text is in HTML format, it will contain HTML tags like
-`<p>` or `<div>` that we don't want to be indexed. We can use the
-http://bit.ly/1B6f4Ay[`html_strip` character filter]
-to remove all HTML tags and to convert HTML entities like `&Aacute;` into the
-corresponding Unicode character `Á`.
+字符过滤器
 
-An analyzer may have zero or more character filters.
---
+> 字符过滤器是让字符串在被分词前变得更加“整洁”。例如，如果我们的文本是 HTML 格式，它可能会包含一些我们不想被索引的 HTML 标签，诸如 `<p>` 或 `<div>`。
 
-Tokenizers::
-+
---
-An analyzer _must_ have a single tokenizer.((("tokenizers", "in analyzers")))  The tokenizer breaks up the
-string into individual terms or tokens. The
-http://bit.ly/1E3Fd1b[`standard` tokenizer],
-which is used((("standard tokenizer"))) in the `standard` analyzer, breaks up a string into
-individual terms on word boundaries, and removes most punctuation, but
-other tokenizers exist that have different behavior.
+> 我们可以使用 [`html_strip` 字符过滤器](http://bit.ly/1B6f4Ay) 来删除所有的 HTML 标签，并且将 HTML 实体转换成对应的 Unicode 字符，比如将 `&Aacute;` 转成 `Á`。
 
-For instance, the
-http://bit.ly/1ICd585[`keyword` tokenizer]
-outputs exactly((("keyword tokenizer"))) the same string as it received, without any tokenization. The
-http://bit.ly/1xt3t7d[`whitespace` tokenizer]
-splits text((("whitespace tokenizer"))) on whitespace only. The
-http://bit.ly/1ICdozA[`pattern` tokenizer] can
-be used to split text on a ((("pattern tokenizer")))matching regular expression.
---
+> 一个分析器可能包含零到多个字符过滤器。
 
-Token filters::
-+
---
-After tokenization, the resulting _token stream_ is passed through any
-specified token filters,((("token filters"))) in the order in which they are specified.
+分词器
 
-Token filters may change, add, or remove tokens.  We have already mentioned the
-http://bit.ly/1DIeXvZ[`lowercase`] and
-http://bit.ly/1INX4tN[`stop` token filters],
-but there are many more available in Elasticsearch.
-http://bit.ly/1AUfpDN[Stemming token filters]
-``stem'' words to ((("stemming token filters")))their root form. The
-http://bit.ly/1ylU7Q7[`ascii_folding` filter]
-removes diacritics,((("ascii_folding filter"))) converting a term like `"très"` into `"tres"`. The
-http://bit.ly/1CbkmYe[`ngram`] and
-http://bit.ly/1DIf6j5[`edge_ngram` token filters] can produce((("edge_engram token filter")))((("ngram and edge_ngram token filters")))
-tokens suitable for partial matching or autocomplete.
---
+> 一个分析器 _必须_ 包含一个分词器。分词器将字符串分割成单独的词（terms）或表征（tokens）。`standard` 分析器使用 [`standard` 分词器](http://bit.ly/1E3Fd1b)将字符串分割成单独的字词，删除大部分标点符号，但是现存的其他分词器会有不同的行为特征。
 
-In <<search-in-depth>>, we discuss examples of where and how to use these
-tokenizers and filters.  But first, we need to explain how to create a custom
-analyzer.
+> 例如，[`keyword` 分词器](http://bit.ly/1ICd585)输出和它接收到的相同的字符串，不做任何分词处理。[`whitespace` 分词器]只通过空格来分割文本。[`pattern` 分词器]可以通过正则表达式来分割文本。
 
-==== Creating a Custom Analyzer
+表征过滤器
 
-In the same way as((("index settings", "analysis", "creating custom analyzers")))((("analyzers", "custom", "creating"))) we configured the `es_std` analyzer previously, we can configure
-character filters, tokenizers, and token filters in their respective sections
-under `analysis`:
+> 分词结果的 _表征流_ 会根据各自的情况，传递给特定的表征过滤器。
 
-[source,js]
---------------------------------------------------
+> 表征过滤器可能修改，添加或删除表征。我们已经提过 [`lowercase`](http://bit.ly/1DIeXvZ) 和 [`stop`](http://bit.ly/1INX4tN) 表征过滤器，但是 Elasticsearch 中有更多的选择。[`stemmer` 表征过滤器](http://bit.ly/1AUfpDN)将单词转化为他们的根形态（root form）。[`ascii_folding` 表征过滤器](http://bit.ly/1ylU7Q7)会删除变音符号，比如从 `très` 转为 `tres`。 [`ngram`](http://bit.ly/1CbkmYe) 和 [`edge_ngram`](http://bit.ly/1DIf6j5) 可以让表征更适合特殊匹配情况或自动完成。
+
+在【深入搜索】中，我们将举例介绍如何使用这些分词器和过滤器。但是首先，我们需要阐述一下如何创建一个自定义分析器
+
+### 创建自定义分析器
+
+与索引设置一样，我们预先配置好 `es_std` 分析器，我们可以再 `analysis` 字段下配置字符过滤器，分词器和表征过滤器：
+
+```
 PUT /my_index
 {
     "settings": {
@@ -83,48 +42,41 @@ PUT /my_index
         }
     }
 }
---------------------------------------------------
+```
 
+作为例子，我们来配置一个这样的分析器：
 
-As an example, let's set up a custom analyzer that will do the following:
+1. 用 `html_strip` 字符过滤器去除所有的 HTML 标签
 
-1. Strip out HTML by using the `html_strip` character filter.
+2. 将 `&` 替换成 `and`，使用一个自定义的 `mapping` 字符过滤器
 
-2. Replace `&` characters with `" and "`, using a custom `mapping`
-   character filter:
-+
-[source,js]
---------------------------------------------------
+```
 "char_filter": {
     "&_to_and": {
         "type":       "mapping",
         "mappings": [ "&=> and "]
     }
 }
---------------------------------------------------
+```
 
+3. 使用 `standard` 分词器分割单词
 
-3. Tokenize words, using the `standard` tokenizer.
+4. 使用 `lowercase` 表征过滤器将词转为小写
 
-4. Lowercase terms, using the `lowercase` token filter.
+5. 用 `stop` 表征过滤器去除一些自定义停用词。
 
-5. Remove a custom list of stopwords, using a custom `stop` token filter:
-+
-[source,js]
---------------------------------------------------
+```
 "filter": {
     "my_stopwords": {
         "type":        "stop",
         "stopwords": [ "the", "a" ]
     }
 }
---------------------------------------------------
+```
 
-Our analyzer definition combines the predefined tokenizer and filters with the
-custom filters that we have configured previously:
+根据以上描述来将预定义好的分词器和过滤器组合成我们的分析器：
 
-[source,js]
---------------------------------------------------
+```
 "analyzer": {
     "my_analyzer": {
         "type":           "custom",
@@ -133,13 +85,11 @@ custom filters that we have configured previously:
         "filter":       [ "lowercase", "my_stopwords" ]
     }
 }
---------------------------------------------------
+```
 
+用下面的方式可以将以上请求合并成一条：
 
-To put it all together, the whole `create-index` request((("create-index request"))) looks like this:
-
-[source,js]
---------------------------------------------------
+```
 PUT /my_index
 {
     "settings": {
@@ -162,24 +112,22 @@ PUT /my_index
                     "filter":       [ "lowercase", "my_stopwords" ]
             }}
 }}}
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/20_Custom_analyzer.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/20_Custom_analyzer.json -->
 
-After creating the index, use the `analyze` API to((("analyzers", "testing using analyze API"))) test the new analyzer:
+创建索引后，用 `analyze` API 来测试新的分析器：
 
-[source,js]
---------------------------------------------------
+```
 GET /my_index/_analyze?analyzer=my_analyzer
 The quick & brown fox
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/20_Custom_analyzer.json
+```
 
+<!-- SENSE: 070_Index_Mgmt/20_Custom_analyzer.json -->
 
-The following abbreviated results show that our analyzer is working correctly:
+下面的结果证明我们的分析器能正常工作了：
 
-[source,js]
---------------------------------------------------
+```
 {
   "tokens" : [
       { "token" :   "quick",    "position" : 2 },
@@ -188,13 +136,11 @@ The following abbreviated results show that our analyzer is working correctly:
       { "token" :   "fox",      "position" : 5 }
     ]
 }
---------------------------------------------------
+```
 
-The analyzer is not much use unless we tell ((("analyzers", "custom", "telling Elasticsearch where to use")))((("mapping (types)", "applying custom analyzer to a string field")))Elasticsearch where to use it. We
-can apply it to a `string` field with a mapping such as the following:
+除非我们告诉 Elasticsearch 在哪里使用，否则分析器不会起作用。我们可以通过下面的映射将它应用在一个 `string` 类型的字段上：
 
-[source,js]
---------------------------------------------------
+```
 PUT /my_index/_mapping/my_type
 {
     "properties": {
@@ -204,7 +150,6 @@ PUT /my_index/_mapping/my_type
         }
     }
 }
---------------------------------------------------
-// SENSE: 070_Index_Mgmt/20_Custom_analyzer.json
+```
 
-
+<!-- SENSE: 070_Index_Mgmt/20_Custom_analyzer.json -->

@@ -98,5 +98,5 @@ GET /_validate/query?explain
 从返回的 `explanation` 你会看到 `match` 是如何为查询字符串 `"really powerful"` 进行查询的，
 首先，它被拆分成两个独立的词分别在 `tweet` 字段中进行查询。
 
-而且，在索引`us`中这两个词为`"really"`和`"powerful"`，在索引`gb`中被拆分成`"really"` 和 `"power".
+而且，在索引`us`中这两个词为`"really"`和`"powerful"`，在索引`gb`中被拆分成`"really"` 和 `"power"`。
 这是因为我们在索引`gb`中使用了`english`分析器。

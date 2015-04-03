@@ -41,6 +41,13 @@
 
 [git@osc](http://git.oschina.net/loolly/elasticsearch-definitive-guide-cn/issues)
 
+### 翻译关键字约定
+* index -> 索引
+* type -> 类型
+* token -> 表征
+* filter -> 过滤器
+* analyser -> 分析器
+
 ## 注意
 
 1. 文档还未翻译完成，使用gitbook格式，已经翻译完成的章节会陆续提交到gitbook。

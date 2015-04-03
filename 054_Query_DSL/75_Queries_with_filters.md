@@ -1,60 +1,55 @@
-=== Combining queries with filters
+## 查询与过滤条件的合并
 
-Queries can be used in _query context_ and filters can be used
-in _filter context_.  Throughout the Elasticsearch API you will see parameters
-with `query` or `filter` in the name.  These
-expect a single argument containing either a single query or filter clause
-respectively. In other words, they establish the
-outer ``context'' as _query context_ or _filter context_.
+查询语句和过滤语句可以放在各自的上下文中。
+在 ElasticSearch API 中我们会看到许多带有 `query` 或 `filter` 的语句。
+这些语句既可以包含单条 query 语句，也可以包含一条 filter 子句。
+换句话说，这些语句需要首先创建一个`query`或`filter`的上下文关系。
 
-Compound query clauses can wrap other query clauses and compound
-filter clauses can wrap other filter clauses. However, it is often
-useful to apply a filter to a query or, less frequently, to use a full
-text query as a filter.
+复合查询语句可以加入其他查询子句，复合过滤语句也可以加入其他过滤子句。
+通常情况下，一条查询语句需要过滤语句的辅助，全文本搜索除外。
 
-To do this, there are dedicated query clauses which wrap filter clauses and
-vice versa, thus allowing us to switch from one context to another. It is
-important to choose the correct combination of query and filter clauses
-to achieve your goal in the most efficient way.
+所以说，查询语句可以包含过滤子句，反之亦然。
+以便于我们切换 query 或 filter 的上下文。这就要求我们在读懂需求的同时构造正确有效的语句。
 
-[[filtered-query]]
-==== Filtering a query
+## 带过滤的查询语句
 
-Let's say we have this query:
+#### 过滤一条查询语句
 
-[source,js]
---------------------------------------------------
-{ "match": { "email": "business opportunity" }}
---------------------------------------------------
+比如说我们有这样一条查询语句:
 
-and we want to combine it with the following `term` filter, which will
-only match documents which are in our inbox:
+```Javascript
+{
+    "match": {
+        "email": "business opportunity"
+    }
+}
+```
 
-[source,js]
---------------------------------------------------
-{ "term": { "folder": "inbox" }}
---------------------------------------------------
+然后我们想要让这条语句加入 `term` 过滤，在收信箱中匹配邮件：
 
+```Javascript
+{
+    "term": {
+        "folder": "inbox"
+    }
+}
+```
 
-The `search` API only accepts a single `query` parameter, so we need
-to wrap the query and the filter in another query, called the `filtered`
-query:
+`search` API中只能包含 `query` 语句，所以我们需要用 `filtered` 来同时包含
+"query" 和 "filter" 子句：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
     "filtered": {
         "query":  { "match": { "email": "business opportunity" }},
         "filter": { "term":  { "folder": "inbox" }}
     }
 }
---------------------------------------------------
+```
 
+我们在外层再加入 `query` 的上下文关系：
 
-We can now pass this query to the `query` parameter of the `search` API:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
@@ -64,18 +59,14 @@ GET /_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/75_Filtered_query.json
+```
 
+## 单条过滤语句
 
-==== Just a filter
+在 `query` 上下文中，如果你只需要一条过滤语句，比如在匹配全部邮件的时候，你可以
+省略 `query` 子句：
 
-While in query context, if you need to use a filter without a query, for
-instance to match all emails in the inbox, then you can just omit the
-query:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
@@ -84,15 +75,12 @@ GET /_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/75_Filtered_query.json
+```
 
+如果一条查询语句没有指定查询范围，那么它默认使用 `match_all` 查询，所以上面语句
+的完整形式如下：
 
-If a query is not specified then it defaults to using the `match_all` query, so
-the above query is equivalent to the following:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
@@ -102,18 +90,16 @@ GET /_search
         }
     }
 }
---------------------------------------------------
+```
 
 
-==== A query as a filter
+## 查询语句中的过滤
 
-Occasionally, you will want to use a query while you are in filter context.
-This can be achieved with the `query` filter, which just wraps a query. The
-example below shows one way we could exclude emails which look like spam:
+有时候，你需要在 filter 的上下文中使用一个 query 子句。下面的语句就是一条带有查询功能
+的过滤语句， 这条语句可以过滤掉看起来像垃圾邮件的文档：
 
 
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_search
 {
     "query": {
@@ -131,13 +117,10 @@ GET /_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/75_Filtered_query.json
-<1> Note the `query` filter, which is allowing us to use the `match` *query*
-    inside a `bool` *filter*.
+```
+<1> 过滤语句中可以使用`query`查询的方式代替 `bool` 过滤子句。
 
-
-NOTE: You seldom need to use a query as a filter, but we have included it for
-completeness' sake.  The only time you may need it is when you need to use
-full text matching while in filter context.
+>**提示**：
+>我们很少用到的过滤语句中包含查询，保留这种用法只是为了语法的完整性。
+>只有在过滤中用到全文本匹配的时候才会使用这种结构。
 

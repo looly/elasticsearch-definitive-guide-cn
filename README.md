@@ -14,7 +14,16 @@
 
 **译者：** [Looly](http://www.xiaoleilu.com)
 
-**参与翻译：** [iridiumcao](https://github.com/iridiumcao) [cvvnx1](https://github.com/cvvnx1) [conan007ai](https://github.com/conan007ai)
+**参与翻译：** 
+* [iridiumcao](https://github.com/iridiumcao)
+* [cvvnx1](https://github.com/cvvnx1) 
+* [conan007ai](https://github.com/conan007ai)
+* [sailxjx](https://github.com/sailxjx)
+* [wxlfight](https://github.com/wxlfight)
+* [xieyunzi](https://github.com/xieyunzi)
+* [xdream86](https://github.com/xdream86)
+* [conan007ai](https://github.com/conan007ai)
+* [williamzhao](https://github.com/williamzhao)
 
 感谢参与翻译的小伙伴们~~
 

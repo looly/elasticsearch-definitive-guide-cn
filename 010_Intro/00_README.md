@@ -1,5 +1,3 @@
-fix by [wxlfight](https://github.com/wxlfight)
-
 # 入门
 
 Elasticsearch是一个实时分布式搜索和分析引擎。它让你以前所未有的速度处理大数据成为可能。

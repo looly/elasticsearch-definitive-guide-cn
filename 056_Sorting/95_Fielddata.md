@@ -1,54 +1,33 @@
-[[fielddata-intro]]
-=== Fielddata
+## 数据字段
 
-Our final topic in this chapter is about an internal aspect of Elasticsearch.
-While we don't demonstrate any new techniques here, _fielddata_ is an
-important topic which we will refer to repeatedly, and is something that you
-should be aware of.
+本章的目的在于介绍关于ElasticSearch内部的一些运行情况。在这里我们先不介绍新的知识点，
+数据字段是我们要经常查阅的内容之一，但我们使用的时候不必太在意。
 
-When you sort on a field, Elasticsearch needs access to the value for that
-field for every document which matches the query.  The inverted index, which
-performs very well when searching, is not the ideal structure for sorting on
-field values.
+当你对一个字段进行排序时，ElasticSearch 需要进入每个匹配到的文档得到相关的值。
+倒排索引在用于搜索时是非常卓越的，但却不是理想的排序结构。
 
-* When searching we need to be able to map a term to a list of documents.
+* 当搜索的时候，我们需要用检索词去遍历所有的文档。
 
-* When sorting, we need to map a document to its terms. In other words, we
-  need to ``uninvert'' the inverted index.
+* 当排序的时候，我们需要遍历文档中所有的值，我们需要做反倒序排列操作。
 
-In order to make sorting efficient, Elasticsearch loads all of the values for
-the field that you want to sort on into memory. This is referred to as
-_fielddata_.
+为了提高排序效率，ElasticSearch 会将所有字段的值加载到内存中，这就叫做"数据字段"。
 
-IMPORTANT: It doesn't just load the values for the documents that matched a
-particular query. It loads the values from *every document in your index*,
-regardless of the document `type`.
+>**重要**：
+>ElasticSearch将所有字段数据加载到内存中并不是匹配到的那部分数据。
+>而是索引下所有文档中的值，包括所有类型。
 
-The reason that it loads all values into memory is that uninverting the index
-from disk is slow.  Even though you may only need the values for a few docs
-for the current request, you will probably need access to the values for other
-docs on the next request, so it makes sense to load all the values into memory
-at once, and to keep them there.
+将所有字段数据加载到内存中是因为从硬盘反向倒排索引是非常缓慢的。尽管你这次请求需要的是某些文档中的部分数据，
+但你下个请求却需要另外的数据，所以将所有字段数据一次性加载到内存中是十分必要的。
 
-Fielddata is used in several places in Elasticsearch:
+ElasticSearch中的字段数据常被应用到以下场景：
 
-* sorting on a field
-* aggregations on a field
-* certain filters, eg geo-location filters
-* scripts which refer to fields
+* 对一个字段进行排序
+* 对一个字段进行聚合
+* 某些过滤，比如地理位置过滤
+* 某些与字段相关的脚本计算
 
-Clearly, this can consume a lot of memory, especially for high cardinality
-string fields -- string fields that have many unique values -- like the body
-of an email. Fortunately, insufficient memory is a problem which can be solved
-by horizontal scaling, by adding more nodes to your cluster.
+毫无疑问，这会消耗掉很多内存，尤其是大量的字符串数据 -- string字段可能包含很多不同的值，比如邮件内容。
+值得庆幸的是，内存不足是可以通过横向扩展解决的，我们可以增加更多的节点到集群。
 
-For now, all you need to know is what fielddata is, and to be aware that it
-can be memory hungry.  Later we will show you how to see how much memory fielddata
-is using, how to limit the amount of memory that is available to it, and
-how to preload fielddata to improve the user experience.
-
-
-
-
-
-
+现在，你只需要知道字段数据是什么，和什么时候内存不足就可以了。
+稍后我们会讲述字段数据到底消耗了多少内存，如何限制ElasticSearch可以使用的内存，以及如何预加载字段数据以提高用户体验。

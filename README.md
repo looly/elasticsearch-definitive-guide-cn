@@ -14,9 +14,9 @@
 
 **译者：** [Looly](http://www.xiaoleilu.com)
 
-**参与翻译：** 
+**参与翻译：**
 * [@iridiumcao](https://github.com/iridiumcao)
-* [@cvvnx1](https://github.com/cvvnx1) 
+* [@cvvnx1](https://github.com/cvvnx1)
 * [@conan007ai](https://github.com/conan007ai)
 * [@sailxjx](https://github.com/sailxjx)
 * [@wxlfight](https://github.com/wxlfight)

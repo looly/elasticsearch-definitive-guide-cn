@@ -1,22 +1,14 @@
-=== Finding Exact Values
+### 查找准确值
 
-When working with exact values,((("structured search", "finding exact values")))((("exact values", "finding"))) you will be working with filters. Filters are
-important because they are very, very fast.  Filters do not calculate
-relevance (avoiding the entire scoring phase) and are easily cached. We'll
-talk about the performance benefits of filters later in <<filter-caching>>,
-but for now, just keep in mind that you should use filters as often as you
-can.
+对于准确值，你需要使用过滤器。过滤器的重要性在于它们非常的快。它们不计算相关性（避过所有计分阶段）而且很容易被缓存。我们今后再来讨论过滤器的性能优势【过滤器缓存】，现在，请先记住尽可能多的使用过滤器。
 
-==== term Filter with Numbers
+#### 用于数字的 `term` 过滤器
 
-We are going to explore the `term` filter ((("term filter", "with numbers")))((("structured search", "finding exact values", "using term filter with numbers")))first because you will use it often.
-This filter is capable of handling numbers, Booleans, dates, and text.
+我们下面将介绍 `term` 过滤器，首先因为你可能经常会用到它，这个过滤器旨在处理数字，布尔值，日期，和文本。
 
-Let's look at an example using numbers first by indexing some products.  These
-documents have a `price` and a `productID`:
+我们来看一下例子，一些产品最初用数字来索引，包含两个字段 `price` 和 `productID`：
 
-[source,js]
---------------------------------------------------
+```json
 POST /my_store/products/_bulk
 { "index": { "_id": 1 }}
 { "price" : 10, "productID" : "XHDK-A-1293-#fJ3" }
@@ -26,41 +18,31 @@ POST /my_store/products/_bulk
 { "price" : 30, "productID" : "JODL-X-1937-#pV7" }
 { "index": { "_id": 4 }}
 { "price" : 30, "productID" : "QQPX-R-3956-#aD8" }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_number.json
+```
 
-Our goal is to find all products with a certain price.  You may be familiar
-with SQL if you are coming from a relational database background.  If we
-expressed this query as an SQL query, it would look like this:
+<!-- SENSE: 080_Structured_Search/05_Term_number.json -->
 
-[source,sql]
---------------------------------------------------
+我们的目标是找出特定价格的产品。假如你有关系型数据库背景，可能用 SQL 来表现这次查询比较熟悉，它看起来像这样：
+
+```sql
 SELECT document
 FROM   products
 WHERE  price = 20
---------------------------------------------------
+```
 
-In the Elasticsearch query DSL, we use a `term` filter to accomplish the same
-thing.  The `term` filter will look for the exact value that we specify.  By
-itself, a `term` filter is simple. It accepts a field name and the value
-that we wish to find:
+在 Elasticsearch DSL 中，我们使用 `term` 过滤器来实现同样的事。`term` 过滤器会查找我们设定的准确值。`term` 过滤器本身很简单，它接受一个字段名和我们希望查找的值：
 
-[source,js]
---------------------------------------------------
+```json
 {
     "term" : {
         "price" : 20
     }
 }
---------------------------------------------------
+```
 
-The `term` filter isn't very useful on its own, though.  As discussed in
-<<query-dsl-intro>>, the `search` API expects a `query`, not a `filter`. To
-use our `term` filter, ((("filtered query")))we need to wrap it with a
-<<filtered-query,`filtered` query>>:
+`term` 过滤器本身并不能起作用。像在【查询 DSL】中介绍的一样，搜索 API 需要得到一个`查询语句`，而不是一个 `过滤器`。为了使用 `term` 过滤器，我们需要将它包含在一个过滤查询语句中：
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_store/products/_search
 {
     "query" : {
@@ -76,21 +58,17 @@ GET /my_store/products/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_number.json
+```
 
-<1> The `filtered` query accepts both a `query` and a `filter`.
-<2> A `match_all` is used to return all matching documents.((("match_all query clause")))  This is the default
-behavior, so in future examples we will simply omit the `query` section.
-<3> The `term` filter that we saw previously.  Notice how it is placed inside
-the `filter` clause.
+<!-- SENSE: 080_Structured_Search/05_Term_number.json -->
 
-Once executed, the search results from this query are exactly what you would
-expect: only document 2 is returned as a hit (because only `2` had a price
-of `20`):
+<1> `filtered` 查询同时接受接受 `query` 与 `filter`。
+<2> `match_all` 用来匹配所有文档，这是默认行为，所以在以后的例子中我们将省略掉 `query` 部分。
+<3> 这是我们上面见过的 `term` 过滤器。注意它在 `filter` 分句中的位置。
 
-[source,json]
---------------------------------------------------
+执行之后，你将得到预期的搜索结果：只能文档 2 被返回了（因为只有 `2` 的价格是 `20`）：
+
+```json
 "hits" : [
     {
         "_index" : "my_store",
@@ -103,30 +81,23 @@ of `20`):
         }
     }
 ]
---------------------------------------------------
-<1> Filters do not perform scoring or relevance. The score comes from the
-    `match_all` query, which treats all docs as equal, so all results receive
-    a neutral score of `1`.
+```
 
-==== term Filter with Text
+<1> 过滤器不会执行计分和计算相关性。分值由 `match_all` 查询产生，所有文档一视同仁，所有每个结果的分值都是 `1`
 
-As mentioned at the top of ((("structured search", "finding exact values", "using term filter with text")))((("term filter", "with text")))this section, the `term` filter can match strings
-just as easily as numbers.  Instead of price, let's try to find products that
-have a certain UPC identification code. To do this with SQL, we might use a
-query like this:
+#### 用于文本的 `term` 过滤器
 
-[source,sql]
---------------------------------------------------
+像我们在开头提到的，`term` 过滤器可以像匹配数字一样轻松的匹配字符串。让我们通过特定 UPC 标识码来找出产品，而不是通过价格。如果用 SQL 来实现，我们可能会使用下面的查询：
+
+```sql
 SELECT product
 FROM   products
 WHERE  productID = "XHDK-A-1293-#fJ3"
---------------------------------------------------
+```
 
-Translated into the query DSL, we can try a similar query with the `term`
-filter, like so:
+转到查询 DSL，我们用 `term` 过滤器来构造一个类似的查询：
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_store/products/_search
 {
     "query" : {
@@ -139,21 +110,18 @@ GET /my_store/products/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_text.json
+```
 
-Except there is a little hiccup: we don't get any results back!  Why is
-that? The problem isn't with the the `term` query; it is with the way
-the data has been indexed. ((("analyze API, using to understand tokenization"))) If we use the `analyze` API (<<analyze-api>>), we
-can see that our UPC has been tokenized into smaller tokens:
+<!-- SENSE: 080_Structured_Search/05_Term_text.json -->
 
-[source,js]
---------------------------------------------------
+有点出乎意料：我们没有得到任何结果值！为什么呢？问题不在于 `term` 查询；而在于数据被索引的方式。如果我们使用 `analyze` API，我们可以看到 UPC 被分解成短小的表征：
+
+```json
 GET /my_store/_analyze?field=productID
 XHDK-A-1293-#fJ3
---------------------------------------------------
-[source,js]
---------------------------------------------------
+```
+
+```json
 {
   "tokens" : [ {
     "token" :        "xhdk",
@@ -181,30 +149,23 @@ XHDK-A-1293-#fJ3
     "position" :     4
   } ]
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_text.json
+```
 
-There are a few important points here:
+<!-- SENSE: 080_Structured_Search/05_Term_text.json -->
 
-* We have four distinct tokens instead of a single token representing the UPC.
-* All letters have been lowercased.
-* We lost the hyphen and the hash (`#`) sign.
+这里有一些要点：
 
-So when our `term` filter looks for the exact value `XHDK-A-1293-#fJ3`, it
-doesn't find anything, because that token does not exist in our inverted index.
-Instead, there are the four tokens listed previously.
+* 我们得到了四个分开的表征，而不是一个完整的表征来表示 UPC。
+* 所有的字符都被转为了小写。
+* 我们失去了连字符和 `#` 符号。
 
-Obviously, this is not what we want to happen when dealing with identification
-codes, or any kind of precise enumeration.
+所以当我们用 `XHDK-A-1293-#fJ3` 来查找时，得不到任何结果，因为这个表征不在我们的倒排索引中。相反，那里有上面列出的四个表征。
 
-To prevent this from happening, we need to tell Elasticsearch that this field
-contains an exact value by  setting it to be `not_analyzed`.((("not_analyzed string fields"))) We saw this
-originally in <<custom-field-mappings>>.  To do this, we need to first delete
-our old index (because it has the incorrect mapping) and create a new one with
-the correct mappings:
+显然，在处理唯一标识码，或其他枚举值时，这不是我们想要的结果。
 
-[source,js]
---------------------------------------------------
+为了避免这种情况发生，我们需要通过设置这个字段为 `not_analyzed` 来告诉 Elasticsearch 它包含一个准确值。我们曾在【自定义字段映射】中见过它。为了实现目标，我们要先删除旧索引（因为它包含了错误的映射），并创建一个正确映射的索引：
+
+```json
 DELETE /my_store <1>
 
 PUT /my_store <2>
@@ -221,17 +182,19 @@ PUT /my_store <2>
     }
 
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_text.json
-<1> Deleting the index first is required, since we cannot change mappings that
-    already exist.
-<2> With the index deleted, we can re-create it with our custom mapping.
-<3> Here we explicitly say that we don't want `productID` to be analyzed.
+```
 
-Now we can go ahead and reindex our documents:
+<!-- SENSE: 080_Structured_Search/05_Term_text.json -->
 
-[source,js]
---------------------------------------------------
+<1> 必须首先删除索引，因为我们不能修改已经存在的映射。
+
+<2> 删除后，我们可以用自定义的映射来创建它。
+
+<3> 这里我们明确表示不希望 `productID` 被分析。
+
+现在我们可以继续重新索引文档：
+
+```json
 POST /my_store/products/_bulk
 { "index": { "_id": 1 }}
 { "price" : 10, "productID" : "XHDK-A-1293-#fJ3" }
@@ -241,15 +204,13 @@ POST /my_store/products/_bulk
 { "price" : 30, "productID" : "JODL-X-1937-#pV7" }
 { "index": { "_id": 4 }}
 { "price" : 30, "productID" : "QQPX-R-3956-#aD8" }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_text.json
+```
 
-Only now will our `term` filter work as expected.  Let's try it again on the
-newly indexed data (notice, the query and filter have not changed at all, just
-how the data is mapped):
+<!-- SENSE: 080_Structured_Search/05_Term_text.json -->
 
-[source,js]
---------------------------------------------------
+现在我们的 `term` 过滤器将按预期工作。让我们在新索引的数据上再试一次（注意，查询和过滤都没有修改，只是数据被重新映射了）。
+
+```json
 GET /my_store/products/_search
 {
     "query" : {
@@ -262,41 +223,26 @@ GET /my_store/products/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/05_Term_text.json
+```
 
-Since the `productID` field is not analyzed, and the `term` filter performs no
-analysis, the query finds the exact match and returns document 1 as a hit.
-Success!
+<!-- SENSE: 080_Structured_Search/05_Term_text.json -->
 
-[[_internal_filter_operation]]
-==== Internal Filter Operation
+`productID` 字段没有经过分析，`term` 过滤器也没有执行分析，所以这条查询找到了准确匹配的值，如期返回了文档 1。
 
-Internally, Elasticsearch is((("structured search", "finding exact values", "intrnal filter operations")))((("filters", "internal filter operation"))) performing several operations when executing a
-filter:
+#### 内部过滤操作
 
-1. _Find matching docs_.
-+
-The `term` filter looks up the term `XHDK-A-1293-#fJ3` in the inverted index
-and retrieves the list of documents that contain that term.  In this case,
-only document 1 has the term we are looking for.
+Elasticsearch 在内部会通过一些操作来执行一次过滤：
 
-2. _Build a bitset_.
-+
-The filter then builds a _bitset_--an array of 1s and 0s--that
-describes which documents contain the term.  Matching documents receive a  `1`
-bit.  In our example, the bitset would be `[1,0,0,0]`.
+1. _查找匹配文档_。
 
-3. _Cache the bitset_.
-+
-Last, the bitset is stored in memory, since we can use this in the future
-and skip steps 1 and 2.  This adds a lot of performance and makes filters very
-fast.
+    `term` 过滤器在倒排索引中查找词 `XHDK-A-1293-#fJ3`，然后返回包含那个词的文档列表。在这个例子中，只有文档 1 有我们想要的词。
 
-When executing a `filtered` query, the `filter` is executed before the
-`query`. The resulting bitset is given to the `query`, which uses it to simply
-skip over any documents that have already been excluded by the filter. This is
-one of the ways that filters can improve performance.  Fewer documents
-evaluated by the query  means faster response times.
+2. _创建字节集_
 
+    然后过滤器将创建一个 _字节集_ —— 一个由 1 和 0 组成的数组 —— 描述哪些文档包含这个词。匹配的文档得到 `1` 字节，在我们的例子中，字节集将是 `[1,0,0,0]`
 
+3. _缓存字节集_
+
+    最后，字节集被储存在内存中，以使我们能用它来跳过步骤 1 和 2。这大大的提升了性能，让过滤变得非常的快。
+
+当执行 `filtered` 查询时，`filter` 会比 `query` 早执行。结果字节集会被传给 `query` 来跳过已经被排除的文档。这种过滤器提升性能的方式，查询更少的文档意味着更快的速度。

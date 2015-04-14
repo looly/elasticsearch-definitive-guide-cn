@@ -1,30 +1,22 @@
-=== Finding Multiple Exact Values
+### 查询多个准确值
 
-The `term` filter is useful for finding a single value, but often you'll  want
-to search for multiple values.((("exact values", "finding multiple")))((("structured search", "finding multiple exact values")))  What if you want to find documents that have a
-price of $20 or $30?
+`term` 过滤器在查询单个值时很好用，但是你可能经常需要搜索多个值。比如你想寻找 20 或 30 元的文档，该怎么做呢？
 
-Rather than using multiple `term` filters, you can instead use a single `terms`
-filter (note the _s_ at the end).  The `terms` filter((("terms filter"))) is simply the plural
-version of the singular `term` filter.
+比起使用多个 `term` 过滤器，你可以用一个 `terms` 过滤器。`terms` 过滤器是 `term` 过滤器的复数版本。
 
-It looks nearly identical to a vanilla `term` too.  Instead of
-specifying a single price, we are now specifying an array of values:
+它用起来和 `term` 差不多，我们现在来指定一组数值，而不是单一价格：
 
-[source,js]
---------------------------------------------------
+```json
 {
     "terms" : {
         "price" : [20, 30]
     }
 }
---------------------------------------------------
+```
 
-And like the `term` filter, we will place it inside a `filtered` query to
-((("filtered query", "terms filter in"))) use it:
+像 `term` 过滤器一样，我们将它放在 `filtered` 查询中：
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_store/products/_search
 {
     "query" : {
@@ -37,15 +29,15 @@ GET /my_store/products/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/15_Terms_filter.json
+```
 
-<1> The `terms` filter as seen previously, but placed inside the `filtered` query
+<!-- SENSE: 080_Structured_Search/15_Terms_filter.json -->
 
-The query will return the second, third, and fourth documents:
+<1> 这是前面提到的 `terms` 过滤器，放置在 `filtered` 查询中
 
-[source,json]
---------------------------------------------------
+这条查询将返回第二，第三和第四个文档：
+
+```json
 "hits" : [
     {
         "_id" :    "2",
@@ -72,8 +64,4 @@ The query will return the second, third, and fourth documents:
         }
      }
 ]
---------------------------------------------------
-
-
-
-
+```

@@ -18,7 +18,7 @@ the _bouncing results_ problem.((("bouncing results problem")))
 .Bouncing Results
 ****
 
-Imagine that you are sorting your results by a `timestamp` field, and 
+Imagine that you are sorting your results by a `timestamp` field, and
 two documents have the same timestamp.  Because search requests are
 round-robined between all available shard copies, these two documents may be
 returned in one order when the request is served by the primary, and in

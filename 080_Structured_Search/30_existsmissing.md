@@ -152,7 +152,6 @@ GET /my_index/posts/_search
 当选定一个合适的 `null_value` 时，确保以下几点：
 
 * 它与字段的类型匹配，你不能在 `date` 类型的字段中使用字符串 `null_value`
-
 * 它需要能与这个字段可能包含的正常值区分开来，以避免真实值和 `null` 值混淆
 
 #### 对象的 `exists/missing`

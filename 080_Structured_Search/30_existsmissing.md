@@ -1,41 +1,25 @@
-=== Dealing with Null Values
+### 处理 Null 值
 
-Think back to our earlier example, where documents have a field named `tags`.
-This is a multivalue field.((("structured search", "dealing with null values")))((("null values")))  A document may have one tag, many tags, or
-potentially no tags at all. If a field has no values, how is it stored in an
-inverted index?
+回到我们早期的示例，在文档中有一个多值的字段 `tags`，一个文档可能包含一个或多个标签，或根本没有标签。如果一个字段没有值，它是怎么储存在倒排索引中的？
 
-That's a trick question, because the answer is, it isn't stored at all. Let's
-look at that inverted index from the previous section:
+这是一个取巧的问题，因为答案是它根本没有存储。让我们从看一下前几节的倒排索引：
 
-[width="50%",frame="topbot"]
-|==========================
-| Token         | DocIDs
-|`open_source`  | `2`
-|`search`       | `1`,`2`
-|==========================
+| Token         | DocIDs |
+|---------------|--------|
+|`open_source`  | `2`    |
+|`search`       | `1`,`2`|
 
-How would you store a field that doesn't exist in that data structure?  You
-can't!  An inverted index is simply a list of tokens and the documents that
-contain them.  If a field doesn't exist, it doesn't hold any tokens, which
-means it won't be represented in an inverted index data structure.
+你怎么可能储存一个在数据结构不存在的字段呢？倒排索引是表征和包含它们的文档的一个简单列表。假如一个字段不存在，它就没有任何表征，也就意味着它无法被倒排索引的数据结构表达出来。
 
-Ultimately, this((("strings", "empty")))((("arrays", "empty"))) means that a `null`, `[]` (an empty
-array), and `[null]` are all equivalent. They simply don't exist in the
-inverted index!
+本质上来说，`null`，`[]`（空数组）和 `[null]` 是相等的。它们都不存在于倒排索引中！
 
-Obviously, the world is not simple, and data is often missing fields, or contains
-explicit nulls or empty arrays. To deal with these situations, Elasticsearch has
-a few tools to work with null or missing values.
+显然，这个世界却没有那么简单，数据经常会缺失字段，或包含空值或空数组。为了应对这些情形，Elasticsearch 有一些工具来处理空值或缺失的字段。
 
-==== exists Filter
+#### `exists` 过滤器
 
-The first tool in your arsenal is the `exists` filter.((("null values", "working with, using exists filter")))((("exists filter")))  This filter will return
-documents that have any value in the specified field. Let's use the tagging example
-and index some example documents:
+工具箱中的第一个利器是 `exists` 过滤器，这个过滤器将返回任何包含这个字段的文档，让我们用标签来举例，索引一些示例文档：
 
-[source,js]
---------------------------------------------------
+```json
 POST /my_index/posts/_bulk
 { "index": { "_id": "1"              }}
 { "tags" : ["search"]                }  <1>
@@ -47,40 +31,34 @@ POST /my_index/posts/_bulk
 { "tags" : null                      }  <4>
 { "index": { "_id": "5"              }}
 { "tags" : ["search", null]          }  <5>
+```
 
---------------------------------------------------
-// SENSE: 080_Structured_Search/30_Exists_missing.json
+<!-- SENSE: 080_Structured_Search/30_Exists_missing.json -->
 
-<1> The `tags` field has one value.
-<2> The `tags` field has two values.
-<3> The `tags` field is missing altogether.
-<4> The `tags` field is set to `null`.
-<5> The `tags` field has one value and a `null`.
+<1> `tags` 字段有一个值
+<2> `tags` 字段有两个值
+<3> `tags` 字段不存在
+<4> `tags` 字段被设为 `null`
+<5> `tags` 字段有一个值和一个 `null`
 
-The resulting inverted index for our `tags` field will look like this:
+结果我们 `tags` 字段的倒排索引看起来将是这样：
 
-[width="50%",frame="topbot"]
-|==========================
-| Token        | DocIDs
-|`open_source` | `2`
-|`search`      | `1`,`2`,`5`
-|==========================
+| Token        | DocIDs      |
+|--------------|-------------|
+|`open_source` | `2`         |
+|`search`      | `1`,`2`,`5` |
 
-Our objective is to find all documents where a tag is set.  We don't care what
-the tag is, so long as it exists within the document.  In SQL parlance,
-we would use an `IS NOT NULL` query:
+我们的目标是找出所有设置了标签的文档，我们不关心这个标签是什么，只要它存在于文档中就行。在 SQL 语法中，我们可以用 `IS NOT NULL` 查询：
 
-[source,sql]
---------------------------------------------------
+```sql
 SELECT tags
 FROM   posts
 WHERE  tags IS NOT NULL
---------------------------------------------------
+```
 
-In Elasticsearch, we use the `exists` filter:
+在 Elasticsearch 中，我们使用 `exists` 过滤器：
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_index/posts/_search
 {
     "query" : {
@@ -91,14 +69,13 @@ GET /my_index/posts/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/30_Exists_missing.json
+```
 
+<!-- SENSE: 080_Structured_Search/30_Exists_missing.json -->
 
-Our query returns three documents:
+查询返回三个文档：
 
-[source,json]
---------------------------------------------------
+```json
 "hits" : [
     {
       "_id" :     "1",
@@ -116,32 +93,25 @@ Our query returns three documents:
       "_source" : { "tags" : ["search", "open source"] }
     }
 ]
---------------------------------------------------
-<1> Document 5 is returned even though it contains a `null` value. The field
-    exists because a real-value tag was indexed, so the `null` had no impact
-    on the filter.
+```
 
-The results are easy to understand.  Any document that has terms in the
-`tags` field was returned as a hit.  The only two documents that were excluded
-were documents 3 and 4.
+<1> 文档 5 虽然包含了一个 `null` 值，仍被返回了。这个字段存在是因为一个有值的标签被索引了，所以 `null` 对这个过滤器没有影响
 
-==== missing Filter
+结果很容易理解，所以在 `tags` 字段中有值的文档都被返回了。只排除了文档 3 和 4。
 
-The `missing` filter is essentially((("null values", "working with, using missing filter")))((("missing filter"))) the inverse of `exists`: it returns
-documents where there is _no_ value for a particular field, much like this
-SQL:
+#### `missing` 过滤器
 
-[source,sql]
---------------------------------------------------
+`missing` 过滤器本质上是 `exists` 的反义词：它返回没有特定字段值的文档，像这条 SQL 一样：
+
+```sql
 SELECT tags
 FROM   posts
 WHERE  tags IS  NULL
---------------------------------------------------
+```
 
-Let's swap the `exists` filter for a `missing` filter from our previous example:
+让我们在前面的例子中用 `missing` 过滤器来取代 `exists`：
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_index/posts/_search
 {
     "query" : {
@@ -152,15 +122,13 @@ GET /my_index/posts/_search
         }
     }
 }
---------------------------------------------------
-// SENSE: 080_Structured_Search/30_Exists_missing.json
+```
 
+<!-- SENSE: 080_Structured_Search/30_Exists_missing.json -->
 
-And, as you would expect, we get back the two docs that have no real values
-in the `tags` field--documents 3 and 4:
+如你所愿，我们得到了两个没有包含标签字段的文档：
 
-[source,json]
---------------------------------------------------
+```json
 "hits" : [
     {
       "_id" :     "3",
@@ -173,75 +141,54 @@ in the `tags` field--documents 3 and 4:
       "_source" : { "tags" : null }
     }
 ]
---------------------------------------------------
+```
 
-.When null Means null
-****
+什么时候 null 才表示 null
 
-Sometimes you need to be able to distinguish between a field that doesn't have
-a value, and a field that has been explicitly set to `null`. With the default
-behavior that we saw previously, this is impossible; the data is lost. Luckily,
-there is an option that we can set that replaces explicit  `null` values with
-a _placeholder_ value of our choosing.
+有时你需要能区分一个字段是没有值，还是被设置为 `null`。用上面见到的默认行为无法区分这一点，数据都不存在了。幸运的是，我们可以将明确的 `null` 值用我们选择的_占位符_来代替
 
-When specifying the mapping for a string, numeric, Boolean, or date field, you
-can also set a `null_value` that will be used whenever an explicit `null`
-value is encountered. ((("null_value setting"))) A field without a value will still be excluded from the
-inverted index.
+当指定字符串，数字，布尔值或日期字段的映射时，你可以设置一个 `null_value` 来处理明确的 `null` 值。没有值的字段仍将被排除在倒排索引外。
 
-When choosing a suitable `null_value`, ensure the following:
+当选定一个合适的 `null_value` 时，确保以下几点：
 
-*  It matches the field's type.  You can't use a string `null_value` in a
-   field of type `date`.
+* 它与字段的类型匹配，你不能在 `date` 类型的字段中使用字符串 `null_value`
+* 它需要能与这个字段可能包含的正常值区分开来，以避免真实值和 `null` 值混淆
 
-*  It is different from the normal values that the field may contain, to
-   avoid confusing real values with `null` values.
+#### 对象的 `exists/missing`
 
-****
+`exists` 和 `missing` 过滤器同样能在内联对象上工作，而不仅仅是核心类型。例如下面的文档：
 
-==== exists/missing on Objects
-
-The `exists` and `missing` filters ((("objects", "using exists/missing filters on")))((("exists filter", "using on objects")))((("missing filter", "using on objects")))also work on inner objects, not just core
-types.  With the following document
-
-[source,js]
---------------------------------------------------
+```json
 {
    "name" : {
       "first" : "John",
       "last" :  "Smith"
    }
 }
---------------------------------------------------
+```
 
-you can check for the existence of `name.first` and `name.last` but also just
-`name`. However, in <<mapping>>, we said that an object like the preceding one is
-flattened internally into a simple field-value structure, much like this:
+你可以检查 `name.first` 和 `name.last` 的存在性，也可以检查 `name` 的。然而，在【映射】中，我们提到对象在内部被转成扁平化的键值结构，像下面所示：
 
-[source,js]
---------------------------------------------------
+```json
 {
    "name.first" : "John",
    "name.last"  : "Smith"
 }
---------------------------------------------------
+```
 
-So how can we use an `exists` or `missing` filter on the `name` field, which
-doesn't really exist in the inverted index?
+所以我们是怎么使用 `exists` 或 `missing` 来检测 `name` 字段的呢，这个字段并没有真正存在于倒排索引中。
 
-The reason that it works is that a filter like
+原因是像这样的一个过滤器
 
-[source,js]
---------------------------------------------------
+```json
 {
     "exists" : { "field" : "name" }
 }
---------------------------------------------------
+```
 
-is really executed as
+实际是这样执行的
 
-[source,js]
---------------------------------------------------
+```json
 {
     "bool": {
         "should": [
@@ -250,9 +197,6 @@ is really executed as
         ]
     }
 }
---------------------------------------------------
+```
 
-That also means that if `first` and `last` were both empty, the `name`
-namespace would not exist.
-
-
+同样这意味着假如 `first` 和 `last` 都为空，那么 `name` 就是不存在的。

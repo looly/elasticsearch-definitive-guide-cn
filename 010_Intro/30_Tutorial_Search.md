@@ -205,7 +205,7 @@ GET /megacorp/employee/_search
 ```
 
 ## 全文搜索
-到目前为止搜索都很简单：特定的名字，通过年龄筛选。让我们尝试一种更高级的搜索，全文搜索——一种传统数据库很难实现的功能。
+到目前为止搜索都很简单：搜索特定的名字，通过年龄筛选。让我们尝试一种更高级的搜索，全文搜索——一种传统数据库很难实现的功能。
 
 我们将会搜索所有喜欢**“rock climbing”**的员工：
 
@@ -265,9 +265,9 @@ climbing”**。
 这个例子很好的解释了Elasticsearch如何在各种文本字段中进行全文搜索，并且返回相关性最大的结果集。**相关性(relevance)**的概念在Elasticsearch中非常重要，而这个概念在传统关系型数据库中是不可想象的，因为传统数据库对记录的查询只有匹配或者不匹配。
 
 ## 短语搜索
-能找到字段中单独的单词固然最好，但是有时候你想要匹配确切的单词序列或者**短语(phrases)**。例如我们想要查询`about`包含完整短语**“rock climbing”**的员工。
+目前我们可以在字段中搜索单独的一个词，这挺好的，但是有时候你想要确切的匹配若干个单词或者**短语(phrases)**。例如我们想要查询同时包含"rock"和"climbing"（并且是相邻的）的员工记录。
 
-为了实现以上效果，我们将查询`match`变更为`match_phrase`:
+要做到这个，我们只要将`match`查询变更为`match_phrase`查询即可:
 
 ```Javascript
 GET /megacorp/employee/_search
@@ -280,7 +280,7 @@ GET /megacorp/employee/_search
 }
 ```
 
-毫无悬念返回John Smith的文档：
+毫无疑问，该查询返回John Smith的文档：
 
 ```Javascript
 {
@@ -306,7 +306,7 @@ GET /megacorp/employee/_search
 ```
 
 ## 高亮我们的搜索
-很多应用喜欢从每个搜索结果中**高亮(highlight)**匹配到的关键字，以便用户可以知道**为什么**文档这样匹配查询。Elasticsearch中高亮片段是非常容易的。
+很多应用喜欢从每个搜索结果中**高亮(highlight)**匹配到的关键字，这样用户可以知道为什么这些文档和查询相匹配。在Elasticsearch中高亮片段是非常容易的。
 
 让我们在之前的语句上增加`highlight`参数：
 
@@ -326,7 +326,7 @@ GET /megacorp/employee/_search
 }
 ```
 
-当我们运行这个语句，会命中与之前相同的结果，但是会得到一个新的叫做`highlight`的部分，这里包括了`about`字段中匹配的文本片段，并且用`<em></em>`包围匹配到的单词。
+当我们运行这个语句时，会命中与之前相同的结果，但是在返回结果中会有一个新的部分叫做`highlight`，这里包含了来自`about`字段中的文本，并且用`<em></em>`来标识匹配到的单词。
 
 ```Javascript
 {
@@ -356,7 +356,6 @@ GET /megacorp/employee/_search
 }
 ```
 
-<1> The highlighted fragment from the original text.
 - <1> 原有文本中高亮的片段
 
 你可以在高亮章节阅读更多关于搜索高亮的部分。

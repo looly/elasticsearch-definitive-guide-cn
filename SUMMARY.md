@@ -68,7 +68,7 @@
    * [字段数据](056_Sorting/95_Fielddata.md)
 * [分布式搜索](060_Distributed_Search/00_Intro.md)
    * [查询阶段](060_Distributed_Search/05_Query_phase.md)
-   * [匹配阶段](060_Distributed_Search/10_Fetch_phase.md)
+   * [取回阶段](060_Distributed_Search/10_Fetch_phase.md)
    * [搜索选项](060_Distributed_Search/15_Search_options.md)
    * [扫描和滚动](060_Distributed_Search/20_Scan_and_scroll.md)
 * [索引管理](070_Index_Mgmt/00_Intro.md)

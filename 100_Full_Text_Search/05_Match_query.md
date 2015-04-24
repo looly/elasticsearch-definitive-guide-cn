@@ -111,6 +111,6 @@ This process gives us the following (abbreviated) results:
  }
 ]
 --------------------------------------------------
-<1> Document 1 is most relevant because its `title` field is short, which means 
+<1> Document 1 is most relevant because its `title` field is short, which means
     that `quick` represents a large portion of its content.
 <2> Document 3 is more relevant than document 2 because `quick` appears twice.

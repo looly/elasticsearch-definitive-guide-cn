@@ -25,9 +25,8 @@
 }
 ```
 
-通常，我们使用可互换的**对象(object)**和**文档(document)**。然而，还是有区别的。对象(Object)仅是一个JSON对象——类似于哈希、hashmap、字典或者关联数组。对象(Object)则可以包含其他对象(Object)。
-
-在Elasticsearch中，**文档(document)**这个术语有着特殊含义。它指的是拥有唯一ID的最顶层或者**根对象(root object)**序列化成的JSON。
+通常，我们可以认为**对象(object)**和**文档(document)**是等价相通的。不过，他们还是有所差别：对象(Object)是一个JSON结构体——类似于哈希、hashmap、字典或者关联数组；对象(Object)中还可能包含其他对象(Object)。
+在Elasticsearch中，**文档(document)**这个术语有着特殊含义。它特指最顶层结构或者**根对象(root object)**序列化成的JSON数据（以唯一ID标识并存储于Elasticsearch中）。
 
 ## 文档元数据
 

@@ -1,11 +1,11 @@
-=== Validating queries
+## 验证查询
 
-Queries can become quite complex and, especially when combined with
-different analyzers and field mappings, can become a bit difficult to follow.
-The `validate` API can be used to check whether a query is valid or not.
+查询语句可以变得非常复杂，特别是与不同的分析器和字段映射相结合后，就会有些难度。
 
-[source,js]
---------------------------------------------------
+`validate` API 可以验证一条查询语句是否合法。
+
+
+```Javascript
 GET /gb/tweet/_validate/query
 {
    "query": {
@@ -14,15 +14,11 @@ GET /gb/tweet/_validate/query
       }
    }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/80_Validate_query.json
+```
 
+以上请求的返回值告诉我们这条语句是非法的：
 
-The response to the above `validate` request tells us that the query is
-invalid:
-
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "valid" :         false,
   "_shards" : {
@@ -31,16 +27,13 @@ invalid:
     "failed" :      0
   }
 }
---------------------------------------------------
+```
 
+## 理解错误信息
 
-==== Understanding errors
+想知道语句非法的具体错误信息，需要加上 `explain` 参数：
 
-To find out why it is invalid, add the `explain` parameter to the query
-string:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /gb/tweet/_validate/query?explain <1>
 {
    "query": {
@@ -49,16 +42,13 @@ GET /gb/tweet/_validate/query?explain <1>
       }
    }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/80_Validate_query.json
-<1> The `explain` flag provides more information about why a query is
-    invalid.
+```
 
-Apparently, we've mixed up the type of query (`match`) with the name
-of the field (`tweet`):
+<1>  `explain` 参数可以提供语句错误的更多详情。
 
-[source,js]
---------------------------------------------------
+很显然，我们把 query 语句的 `match` 与字段名位置弄反了：
+
+```Javascript
 {
   "valid" :     false,
   "_shards" :   { ... },
@@ -69,17 +59,14 @@ of the field (`tweet`):
                  [gb] No query registered for [tweet]"
   } ]
 }
---------------------------------------------------
+```
 
+## 理解查询语句
 
-==== Understanding queries
+如果是合法语句的话，使用 `explain` 参数可以返回一个带有查询语句的可阅读描述，
+可以帮助了解查询语句在ES中是如何执行的：
 
-Using the `explain` parameter has the added advantage of returning
-a human-readable description of the (valid) query, which can be useful for
-understanding exactly how your query has been interpreted by Elasticsearch:
-
-[source,js]
---------------------------------------------------
+```Javascript
 GET /_validate/query?explain
 {
    "query": {
@@ -88,14 +75,11 @@ GET /_validate/query?explain
       }
    }
 }
---------------------------------------------------
-// SENSE: 054_Query_DSL/80_Understanding_queries.json
+```
 
-An `explanation` is returned for each index that we query, because each
-index can have different mapping and analyzers:
+`explanation` 会为每一个索引返回一段描述，因为每个索引会有不同的映射关系和分析器：
 
-[source,js]
---------------------------------------------------
+```Javascript
 {
   "valid" :         true,
   "_shards" :       { ... },
@@ -106,17 +90,13 @@ index can have different mapping and analyzers:
   }, {
     "index" :       "gb",
     "valid" :       true,
-    "explanation" : "tweet:realli tweet:power"
+    "explanation" : "tweet:really tweet:power"
   } ]
 }
---------------------------------------------------
+```
 
+从返回的 `explanation` 你会看到 `match` 是如何为查询字符串 `"really powerful"` 进行查询的，
+首先，它被拆分成两个独立的词分别在 `tweet` 字段中进行查询。
 
-From the `explanation` you can see how the `match` query for the query string
-`"really powerful"` has been rewritten as two single-term queries against
-the `tweet` field, one for each term.
-
-Also, for the `us` index, the two terms are `"really"` and `"powerful"`, while
-for the `gb` index, the terms are `"realli"` and `"power"`. The reason
-for this is that we changed the `tweet` field in the `gb` index to use the
-`english` analyzer.
+而且，在索引`us`中这两个词为`"really"`和`"powerful"`，在索引`gb`中被拆分成`"really"` 和 `"power"`。
+这是因为我们在索引`gb`中使用了`english`分析器。

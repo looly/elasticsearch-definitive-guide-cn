@@ -71,7 +71,7 @@ ___dfs_query_then_fetch___ 和 ___dfs_query_and_fetch___
 
 ___scan（扫描）___
 
-`scan（扫描）`搜索类型是和`scroll（滚动）`API连在一起使用，使得可以高效地取回巨大数量的结果。它是通过禁用排序来实现的。我们将在下一节_scan-and-scroll（扫描和滚动）_里讨论它。
+`scan（扫描）`搜索类型是和`scroll（滚屏）`API连在一起使用的，可以高效地取回巨大数量的结果。它是通过禁用排序来实现的。我们将在下一节_scan-and-scroll（扫描和滚屏）_里讨论它。
 
 
 

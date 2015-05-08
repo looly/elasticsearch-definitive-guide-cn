@@ -70,7 +70,7 @@
    * [查询阶段](060_Distributed_Search/05_Query_phase.md)
    * [取回阶段](060_Distributed_Search/10_Fetch_phase.md)
    * [搜索选项](060_Distributed_Search/15_Search_options.md)
-   * [扫描和滚动](060_Distributed_Search/20_Scan_and_scroll.md)
+   * [扫描和滚屏](060_Distributed_Search/20_Scan_and_scroll.md)
 * [索引管理](070_Index_Mgmt/00_Intro.md)
    * [创建删除](070_Index_Mgmt/05_Create_Delete.md)
    * [设置](070_Index_Mgmt/10_Settings.md)
@@ -109,3 +109,4 @@
    * [增加子句](100_Full_Text_Search/25_Boosting_clauses.md)
    * [控制分析](100_Full_Text_Search/30_Controlling_analysis.md)
    * [关联失效](100_Full_Text_Search/35_Relevance_is_broken.md)
+

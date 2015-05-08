@@ -1,3 +1,61 @@
+##扫描和滚屏
+
+`scan（扫描）`搜索类型是和`scroll（滚屏）`API一起使用来从Elasticsearch里高效地取回巨大数量的结果而不需要付出深分页的代价。
+
+___scroll（滚屏）___
+
+一个滚屏搜索允许我们做一个初始阶段搜索并且持续批量从Elasticsearch里拉取结果直到没有结果剩下。这有点像传统数据库里的_cursors（游标）_。
+
+滚屏搜索会及时制作快照。这个快照不会包含任何在初始阶段搜索请求后对index做的修改。它通过将旧的数据文件保存在手边，所以可以保护index的样子看起来像搜索开始时的样子。
+
+
+
+___scan（扫描）___
+
+深度分页代价最高的部分是对结果的全局排序，但如果禁用排序，就能以很低的代价获得全部返回结果。为达成这个目的，可以采用`scan（扫描）`搜索模式。扫描模式让Elasticsearch不排序，只要分片里还有结果可以返回，就返回一批结果。
+
+为了使用_scan-and-scroll（扫描和滚屏）_，需要执行一个搜索请求，将`search_type` 设置成`scan`，并且传递一个`scroll`参数来告诉Elasticsearch滚屏应该持续多长时间。
+
+
+``` js
+GET /old_index/_search?search_type=scan&scroll=1m (1)
+{
+    "query": { "match_all": {}},
+    "size":  1000
+}
+```
+（1）保持滚屏开启1分钟。
+
+这个请求的应答没有包含任何命中的结果，但是包含了一个Base-64编码的`_scroll_id（滚屏id）`字符串。现在我们可以将`_scroll_id` 传递给`_search/scroll`末端来获取第一批结果：
+
+``` js
+GET /_search/scroll?scroll=1m      (1)
+c2Nhbjs1OzExODpRNV9aY1VyUVM4U0NMd2pjWlJ3YWlBOzExOTpRNV9aY1VyUVM4U0 <2>
+NMd2pjWlJ3YWlBOzExNjpRNV9aY1VyUVM4U0NMd2pjWlJ3YWlBOzExNzpRNV9aY1Vy
+UVM4U0NMd2pjWlJ3YWlBOzEyMDpRNV9aY1VyUVM4U0NMd2pjWlJ3YWlBOzE7dG90YW
+xfaGl0czoxOw==
+```
+--------------------------------------------------
+(1) 保持滚屏开启另一分钟。
+
+(2) `_scroll_id` 可以在body或者URL里传递，也可以被当做查询参数传递。
+
+注意，要再次指定`?scroll=1m`。滚屏的终止时间会在我们每次执行滚屏请求时刷新，所以他只需要给我们足够的时间来处理当前批次的结果而不是所有的匹配查询的document。
+
+这个滚屏请求的应答包含了第一批次的结果。虽然指定了一个1000的`size` ，但是获得了更多的document。当扫描时，`size`被应用到每一个分片上，所以我们在每个批次里最多或获得`size * number_of_primary_shards（size*主分片数）`个document。
+
+> ####注意：
+
+> 滚屏请求也会返回一个_新_的`_scroll_id`。每次做下一个滚屏请求时，必须传递前一次请求返回的`_scroll_id`。
+
+如果没有更多的命中结果返回，就处理完了所有的命中匹配的document。
+
+> ####提示：
+
+> 一些[Elasticsearch官方客户端](http://www.elasticsearch.org/guide)提供_扫描和滚屏_的小助手。小助手提供了一个对这个功能的简单封装。
+
+
+<!--
 [[scan-scroll]]
 === scan and scroll
 
@@ -79,3 +137,4 @@ TIP: Some of the http://www.elasticsearch.org/guide[official Elasticsearch clien
 provide _scan-and-scroll_ helpers that provide an easy wrapper around this
 functionality.((("clients", "providing scan-and-scroll helpers")))
 
+-->

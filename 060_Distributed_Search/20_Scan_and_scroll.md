@@ -52,7 +52,7 @@ xfaGl0czoxOw==
 
 > ####提示：
 
-> 一些[Elasticsearch官方客户端](http://www.elasticsearch.org/guide)提供扫描和滚屏的小助手。小助手可以提供对这个功能的简单封装。
+> 一些[Elasticsearch官方客户端](http://www.elasticsearch.org/guide)提供_扫描和滚屏_的小助手。小助手提供了一个对这个功能的简单封装。
 
 
 <!--

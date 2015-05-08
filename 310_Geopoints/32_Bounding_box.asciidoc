@@ -30,7 +30,7 @@ GET /attractions/restaurant/_search
   }
 }
 ---------------------
-<1> 坐标信息也可以用 `bottom_left`（左下方点）和 `top_right`（右上方点） 来表示。
+<1> 盒模型信息也可以用 `bottom_left`（左下方点）和 `top_right`（右上方点） 来表示。
 
 [[optimize-bounding-box]]
 ==== 优化盒模型

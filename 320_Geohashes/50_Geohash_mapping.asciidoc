@@ -1,11 +1,11 @@
 [[geohash-mapping]]
-=== Mapping Geohashes
+=== Geohashes 映射
 
-The first step is to decide just how much precision you need.((("geohashes", "mapping")))((("mapping (types)", "geohashes")))  Although you could
-index all geo-points with the default full 12 levels of precision, do you
-really need to be accurate to within a few centimeters? You can save yourself
-a lot of space in the index by reducing your precision requirements to
-something more realistic, such as `1km`:((("geohash_precision parameter")))((("geohash_prefix parameter")))
+首先，你需要确定你需要什么样的精度。
+((("geohashes", "mapping")))((("mapping (types)", "geohashes")))  
+虽然你也可以使用12级的精度来索引所有的地理坐标点，但是你真的需要精确到数厘米的精度吗？
+如果你把精度控制在一个实际一些的值，比如 `1km`((("geohash_precision parameter")))((("geohash_prefix parameter")))，
+那么你可以节省大量的索引空间：
 
 [source,json]
 ----------------------------
@@ -27,12 +27,8 @@ PUT /attractions
   }
 }
 ----------------------------
-<1> Setting `geohash_prefix` to `true` tells Elasticsearch to index
-    all geohash prefixes, up to the specified precision.
-<2> The precision can be specified as an absolute number, representing the
-    length of the geohash, or as a distance. A precision of `1km` corresponds
-    to a geohash of length `7`.
+<1> 将 `geohash_prefix` 设为 `true` 来告诉 Elasticsearch 使用指定精度来做 geohash 前缀索引。
+<2> 精度描述可以是一个具体数字，表示 geohash 的长度，也可以是一个距离。精度设为 `1km`表示geohash长度是 `7`。
 
-With this mapping in place, geohash prefixes of lengths 1 to 7 will be indexed,
-providing geohashes accurate to about 150 meters.
+通过如上设置，geohash前缀为 1-7 的部分将被索引，所能提供的精度大约在150米。
 

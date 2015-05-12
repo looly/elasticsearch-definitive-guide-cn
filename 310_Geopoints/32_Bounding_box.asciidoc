@@ -1,11 +1,10 @@
 [[geo-bounding-box]]
-=== geo_bounding_box Filter
+=== 地理坐标盒模型过滤器
 
-This is by far the most efficient geo-filter because its calculation is very
-simple. ((("geo_bounding_box filter")))((("filtering", "by geo-points", "geo_bounding_box filter"))) You provide it with the `top`, `bottom`, `left`, and `right`
-coordinates of a rectangle, and all it does is compare the latitude with the
-left and right coordinates, and the longitude with the top and bottom
-coordinates:
+这是目前为止最有效的 地理坐标过滤器了，因为它计算起来非常简单。
+((("geo_bounding_box filter")))((("filtering", "by geo-points", "geo_bounding_box filter"))) 你指定一个矩形的
+`顶部`（`top`）, `底部`（`bottom`）, `左边界`（`left`）, 和 `右边界`（`right`），
+然后它只需判断坐标的经度是否在左右边界之间，纬度是否在上下边界之间。（译注：原文似乎写反了）
 
 [source,json]
 ---------------------
@@ -31,18 +30,20 @@ GET /attractions/restaurant/_search
   }
 }
 ---------------------
-<1> These coordinates can also be specified as `bottom_left` and `top_right`.
+<1> 盒模型信息也可以用 `bottom_left`（左下方点）和 `top_right`（右上方点） 来表示。
 
 [[optimize-bounding-box]]
-==== Optimizing Bounding Boxes
+==== 优化盒模型
 
-The `geo_bounding_box` is the one geo-filter that doesn't require all
-geo-points to be loaded into memory.((("geo_bounding_box filter", "optimization")))  Because all it has to do is check
-whether the `lat` and `lon` values fall within the specified ranges, it can
-use the inverted index to do a ((("range filters")))glorified `range` filter.
+`地理坐标盒模型过滤器`不需要把所有坐标点都加载到内存里。
+((("geo_bounding_box filter", "optimization"))) 因为它要做的只是简单判断 `纬度` 和 `经度` 坐标数值是否在给定的范围内，
+所以它可以用倒排索引来做一个范围（`range`）过滤。
 
 To use this optimization, the `geo_point` field ((("latitude/longitude pairs", "geo-point fields mapped to index lat/lon values separately")))must be mapped to
 index the `lat` and `lon` values separately:
+
+要使用这种优化方式，需要把 `geo_point` 字段 ((("latitude/longitude pairs", "geo-point fields mapped to index lat/lon values separately")))
+用 `纬度`（`lat`）和`经度`（`lon`）方式表示并分别索引。
 
 [source,json]
 -----------------------
@@ -63,11 +64,10 @@ PUT /attractions
   }
 }
 -----------------------
-<1> The `location.lat` and `location.lon` fields will be indexed separately.
-    These fields can be used for searching, but their values cannot be retrieved.
+<1> `location.lat` 和 `location.lon` 字段将被分别索引。
+    它们可以被用于检索，但是不会在检索结果中返回。
 
-Now, when we run our query, we have to tell Elasticsearch to use the indexed
-`lat` and `lon` values:
+然后，查询时你需要告诉 Elasticesearch 使用已索引的 `lat`和`lon`。
 
 [source,json]
 ---------------------
@@ -94,10 +94,9 @@ GET /attractions/restaurant/_search
   }
 }
 ---------------------
-<1> Setting the `type` parameter to `indexed` (instead of the default
-    `memory`) tells Elasticsearch to use the inverted index for this filter.
+<1> 设置 `type` 参数为 `indexed` (默认为 `memory`) 来明确告诉 Elasticsearch 对这个过滤器使用倒排索引。
 
-CAUTION: While a `geo_point` field can contain multiple geo-points, the
-`lat_lon` optimization can be used only on fields that contain a single
-geo-point.
+CAUTION: `geo_point` 类型可以包含多个地理坐标点，
+但是针对经度纬度分别索引的这种优化方式（`lat_lon`）只对单个坐标点的方式有效。
+
 

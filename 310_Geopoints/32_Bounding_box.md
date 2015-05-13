@@ -88,6 +88,7 @@ GET /attractions/restaurant/_search
 - <1> 设置 `type` 参数为 `indexed` (默认为 `memory`) 来明确告诉 Elasticsearch 对这个过滤器使用倒排索引。
 
 > 注意：
+
 > `geo_point` 类型可以包含多个地理坐标点，但是针对经度纬度分别索引的这种优化方式（`lat_lon`）只对单个坐标点的方式有效。
 
 

@@ -23,22 +23,19 @@ Geohashes 把整个世界分为32个单元的格子--4行8列--每一个格子�
 例：索引伯明翰宫的门口--坐标纬度 `51.501568`，经度`-0.141257`--会在各种尺寸精度的 geohash 上建立索引，
 如下表：
 
-|=============================================
-|Geohash        |Level| Dimensions
-|g              |1    | ~ 5,004km x 5,004km
-|gc             |2    | ~ 1,251km x 625km
-|gcp            |3    | ~ 156km x 156km
-|gcpu           |4    | ~ 39km x 19.5km
-|gcpuu          |5    | ~ 4.9km x 4.9km
-|gcpuuz         |6    | ~ 1.2km x 0.61km
-|gcpuuz9        |7    | ~ 152.8m x 152.8m
-|gcpuuz94       |8    | ~ 38.2m x 19.1m
-|gcpuuz94k      |9    | ~ 4.78m x 4.78m
-|gcpuuz94kk     |10   | ~ 1.19m x 0.60m
-|gcpuuz94kkp    |11   | ~ 14.9cm x 14.9cm
-|gcpuuz94kkp5   |12   | ~ 3.7cm x 1.8cm
-|=============================================
+Geohash        |Level| Dimensions
+---------------|-----|---------------------
+g              |1    | ~ 5,004km x 5,004km
+gc             |2    | ~ 1,251km x 625km
+gcp            |3    | ~ 156km x 156km
+gcpu           |4    | ~ 39km x 19.5km
+gcpuu          |5    | ~ 4.9km x 4.9km
+gcpuuz         |6    | ~ 1.2km x 0.61km
+gcpuuz9        |7    | ~ 152.8m x 152.8m
+gcpuuz94       |8    | ~ 38.2m x 19.1m
+gcpuuz94k      |9    | ~ 4.78m x 4.78m
+gcpuuz94kk     |10   | ~ 1.19m x 0.60m
+gcpuuz94kkp    |11   | ~ 14.9cm x 14.9cm
+gcpuuz94kkp5   |12   | ~ 3.7cm x 1.8cm
 
 geohash单元过滤器（ [`geohash_cell` filter](http://bit.ly/1DIqyex) ）可以使用这些geohash前缀来找出与指定坐标点（`lat/lon`）相邻的位置。
-
-

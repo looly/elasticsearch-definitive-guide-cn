@@ -1,13 +1,11 @@
-[[geo-distance-agg]]
-=== geo_distance Aggregation
+## 按距离聚合
 
-The `geo_distance` agg is useful((("geo_distance aggregation")))((("aggregations", "geo_distance"))) for searches such as
-to "find all pizza restaurants within 1km of me." The search results
-should, indeed, be limited to the 1km radius specified by the user, but we can
-add ``another result found within 2km'':
 
-[source,json]
-----------------------------
+按距离聚合对于类似“找出距我1公里内的所有pizza店”这样的检索场景很适合。
+检索结果需要确实地只返回距离用户1km内的文档，不过我们可以再加上一个“1-2km内的结果集”：
+
+```json
+
 GET /attractions/restaurant/_search
 {
   "query": {
@@ -59,19 +57,16 @@ GET /attractions/restaurant/_search
     }
   }
 }
-----------------------------
-<1> The main query looks for restaurants with `pizza` in the name.
-<2> The bounding box filters these results down to just those in
-    the greater New York area.
-<3> The `geo_distance` agg counts the number of results within
-    1km of the user, and between 1km and 2km from the user.
-<4> Finally, the `post_filter` reduces the search results to just
-    those restaurants within 1km of the user.
+```
+- <1> 主查询查找饭店名中包含了 “pizza” 的文档。
+- <2> 矩形框过滤器让结果集缩小到纽约区域。
+- <3> 距离聚合器计算距用户1km和1km-2km的结果数。
+- <4> 最后，后置过滤器（`post_filter`)再把结果缩小到距离用户1km的饭店。
 
-The response from ((("post filter", "geo_distance aggregation")))the preceding request is as follows:
+上例请求的返回结果如下：
 
-[source,json]
-----------------------------
+```json
+
 "hits": {
   "total":     1,
   "max_score": 0.15342641,
@@ -109,13 +104,11 @@ The response from ((("post filter", "geo_distance aggregation")))the preceding r
      ]
   }
 }
-----------------------------
-<1> The `post_filter` has reduced the search hits to just the single
-    pizza restaurant within 1km of the user.
-<2> The aggregation includes the search result plus the other pizza
-    restaurant within 2km of the user.
+```
 
-In this example, we have counted the number of restaurants that fall
-into each concentric ring.  Of course, we could nest subaggregations under
-the `per_rings` aggregation to calculate the average price per ring, the
-maximium popularity, and more.
+- <1> 后置过滤器（`post_filter`）已经结果集缩小到满足“距离用户1km”条件下的唯一一个pizza店。
+- <2> 聚合器包含了"距离用户2km"的pizza店的检索结果。
+
+
+这个例子中，我们统计了落到各个环形区域中的饭店数。
+当然，我们也可以使用子聚合器再在每个环形区域中进一步计算它们的平均价格，最流行，等等。

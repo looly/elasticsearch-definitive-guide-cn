@@ -13,3 +13,8 @@
 
 2015-05-17
 1. 330_Geo_aggs
+
+2015-05-17
+Fix
+1. 020_Distributed_Cluster/05_Empty_cluster.md
+2. 020_Distributed_Cluster/10_Cluster_health.md

@@ -24,6 +24,7 @@
 * [@xdream86](https://github.com/xdream86)
 * [@conan007ai](https://github.com/conan007ai)
 * [@williamzhao](https://github.com/williamzhao)
+* [@dingusxp](https://github.com/dingusxp)
 
 感谢参与翻译的小伙伴们~~
 

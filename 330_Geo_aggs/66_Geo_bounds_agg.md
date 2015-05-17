@@ -1,17 +1,14 @@
-[[geo-bounds-agg]]
-=== geo_bounds Aggregation
+## 范围（边界）聚合器
 
-In our <<geohash-grid-agg,previous example>>, we filtered our results by using a
-bounding box that covered the greater New York area.((("aggregations", "geo_bounds")))((("geo_bounds aggregation")))  However, our results
-were all located in downtown Manhattan.  When displaying a map for our user, it
-makes sense to zoom into the area of the map that contains the data; there
-is no point in showing lots of empty space.
+在geohash聚合器的例子中，我们使用了一个矩形框过滤器来将结果限制在纽约区域。
+然而，我们的结果都分布在曼哈顿。
+当在地图上呈现给用户时，合理的方式是可以缩放到有数据的区域；地图上有大量空白区域是没有任何点分布的。
 
-The `geo_bounds` aggregation does exactly this: it calculates the smallest
-bounding box that is needed to encapsulate all of the geo-points:
+范围过滤器是这么做得：
+它计算出一个个小矩形框来覆盖到所有的坐标点。
 
-[source,json]
-----------------------------
+```json
+
 GET /attractions/restaurant/_search?search_type=count
 {
   "query": {
@@ -46,13 +43,13 @@ GET /attractions/restaurant/_search?search_type=count
     }
   }
 }
-----------------------------
-<1> The `geo_bounds` aggregation will calculate the smallest bounding box required to encapsulate all of the documents matching our query. 
+```
+- <1> 范围聚合器会计算出一个最小的矩形框来覆盖查询结果的所有文档。
 
-The response now includes a bounding box that we can use to zoom our map:
+返回结果包含了一个可以用来在地图上缩放的矩形框：
 
-[source,json]
-----------------------------
+```json
+
 ...
 "aggregations": {
   "map_zoom": {
@@ -68,14 +65,13 @@ The response now includes a bounding box that we can use to zoom our map:
      }
   },
 ...
-----------------------------
+```
 
-In fact, we could even use the `geo_bounds` aggregation inside each geohash
-cell,((("geohash cells, geo_bounds aggregation in"))) in case the geo-points inside a cell are clustered in just a part of the
-cell:
 
-[source,json]
-----------------------------
+实际上，我们可以把矩形聚合器放到每一个 geohash 单元里，因为有坐标点的单元只占了所有单元的一部分：
+
+```json
+
 GET /attractions/restaurant/_search?search_type=count
 {
   "query": {
@@ -112,13 +108,14 @@ GET /attractions/restaurant/_search?search_type=count
     }
   }
 }
-----------------------------
-<1> The `cell_bounds` subaggregation is calculated for every geohash cell.
+```
+- <1> 子聚合器 `cell_bounds` 会作用于每个 geohash 单元。
 
-Now the ((("cell_bounds aggregation")))points in each cell have a bounding box:
 
-[source,json]
-----------------------------
+现在落在每个geohash单元中的点都有了一个所在的矩形框区域：
+
+```json
+
 ...
 "aggregations": {
   "new_york": {
@@ -140,6 +137,4 @@ Now the ((("cell_bounds aggregation")))points in each cell have a bounding box:
            }
         },
 ...
-----------------------------
-
-
+```

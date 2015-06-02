@@ -18,3 +18,6 @@
 Fix
 1. 020_Distributed_Cluster/05_Empty_cluster.md
 2. 020_Distributed_Cluster/10_Cluster_health.md
+
+2015-06-02
+1. 340_Geoshapes

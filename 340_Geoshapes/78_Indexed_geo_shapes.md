@@ -1,15 +1,12 @@
-[[indexed-geo-shapes]]
-=== Querying with Indexed Shapes
+## 在查询中使用已索引的形状
 
-With shapes that are often used in queries, it can be more convenient to store
-them in the index and to refer to them by name in the query.((("indexed shapes, querying with")))((("geo-shapes", "querying with indexed shapes")))  Take our example
-of central Amsterdam in the previous example.  We could store it as a document
-of type `neighborhood`.
+对于那些经常会在查询中使用的形状，可以把它们索引起来以便在查询中可以方便地直接引用名字。
+以之前的阿姆斯特丹中央为例，我们可以把它存储为一个类型为 `neighborhood` 的文档。
 
-First, we set up the mapping in the same way as we did for `landmark`:
+首先，我们仿照之前设置 `landmark` 时的方式建立一个映射：
 
-[source,json]
------------------------
+```json
+
 PUT /attractions/_mapping/neighborhood
 {
   "properties": {
@@ -21,12 +18,12 @@ PUT /attractions/_mapping/neighborhood
     }
   }
 }
------------------------
+```
 
-Then we can index a shape for central Amsterdam:
+然后我们索引阿姆斯特丹中央对应的形状：
 
-[source,json]
------------------------
+```json
+
 PUT /attractions/neighborhood/central_amsterdam
 {
   "name" : "Central Amsterdam",
@@ -47,13 +44,12 @@ PUT /attractions/neighborhood/central_amsterdam
       ]]
   }
 }
------------------------
+```
 
-After the shape is indexed, we can refer to it by `index`, `type`, and `id` in the
-query itself:
+形状索引好之后，我们就可以在查询中通过 `index`, `type` 和 `id` 来引用它了：
 
-[source,json]
------------------------
+```json
+
 GET /attractions/landmark/_search
 {
   "query": {
@@ -70,17 +66,15 @@ GET /attractions/landmark/_search
     }
   }
 }
------------------------
-<1> By specifying `indexed_shape` instead of `shape`, Elasticsearch knows that
-    it needs to retrieve the query shape from the specified document and
-    `path`.
+```
 
-There is nothing special about the shape for central Amsterdam.  We could
-equally use our existing shape for Dam Square in queries.  This query finds
-neighborhoods that intersect with Dam Square:
+<1> 指定 `indexed_shape` 而不是 `shape`，Elasticesearch 就知道需要从指定的文档和路径检索出对应的形状了。
 
-[source,json]
------------------------
+阿姆斯特丹中央这个形状没有什么特别的。同样地，我们也可以使用已经索引好的阿姆斯特丹达姆广场。
+这个查询查找出与阿姆斯特丹达姆广场有交集的临近点：
+
+```json
+
 GET /attractions/neighborhood/_search
 {
   "query": {
@@ -96,7 +90,6 @@ GET /attractions/neighborhood/_search
     }
   }
 }
------------------------
-
+```
 
 

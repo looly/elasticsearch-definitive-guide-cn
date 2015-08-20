@@ -1,6 +1,6 @@
 # Elasticsearch 权威指南（中文版）
 
-<center>![cover](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/cover_small.jpg)</center>
+![cover](https://raw.githubusercontent.com/looly/elasticsearch-definitive-guide-cn/master/cover_small.jpg)
 
 该书由 [Looly](http://www.xiaoleilu.com) 授权极客学院 Wiki 托管发布。 
 

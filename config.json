@@ -2,6 +2,7 @@
     "name": "Elasticsearch 权威指南（中文版）",
     "introduction": "Elasticsearch 权威指南的中文译本。",
     "path": {
-        "readme": "README.md"
+        "toc": "SUMMARY.md",
+        "readme": "README.md"  
     }
 }

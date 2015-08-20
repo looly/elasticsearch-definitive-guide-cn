@@ -3,6 +3,6 @@
     "introduction": "Elasticsearch 权威指南的中文译本。",
     "path": {
         "toc": "SUMMARY.md",
-        "readme": "README.md"  
+        "readme": "README_Wiki.md"  
     }
 }

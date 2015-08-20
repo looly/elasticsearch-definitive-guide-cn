@@ -38,7 +38,7 @@ Elasticsearch集群可以包含多个**索引(indices)**（数据库），每一
 
 默认情况下，文档中的所有字段都会被**索引**（拥有一个倒排索引），只有这样他们才是可被搜索的。
 
-我们将会在[倒排索引](052_Mapping_Analysis/35_Inverted_index.md)章节中更详细的讨论。
+我们将会在[倒排索引](../052_Mapping_Analysis/35_Inverted_index.md)章节中更详细的讨论。
 
 
 所以为了创建员工目录，我们将进行如下操作：

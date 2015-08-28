@@ -44,6 +44,8 @@
 
 [http://es.xiaoleilu.com/](http://es.xiaoleilu.com/)
 
+[http://wiki.jikexueyuan.com/project/elasticsearch-definitive-guide-cn/](http://wiki.jikexueyuan.com/project/elasticsearch-definitive-guide-cn/)
+
 ## 说明
 之前接触Elasticsearch只是最简单的使用，想要深入了解内部功能，借助翻译同时系统学习。由于英语比较菜，第一次翻译文档，如有不妥，欢迎提issue:
 

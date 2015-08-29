@@ -11,7 +11,7 @@
 3. `Node 3`从主分片检索出文档，修改`_source`字段的JSON，然后在主分片上重建索引。如果有其他进程修改了文档，它以`retry_on_conflict`设置的次数重复步骤3，都未成功则放弃。
 4. 如果`Node 3`成功更新文档，它同时转发文档的新版本到`Node 1`和`Node 2`上的复制节点以重建索引。当所有复制节点报告成功，`Node 3`返回成功给请求节点，然后返回给客户端。
 
-`update` API还接受《新建、索引和删除》章节提到的`routing``replication``consistency`和`timout`参数。
+`update` API还接受《新建、索引和删除》章节提到的`routing`、`replication`、`consistency`和`timout`参数。
 
 > ### 基于文档的复制
 

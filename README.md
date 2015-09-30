@@ -2,7 +2,7 @@
 
 # Elasticsearch 权威指南（中文版）
 
-## 阅读地址：[Elasticsearch权威指南（中文版）](https://www.gitbook.io/book/looly/elasticsearch-the-definitive-guide-cn/)
+## 阅读地址：[Elasticsearch权威指南（中文版）](https://www.gitbook.com/book/looly/elasticsearch-the-definitive-guide-cn/)
 
 ----------------------------------------
 

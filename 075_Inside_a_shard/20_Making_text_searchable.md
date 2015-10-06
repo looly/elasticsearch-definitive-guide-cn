@@ -1,16 +1,9 @@
-[[making-text-searchable]]
-=== Making Text Searchable
+#让文本可搜索
 
-The first challenge that had to be solved was how to((("text", "making it searchable"))) make text searchable.
-Traditional databases store a single value per field, but this is insufficient
-for full-text search.  Every word in a text field needs to be searchable,
-which means that the database needs to be able to index multiple values--words, in this case--in a single field.
+第一个不得不解决的挑战是如何让文本变得可搜索。在传统的数据库中，一个字段存一个值，但是这对于全文搜索是不足的。想要让文本中的每个单词都可以被搜索，这意味这数据库需要存多个值。
 
-The data structure that best supports the _multiple-values-per-field_
-requirement is the _inverted index_, which((("inverted index"))) we introduced in
-<<inverted-index>>. The inverted index contains a sorted list of all of the
-unique values, or _terms_, that occur in any document and, for each term, a list
-of all the documents that contain it.
+支持一个字段多个值的最佳数据结构是反向索引，我们在。反向索引包含了出现在所有文档中唯一的值或词的有序列表，以及每个词所属的文档列表。
+
 
      Term  | Doc 1 | Doc 2 | Doc 3 | ...
      ------------------------------------

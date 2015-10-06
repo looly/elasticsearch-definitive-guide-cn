@@ -21,10 +21,37 @@ Lucene允许新段写入打开，好让它们包括的文档可搜索，而不�
 
 这会困扰新用户：他们索引了个文档，尝试搜索它，但是搜不到。解决办法就是执行一次人工刷新，通过API:
 
-[source,json]
------------------------------
+```Javascript
 POST /_refresh <1>
 POST /blogs/_refresh <2>
------------------------------
-<1> Refresh all indices.
-<2> Refresh just the `blogs` index.
+```
+- &lt;1> refresh所有索引
+- &lt;2> 只refresh 索引`blogs`
+
+>虽然刷新比提交更轻量，但是它依然有消耗。人工刷新在测试写的时有用，但是不要在生产环境中每写一次就执行刷新，这会影响性能。相反，你的应用需要意识到ES近实时搜索的本质，并且容忍它。
+
+不是所有的用户都需要每秒刷新一次。也许你使用ES索引百万日志文件，你更想要优化索引的速度，而不是进实时搜索。你可以通过修改配置项`refresh_interval`减少刷新的频率：
+```Javascript
+PUT /my_logs
+{
+  "settings": {
+    "refresh_interval": "30s" <1>
+  }
+}
+```
+- &lt;1> 每30s refresh一次`my_logs`
+
+`refresh_interval`可以在存在的索引上动态更新。你在创建大索引的时候可以关闭自动刷新，在要使用索引的时候再打开它。
+
+```Javascript
+PUT /my_logs/_settings
+{ "refresh_interval": -1 } <1>
+
+PUT /my_logs/_settings
+{ "refresh_interval": "1s" } <2>
+```
+- &lt;1> 禁用所有自动refresh
+- &lt;2> 每秒自动refresh    
+
+
+

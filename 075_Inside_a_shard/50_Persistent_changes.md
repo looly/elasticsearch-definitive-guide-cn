@@ -1,131 +1,56 @@
-[[translog]]
-=== Making Changes Persistent
+#持久化变更
 
-Without an `fsync` to flush data in the filesystem cache to disk, we cannot
-be sure that the data will still ((("persistent changes, making")))((("changes, persisting")))be there after a power failure, or even after
-exiting the application normally.  For Elasticsearch to be reliable, it needs
-to ensure that changes are persisted to disk.
+没用fsync同步文件系统缓存到磁盘，我们不能确保电源失效，甚至正常退出应用后，数据的安全。为了ES的可靠性，需要确保变更持久化到磁盘。
 
-In <<dynamic-indices>>, we said that a full commit flushes segments to disk and
-writes a commit point, which lists all known segments.((("commit point")))  Elasticsearch uses
-this commit point during startup or when reopening an index to decide which
-segments belong to the current shard.
+我们说过一次全提交同步段到磁盘，写提交点，这会列出所有的已知的段。在重启，或重新打开索引时，ES使用这次提交点决定哪些段属于当前的分片。
 
-While we refresh once every second to achieve near real-time search, we still
-need to do full commits regularly to make sure that we can recover from
-failure.  But what about the document changes that happen between commits?  We
-don't want to lose those either.
+当我们通过每秒的刷新获得近实时的搜索，我们依然需要定时地执行全提交确保能从失败中恢复。但是提交之间的文档怎么办？我们也不想丢失它们。
 
-Elasticsearch added a _translog_, or transaction log,((("translog (transaction log)"))) which records every
-operation in Elasticsearch as it happens.  With the translog, the process now
-looks like this:
+ES增加了事务日志，来记录每次操作。有了事务日志，过程现在如下：
 
+1. 当一个文档被索引，它被加入到内存缓存，同时加到事务日志。
 
-1. When a document is indexed, it is added to the in-memory buffer _and_
-   appended to the translog, as shown in <<img-xlog-pre-refresh>>.
-+
-[[img-xlog-pre-refresh]]
-.New documents are added to the in-memory buffer and appended to the transaction log
-image::images/elas_1106.png["New documents are added to the in-memory buffer and appended to the transaction log"]
+     **图1：新的文档加入到内存缓存，同时写入事务日志**
+    ![新的文档加入到内存缓存，同时写入事务日志](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1106.png)
+2. refresh使得分片的进入如下图描述的状态。每秒分片都进行refeash：
+ * 内存缓冲区的文档写入到段中，但没有fsync。
+ * 段被打开，使得新的文档可以搜索。
+ * 缓存被清除
+  
+    **图2：经过一次refresh，缓存被清除，但事务日志没有**
+![经过一次refresh，缓存被清除，但事务日志没有](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1107.png)
 
-2. The refresh leaves the shard in the state depicted in <<img-xlog-post-refresh>>. Once every second, the shard is refreshed:
-+
---
-   ** The docs in the in-memory buffer are written to a new segment,
-      without an `fsync`.
-   ** The segment is opened to make it visible to search.
+3. 随着更多的文档加入到缓存区，写入日志，这个过程会继续
 
-   ** The in-memory buffer is cleared.
+  **图3：事务日志会记录增长的文档**
+  ![事务日志会记录增长的文档](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1108.png)
 
-[[img-xlog-post-refresh]]
-.After a refresh, the buffer is cleared but the transaction log is not
-image::images/elas_1107.png["After a refresh, the buffer is cleared but the transaction log is not"]
---
+4. 不时地，比如日志很大了，新的日志会创建，会进行一次全提交：
+ * 内存缓存区的所有文档会写入到新段中。
+ * 清除缓存
+ * 一个提交点写入硬盘
+ * 文件系统缓存通过fsync操作flush到硬盘
+ * 事务日志被清除
+ 
+事务日志记录了没有flush到硬盘的所有操作。当故障重启后，ES会用最近一次提交点从硬盘恢复所有已知的段，并且从日志里恢复所有的操作。
 
-3.  This process continues with more documents being added to the in-memory
-    buffer and appended to the transaction log (see <<img-xlog-pre-flush>>).
-+
-[[img-xlog-pre-flush]]
-.The transaction log keeps accumulating documents
-image::images/elas_1108.png["The transaction log keeps accumulating documents"]
+事务日志还用来提供实时的CRUD操作。当年用ID进行CRUD时，它在检索相关段内的文档前会首先检查日志最新的改动。这意味着ES可以实时地获取文档的最新版本。
 
+**图4：flush过后，段被全提交，事务日志清除**
+  ![flush过后，段被全提交，事务日志清除](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1109.png)
+  
+ ##flush API
+ 在ES中，进行一次提交并删除事务日志的操作叫做 `flush`。分片每30分钟，或事务日志过大会进行一次flush操作。
+ 
+ `flush API`可用来进行一次手动flush：
+ ```Javascript
+POST /blogs/_flush <1> 
 
-4. Every so often--such as when the translog is getting too big--the index
-   is flushed; a new translog is created, and a full commit is performed (see <<img-xlog-post-flush>>):
-+
---
-   ** Any docs in the in-memory buffer are written to a new segment.
-   ** The buffer is cleared.
-   ** A commit point is written to disk.
-   ** The filesystem cache is flushed with an `fsync`.
-   ** The old translog is deleted.
+POST /_flush?wait_for_ongoing  <2>
+ ```
+ - &lt;1> flush索引`blogs`
+ - &lt;2> flush所有索引，等待操作结束再返回
+ 
+你很少需要手动`flush`，通常自动的就够了。
 
---
-
-The translog provides a persistent record of all operations that have not yet
-been flushed to disk. When starting up, Elasticsearch will use the last commit
-point to recover known segments from disk, and will then replay all operations
-in the translog to add the changes that happened after the last commit.
-
-The translog is also used to provide real-time CRUD.  When you try to
-retrieve, update, or delete a document by ID, it first checks the translog for
-any recent changes before trying to retrieve the document from the relevant
-segment. This means that it always has access to the latest known version of
-the document, in real-time.
-
-[[img-xlog-post-flush]]
-.After a flush, the segments are fully commited and the transaction log is cleared
-image::images/elas_1109.png["After a flush, the segments are fully commited and the transaction log is cleared"]
-
-[[flush-api]]
-==== flush API
-
-The action of performing a commit and truncating the translog is known in
-Elasticsearch as a _flush_. ((("flushes"))) Shards are flushed automatically every 30
-minutes, or when the translog becomes too big. See the
-http://bit.ly/1E3HKbD[`translog` documentation] for settings
-that can be used((("translog (transaction log)", "flushes and"))) to control these thresholds:
-
-The http://bit.ly/1ICgxiU[`flush` API] can ((("indices", "flushing")))((("flush API")))be used to perform a manual flush:
-
-[source,json]
------------------------------
-POST /blogs/_flush <1>
-
-POST /_flush?wait_for_ongoing <2>
------------------------------
-<1> Flush the `blogs` index.
-<2> Flush all indices and wait until all flushes have completed before
-    returning.
-
-You seldom need to issue a manual `flush` yourself; usually, automatic
-flushing is all that is required.
-
-That said, it is beneficial to <<flush-api,flush>> your indices before restarting a node or closing an index. When Elasticsearch tries to recover or reopen an index, it has to replay all of the operations in the translog, so the shorter the log, the faster the recovery.
-
-
-.How Safe Is the Translog?
-****************************************
-
-The purpose of the translog is to ensure that operations are not lost.  This
-begs the question: how safe((("translog (transaction log)", "safety of"))) is the translog?
-
-Writes to a file will not survive a reboot until the file has been
-+fsync+'ed to disk.  By default, the translog is +fsync+'ed every 5
-seconds. Potentially, we could lose 5 seconds worth of data--if the translog
-were the only mechanism that we had for dealing with failure.
-
-Fortunately, the translog is only part of a much bigger system.  Remember that
-an indexing request is considered successful only after it has  completed
-on both the primary shard and all replica shards.  Even if the node holding
-the primary shard were to suffer catastrophic failure, it would be unlikely to
-affect the nodes holding the replica shards at the same time.
-
-While we could force the translog to `fsync` more frequently (at the cost of
-indexing performance), it is unlikely to provide more reliability.
-
-****************************************
-
-
-
-
+当你要重启或关闭一个索引，flush该索引是很有用的。当ES尝试恢复或者重新打开一个索引时，它必须重放所有事务日志中的操作，所以日志越小，恢复速度越快。

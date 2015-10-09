@@ -25,6 +25,7 @@
 * [@conan007ai](https://github.com/conan007ai)
 * [@williamzhao](https://github.com/williamzhao)
 * [@dingusxp](https://github.com/dingusxp)
+* [@birdroidcn](https://github.com/birdroidcn)
 
 感谢参与翻译的小伙伴们~~
 

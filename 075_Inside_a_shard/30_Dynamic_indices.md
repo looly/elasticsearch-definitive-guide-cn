@@ -1,86 +1,45 @@
-[[dynamic-indices]]
-=== Dynamically Updatable Indices
+#动态索引
 
-The next problem that needed to be ((("indices", "dynamically updatable")))solved was how to make an inverted index
-updatable without losing the benefits of immutability?  The answer turned out
-to be: use more than one index.
+下一个需要解决的问题是如何在保持不可变好处的同时更新倒排索引。答案是，使用多个索引。
 
-Instead of rewriting the whole inverted index, add new supplementary indices
-to reflect more-recent changes. Each inverted index can be queried in turn--starting with the oldest--and the results combined.
+不是重写整个倒排索引，而是增加额外的索引反映最近的变化。每个倒排索引都可以按顺序查询，从最老的开始，最后把结果聚合。
 
-Lucene, the Java libraries on which Elasticsearch is based, introduced  the
-concept of _per-segment search_. ((("per-segment search")))((("segments")))((("indices", "in Lucene"))) A _segment_ is an inverted index in its own
-right,  but now the word _index_ in Lucene came to mean a _collection of
-segments_ plus a _commit point_&#x2014;a file((("commit point"))) that lists all known segments, as depicted in <<img-index-segments>>. New documents are first added to an in-memory indexing buffer, as shown in <<img-memory-buffer>>, before being written to an on-disk segment, as in <<img-post-commit>>
+Elasticsearch底层依赖的Lucene，引入了`per-segment search`的概念。一个段(segment)是有完整功能的倒排索引，但是现在Lucene中的索引指的是段的集合，再加上提交点(commit point，包括所有段的文件)，如**图1**所示。新的文档，在被写入磁盘的段之前，首先写入内存区的索引缓存，如**图2、图3**所示。
 
-[[img-index-segments]]
-.A Lucene index with a commit point and three segments
-image::images/elas_1101.png["A Lucene index with a commit point and three segments"]
+**图1：一个提交点和三个索引的Lucene**
 
-.Index Versus Shard
-***************************************
+![一个提交点和三个索引的Lucene](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1101.png)
 
-To add to the confusion, a _Lucene index_ is what we call a _shard_ in
-Elasticsearch, while an _index_ in Elasticsearch((("indices", "in Elasticsearch")))((("shards", "indices versus"))) is a collection of shards.
-When Elasticsearch searches an index, it sends the query out to a copy of
-every shard (Lucene index) that belongs to the index, and then reduces the
-per-shards results to a global result set, as described in
-<<distributed-search>>.
+>索引vs分片
 
-***************************************
+>为了避免混淆，需要说明，Lucene索引是Elasticsearch中的分片，Elasticsearch中的索引是分片的集合。当Elasticsearch搜索索引时，它发送查询请求给该索引下的所有分片，然后过滤这些结果，聚合成全局的结果。
 
 
-A per-segment search works as follows:
+一个`per-segment search`如下工作:
+1. 新的文档首先写入内存区的索引缓存。
+2. 不时，这些buffer被提交：
+ * 一个新的段——额外的倒排索引——写入磁盘。
+ * 新的提交点写入磁盘，包括新段的名称。
+ * 磁盘是fsync’ed(文件同步)——所有写操作等待文件系统缓存同步到磁盘，确保它们可以被物理写入。
+3. 新段被打开，它包含的文档可以被检索
+4. 内存的缓存被清除，等待接受新的文档。
 
-1. New documents are collected in an in-memory indexing buffer.
-   See <<img-memory-buffer>>.
-2. Every so often, the buffer is _commited_:
+**图2：内存缓存区有即将提交文档的Lucene索引**
 
-** A new segment--a supplementary inverted index--is written to disk.
-** A new _commit point_ is written to disk, which includes the name of the new
-   segment.
-** The disk is _fsync'ed_&#x2014;all writes waiting in the filesystem cache are
-   flushed to disk, to ensure that they have been physically written.
+![内存缓存区有即将提交文档的Lucene索引](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1102.png)
 
-3. The new segment is opened, making the documents it contains visible to search.
-4. The in-memory buffer is cleared, and is ready to accept new documents.
+**图3：提交后，新的段加到了提交点，缓存被清空**
 
-[[img-memory-buffer]]
-.A Lucene index with new documents in the in-memory buffer, ready to commit
-image::images/elas_1102.png["A Lucene index with new documents in the in-memory buffer, ready to commit"]
+![提交后，新的段加到了提交点，缓存被清空](https://www.elastic.co/guide/en/elasticsearch/guide/current/images/elas_1103.png)
 
-[[img-post-commit]]
-.After a commit, a new segment is added to the commit point and the buffer is cleared
-image::images/elas_1103.png["After a commit, a new segment is added to the index and the buffer is cleared"]
+当一个请求被接受，所有段依次查询。所有段上的Term统计信息被聚合，确保每个term和文档的相关性被正确计算。通过这种方式，新的文档以较小的代价加入索引。
 
-When a query is issued, all known segments are queried in turn. Term
-statistics are aggregated across all segments to ensure that the relevance of
-each term and each document is calculated accurately. In this way, new
-documents can be added to the index relatively cheaply.
+##删除和更新
 
-[[deletes-and-updates]]
-==== Deletes and Updates
+段是不可变的，所以文档既不能从旧的段中移除，旧的段也不能更新以反映文档最新的版本。相反，每一个提交点包括一个.del文件，包含了段上已经被删除的文档。
 
-Segments are immutable, so documents cannot be removed from older segments,
-nor can older segments be updated to reflect a newer version of a document.
-Instead, every ((("deleted documents")))commit point includes a `.del` file that lists which documents
-in which segments have been deleted.
+当一个文档被删除，它实际上只是在.del文件中被标记为删除，依然可以匹配查询，但是最终返回之前会被从结果中删除。
 
-When a document is ``deleted,'' it is actually just _marked_ as deleted in the
-`.del` file. A document that has been marked as deleted can still match a
-query, but it is removed from the results list before the final query results
-are returned.
+文档的更新操作是类似的：当一个文档被更新，旧版本的文档被标记为删除，新版本的文档在新的段中索引。也许该文档的不同版本都会匹配一个查询，但是更老版本会从结果中删除。
 
-Document updates work in a similar way: when a document is updated, the old
-version of the document is marked as deleted, and the new version of the
-document is indexed in a new segment. Perhaps both versions of the document
-will match a query, but the older deleted version is removed before the query
-results are returned.
-
-In <<merge-process>>, we show how deleted documents are purged from
-the filesystem.
-
-
-
-
-
+在[合并段](075_Inside_a_shard/60_Segment_merging.md)这节，我们会展示删除的文件是如何从文件系统中清除的。

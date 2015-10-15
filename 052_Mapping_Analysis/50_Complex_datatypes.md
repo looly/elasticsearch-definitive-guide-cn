@@ -101,9 +101,7 @@ the `_all` field etc.
 
 ### 内部对象是怎样被索引的
 
-Lucene doesn't understand inner objects. A Lucene document consists of a flat
-list of key-value pairs.  In order for Elasticsearch to index inner objects
-usefully, it converts our document into something like this:
+Lucene 並不了解內部對象。 一個 Lucene 文件包含一個鍵-值對應的扁平表單。 為了讓 Elasticsearch 可以有效的索引內部對象，將文件轉換為以下格式：
 
 ```javascript
 {
@@ -117,20 +115,13 @@ usefully, it converts our document into something like this:
 }
 ```
 
-_Inner fields_ can be referred to by name, eg `"first"`. To distinguish
-between two fields that have the same name we can use the full _path_,
-eg `"user.name.first"` or even the `type` name plus
-the path: `"tweet.user.name.first"`.
+_內部欄位_可被歸類至name，例如`"first"`。 為了區別兩個擁有相同名字的欄位，我們可以使用完整_路徑_，例如`"user.name.first"` 或甚至`类型`名稱加上路徑：`"tweet.user.name.first"`。
 
-NOTE: In the simple flattened document above, there is no field called `user`
-and no field called `user.name`.  Lucene only indexes scalar or simple values,
-not complex datastructures.
+注意： 在以上扁平化文件中，並沒有欄位叫作`user`也沒有欄位叫作`user.name`。 Lucene 只索引階層或簡單的值，而不會索引複雜的資料結構。
 
-[[object-arrays]]
-==== Arrays of inner objects
+[[對象-陣列]] ==== 內部對象的陣列
 
-Finally, consider how an array containing inner objects would be indexed.
-Let's say we have a `followers` array which looks like this:
+最後，一個包含內部對象的陣列如何索引。 我們有個陣列如下所示：
 
 [source,js]
 --------------------------------------------------
@@ -144,8 +135,7 @@ Let's say we have a `followers` array which looks like this:
 --------------------------------------------------
 
 
-This document will be flattened as we described above, but the result will
-look like this:
+此文件會如我們以上所說的被扁平化，但其結果會像如此：
 
 [source,js]
 --------------------------------------------------
@@ -156,16 +146,12 @@ look like this:
 --------------------------------------------------
 
 
-The correlation between `{age: 35}` and `{name: Mary White}` has been lost as
-each multi-value field is just a bag of values, not an ordered array.  This is
-sufficient for us to ask:
+`{age: 35}`與`{name: Mary White}`之間的關聯會消失，因每個多值的欄位會變成包含數個值，而非有序的陣列。 這讓我們可以知道：
 
-* _Is there a follower who is 26 years old?_
+* _是否有26歲的追隨者？_
 
-but we can't get an accurate answer to:
+但我們無法取得準確的資料如：
 
-* _Is there a follower who is 26 years old **and who is called Alex Jones?**_
+* _是否有26歲的追隨者**且名字叫Alex Jones？**_
 
-Correlated inner objects, which are able to answer queries like these,
-are called _nested_ objects, and we will discuss them later on in
-<<nested-objects>>.
+關聯內部對象可解決此類問題，我們稱之為_巢狀_對象，我們之後會在<<nested-objects>>中提到它。

@@ -1,10 +1,8 @@
-[[nested-query]]
-=== Querying a Nested Object
+[[巢状-查询]]
+=== 查询巢状对象
 
-Because nested objects ((("nested objects", "querying")))are indexed as separate hidden documents, we can't
-query them directly. ((("queries", "nested"))) Instead, we have to use the
-http://bit.ly/1ziFQoR[`nested` query] or
-http://bit.ly/1IOp94r[`nested` filter] to  access them:
+因巢状对象((("nested objects", "querying")))会被索引为分离隐藏文档，我们不能直接查询它们。
+((("queries", "nested"))) 而是使用 http://bit.ly/1ziFQoR[`nested`查询]或 http://bit.ly/1IOp94r[`nested` 过滤器]来存取它们：
 
 [source,json]
 --------------------------
@@ -27,30 +25,23 @@ GET /my_index/blogpost/_search
       ]
 }}}
 --------------------------
-<1> The `title` clause operates on the root document.
-<2> The `nested` clause ``steps down'' into the nested `comments` field.
-    It no longer has access to fields in the root document, nor fields in
-    any other nested document.
-<3> The `comments.name` and `comments.age` clauses operate on the same nested
-    document.
+<1> `title`条件运作在根文档上
+<2> `nested`条件``深入``巢状的`comments`栏位。
+    它不会在存取根文档的栏位，或是其他巢状文档的栏位。
+<3> `comments.name`以及`comments.age`运作在相同的巢状文档。
 
 [TIP]
 ==================================================
 
-A `nested` field can contain other `nested` fields.  Similarly, a `nested`
-query can contain other `nested` queries. The nesting hierarchy is applied
-as you would expect.
+一个`nested`栏位可以包含其他`nested`栏位。 相同的，一个`nested`查询可以包含其他`nested`查询。
+巢状阶层会如同你预期的运作。
 
 ==================================================
 
-Of course, a `nested` query could match several nested documents.
-Each matching nested document would have its own relevance score, but these
-multiple scores need to be reduced to a single score that can be applied to
-the root document.
+当然，一个`nested`查询可以匹配多个巢状文档。
+每个文档的匹配会有各自的关联分数，但多个分数必须减少至单一分数才能应用至根文档。
 
-By default, it averages the scores of the matching nested documents. This can
-be controlled by setting the `score_mode` parameter to `avg`, `max`, `sum`, or
-even `none` (in which case the root document gets a constant score of `1.0`).
+在预设中，它会平均所有巢状文档匹配的分数。这可以藉由设定`score_mode`参数为`avg`, `max`, `sum`或甚至`none`(为了防止根文档永远获得`1.0`的匹配分数时)来控制。
 
 [source,json]
 --------------------------
@@ -74,16 +65,13 @@ GET /my_index/blogpost/_search
       ]
 }}}
 --------------------------
-<1> Give the root document the `_score` from the best-matching
-    nested document.
+<1> 从最匹配的巢状文档中给予根文档的`_score`值。
 
-[NOTE]
+[注意]
 ====
-A `nested` filter behaves much like a `nested` query, except that it doesn't
-accept the `score_mode` parameter.  It can be used only in _filter context_&#x2014;such as inside a `filtered` query--and it behaves like any other filter:
-it includes or excludes, but it doesn't score.
+`nested`过滤器类似於`nested`查询，除了无法使用`score_mode`参数。 只能使用在_filter context_&#x2014;例如在`filtered`查询中--其作用类似其他的过滤器：
+包含或不包含，但不评分。
 
-While the results of the `nested` filter itself are not cached, the usual
-caching rules apply to the filter _inside_ the `nested` filter.
+`nested`过滤器的结果本身不会缓存，通常缓存规则会被应用於`nested`过滤器_之中_的过滤器。
 ====
 

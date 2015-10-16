@@ -1,9 +1,8 @@
-[[nested-sorting]]
-=== Sorting by Nested Fields
+[[巢状排序]]
+=== 以巢状栏位排序
 
-It is possible to sort by the value of a nested field, even though the value
-exists in a separate nested document. ((("nested fields, sorting by")))((("sorting", "by nested fields"))) To make the result more
-interesting, we will add another record:
+我们可以依照巢状栏位中的值来排序，甚至藉由分离巢状文档中的值。((("nested fields, sorting by")))((("sorting", "by nested fields")))
+为了使其结果更加有趣，我们加入另一个记录：
 
 [source,json]
 --------------------------
@@ -31,9 +30,8 @@ PUT /my_index/blogpost/2
 }
 --------------------------
 
-Imagine that we want to retrieve blog posts that received comments in October,
-ordered by the lowest number of `stars` that each blog post received. The
-search request would look like this:
+想像我们要取回在十月中有收到回应的blog文章，并依照所取回的各个blog文章中最少`stars`数量的顺序作排序。
+这个搜寻请求如下：
 
 [source,json]
 --------------------------
@@ -68,17 +66,11 @@ GET /_search
   }
 }
 --------------------------
-<1> The `nested` query limits the results to blog posts that received a
-    comment in October.
-<2> Results are sorted in ascending (`asc`) order by the lowest value (`min`)
-    in the `comment.stars` field in any matching comments.
-<3> The `nested_filter` in the sort clause is the same as the `nested` query in
-    the main `query` clause. The reason is explained next.
+<1> `nested`查询限制了结果为十月份收到回应的blog文章。
+<2> 结果在所有匹配的回应中依照`comment.stars`栏位的最小值(`min`)作递增(`asc`)的排序。
+<3> 排序条件中的`nested_filter`与主查询`query`条件中的`nested`查询相同。 於下一个下方解释。
 
-Why do we need to repeat the query conditions in the `nested_filter`?  The
-reason is that sorting happens after the query has been executed. The query
-matches blog posts that received comments in October, but it returns
-blog post documents as the result. If we didn't include the `nested_filter`
-clause, we would end up sorting based on any comments that the blog post has
-ever received, not just those received in October.
+为什麽我们要在`nested_filter`重复写上查询条件？ 原因是排序在於执行查询後才发生。
+此查询匹配了在十月中有收到回应的blog文章，回传blog文章文档作为结果。
+如果我们不加上`nested_filter`条件，我们最後会依照任何blog文章曾经收到过的回应作排序，而不是在十月份收到的。
 

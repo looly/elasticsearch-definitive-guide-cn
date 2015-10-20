@@ -26,6 +26,7 @@
 * [@williamzhao](https://github.com/williamzhao)
 * [@dingusxp](https://github.com/dingusxp)
 * [@birdroidcn](https://github.com/birdroidcn)
+* [@MaggieHwang](https://github.com/MaggieHwang)
 
 感谢参与翻译的小伙伴们~~
 

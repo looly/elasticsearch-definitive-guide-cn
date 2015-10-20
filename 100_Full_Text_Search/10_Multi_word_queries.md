@@ -1,121 +1,97 @@
 [[match-multi-word]]
 === Multiword Queries
+##多词查询
 
-If we could search for only one word at a time, full-text search would be
-pretty inflexible. Fortunately, the `match` query((("full text search", "multi-word queries")))((("match query", "multi-word query"))) makes multiword queries
-just as simple:
+如果一次只能查询一个关键词，全文检索将会很不方便。幸运的是，用``match``查询进行多词查询也很简单：
 
-[source,js]
---------------------------------------------------
-GET /my_index/my_type/_search
-{
-    "query": {
-        "match": {
-            "title": "BROWN DOG!"
-        }
-    }
-}
---------------------------------------------------
-// SENSE: 100_Full_Text_Search/05_Match_query.json
+	GET /my_index/my_type/_search
+	{
+	    "query": {
+	        "match": {
+	            "title": "BROWN DOG!"
+	        }
+	    }
+	}
 
-The preceding query returns all four documents in the results list:
+上面这个查询返回以下结果集：
 
-[source,js]
---------------------------------------------------
-{
-  "hits": [
-     {
-        "_id":      "4",
-        "_score":   0.73185337, <1>
-        "_source": {
-           "title": "Brown fox brown dog"
-        }
-     },
-     {
-        "_id":      "2",
-        "_score":   0.47486103, <2>
-        "_source": {
-           "title": "The quick brown fox jumps over the lazy dog"
-        }
-     },
-     {
-        "_id":      "3",
-        "_score":   0.47486103, <2>
-        "_source": {
-           "title": "The quick brown fox jumps over the quick dog"
-        }
-     },
-     {
-        "_id":      "1",
-        "_score":   0.11914785, <3>
-        "_source": {
-           "title": "The quick brown fox"
-        }
-     }
-  ]
-}
---------------------------------------------------
+	{
+	  "hits": [
+	     {
+	        "_id":      "4",
+	        "_score":   0.73185337, <1>
+	        "_source": {
+	           "title": "Brown fox brown dog"
+	        }
+	     },
+	     {
+	        "_id":      "2",
+	        "_score":   0.47486103, <2>
+	        "_source": {
+	           "title": "The quick brown fox jumps over the lazy dog"
+	        }
+	     },
+	     {
+	        "_id":      "3",
+	        "_score":   0.47486103, <2>
+	        "_source": {
+	           "title": "The quick brown fox jumps over the quick dog"
+	        }
+	     },
+	     {
+	        "_id":      "1",
+	        "_score":   0.11914785, <3>
+	        "_source": {
+	           "title": "The quick brown fox"
+	        }
+	     }
+	  ]
+	}
 
-<1> Document 4 is the most relevant because it contains `"brown"` twice and `"dog"`
-    once.
+	<1> 文档4的相关度最高，因为包含两个``"brown"``和一个``"dog"``。
 
-<2> Documents 2 and 3 both contain `brown` and `dog` once each, and the `title`
-    field is the same length in both docs, so they have the same score.
+	<2> 文档2和3都包含一个``"brown"``和一个``"dog"``，且``'title'``字段长度相同，所以相关度相等。
 
-<3> Document 1 matches even though it contains only `brown`, not `dog`.
+	<3> 文档1只包含一个``"brown"``，不包含``"dog"``，所以相关度最低。
 
-Because the `match` query has to look for two terms&#x2014;`["brown","dog"]`&#x2014;internally it has to execute two `term` queries and combine their individual
-results into the overall result. To do this, it wraps the two `term` queries
-in a `bool` query, which we examine in detail in <<bool-query>>.
+因为``match``查询需要查询两个关键词：``"brown"``和``"dog"``，在内部会执行两个``term``查询并综合二者的结果得到最终的结果。``match``的实现方式是将两个``term``查询放入一个``bool``查询，``bool``查询在之前的章节已经介绍过。
 
-The important thing to take away from this is that any document whose
-`title` field contains _at least one of the specified terms_ will match the
-query.  The more terms that match, the more relevant the document.
+重要的一点是，``'title'``字段包含_至少一个_查询关键字的文档都被认为是符合查询条件的。匹配的单词数越多，文档的相关度越高。
 
 [[match-improving-precision]]
 ==== Improving Precision
 
-Matching any document that contains _any_ of the query terms may result in  a
-long tail of seemingly irrelevant results. ((("full text search", "multi-word queries", "improving precision")))((("precision", "improving for full text search multi-word queries"))) It's a shotgun approach to search.
-Perhaps we want to show only documents that contain _all_ of the query terms.
-In other words, instead of `brown OR dog`, we want to return only documents
-that match `brown AND dog`.
+### 提高精度
 
-The `match` query accepts an `operator` parameter((("match query", "operator parameter")))((("or operator", "in match queries")))((("and operator", "in match queries"))) that defaults to `or`.
-You can change it to `and` to require that all specified terms must match:
+匹配包含任意个数查询关键字的文档可能会得到一些看似不相关的结果，这是一种霰弹策略(shotgun approach)。然而我们可能想得到包含_所有_查询关键字的文档。换句话说，我们想得到的是匹配``'brown AND dog'``的文档，而非``'brown OR dog'``。
 
-[source,js]
---------------------------------------------------
-GET /my_index/my_type/_search
-{
-    "query": {
-        "match": {
-            "title": {      <1>
-                "query":    "BROWN DOG!",
-                "operator": "and"
-            }
-        }
-    }
-}
---------------------------------------------------
-// SENSE: 100_Full_Text_Search/05_Match_query.json
+``match``查询接受一个``'operator'``参数，默认值为``or``。如果要求所有查询关键字都匹配，可以更改参数值为``and``：
 
-<1> The structure of the `match` query has to change slightly in order to
-    accommodate the `operator` parameter.
+	GET /my_index/my_type/_search
+	{
+	    "query": {
+	        "match": {
+	            "title": {      <1>
+	                "query":    "BROWN DOG!",
+	                "operator": "and"
+	            }
+	        }
+	    }
+	}
 
-This query would exclude document 1, which contains only one of the two terms.
+	<1> The structure of the ``match`` query has to change slightly in order to
+    accommodate the ``'operator'`` parameter.
+
+这个查询会排除文档1，因为文档1只包含了一个查询关键词。
 
 [[match-precision]]
 ==== Controlling Precision
 
-The choice between _all_ and _any_ is a bit((("full text search", "multi-word queries", "controlling precision"))) too black-or-white. What if the
-user specified five query terms, and a document contains only four of them?
-Setting `operator` to `and` would exclude this document.
+### 控制精度
 
-Sometimes that is exactly what you want, but for most full-text search use
-cases, you want to include documents that may be relevant but exclude those
-that are unlikely to be relevant.  In other words, we need something
-in-between.
+在 _all_ 和 _any_ 之间的选择有点过于非黑即白。如果用户指定了5个查询关键字，而一个文档只包含了其中的4个？将``'operator'``设置为``'and'``会排除这个文档。
+
+有时这的确是用户想要的结果。但在大多数全文检索的使用场景下，用户想得到相关的文档，排除那些不太可能相关的文档。换句话说，我们需要介于二者之间的选项。
 
 The `match` query supports((("match query", "minimum_should_match parameter")))((("minimum_should_match parameter"))) the `minimum_should_match` parameter, which allows
 you to specify the number of terms that must match for a document to be considered

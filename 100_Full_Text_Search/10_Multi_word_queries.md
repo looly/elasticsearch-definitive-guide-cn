@@ -1,5 +1,3 @@
-[[match-multi-word]]
-=== Multiword Queries
 ##多词查询
 
 如果一次只能查询一个关键词，全文检索将会很不方便。幸运的是，用``match``查询进行多词查询也很简单：
@@ -48,18 +46,15 @@
 	  ]
 	}
 
-	<1> 文档4的相关度最高，因为包含两个``"brown"``和一个``"dog"``。
+	<1> 文档4的相关度最高，因为包含两个"brown"和一个"dog"。
 
-	<2> 文档2和3都包含一个``"brown"``和一个``"dog"``，且``'title'``字段长度相同，所以相关度相等。
+	<2> 文档2和3都包含一个"brown"和一个"dog"，且'title'字段长度相同，所以相关度相等。
 
-	<3> 文档1只包含一个``"brown"``，不包含``"dog"``，所以相关度最低。
+	<3> 文档1只包含一个"brown"，不包含"dog"，所以相关度最低。
 
 因为``match``查询需要查询两个关键词：``"brown"``和``"dog"``，在内部会执行两个``term``查询并综合二者的结果得到最终的结果。``match``的实现方式是将两个``term``查询放入一个``bool``查询，``bool``查询在之前的章节已经介绍过。
 
 重要的一点是，``'title'``字段包含_至少一个_查询关键字的文档都被认为是符合查询条件的。匹配的单词数越多，文档的相关度越高。
-
-[[match-improving-precision]]
-==== Improving Precision
 
 ### 提高精度
 
@@ -79,13 +74,9 @@
 	    }
 	}
 
-	<1> The structure of the ``match`` query has to change slightly in order to
-    accommodate the ``'operator'`` parameter.
-
+	<1> 为了加入``'operator'``参数，``match``查询的结构有一些不同。
+	
 这个查询会排除文档1，因为文档1只包含了一个查询关键词。
-
-[[match-precision]]
-==== Controlling Precision
 
 ### 控制精度
 
@@ -93,39 +84,24 @@
 
 有时这的确是用户想要的结果。但在大多数全文检索的使用场景下，用户想得到相关的文档，排除那些不太可能相关的文档。换句话说，我们需要介于二者之间的选项。
 
-The `match` query supports((("match query", "minimum_should_match parameter")))((("minimum_should_match parameter"))) the `minimum_should_match` parameter, which allows
-you to specify the number of terms that must match for a document to be considered
-relevant.  While you can specify an absolute number of terms, it usually makes
-sense to specify a percentage instead, as you have no control over the number of words the user may enter:
+``match``查询有``'minimum_should_match'``参数，参数值表示被视为_相关_的文档必须匹配的关键词个数。参数值可以设为整数，也可以设置为百分数。因为不能提前确定用户输入的查询关键词个数，使用百分数也很合理。
 
-[source,js]
---------------------------------------------------
-GET /my_index/my_type/_search
-{
-  "query": {
-    "match": {
-      "title": {
-        "query":                "quick brown dog",
-        "minimum_should_match": "75%"
-      }
-    }
-  }
-}
---------------------------------------------------
-// SENSE: 100_Full_Text_Search/05_Match_query.json
+	GET /my_index/my_type/_search
+	{
+	  "query": {
+	    "match": {
+	      "title": {
+	        "query":                "quick brown dog",
+	        "minimum_should_match": "75%"
+	      }
+	    }
+	  }
+	}
 
-When specified as a percentage, `minimum_should_match` does the right thing:
-in the preceding example with three terms, `75%` would be rounded down to `66.6%`,
-or two out of the three terms. No matter what you set it to, at least one term
-must match for a document to be considered a match.
+当``'minimum_should_match'``被设置为百分数时，查询进行如下：在上面的例子里，``'75%'``会被下舍为``'66.6%'``，也就是2个关键词。不论参数值为多少，进入结果集的文档至少应匹配一个关键词。
 
-[NOTE]
-====
-The `minimum_should_match` parameter is flexible, and different rules can
-be applied depending on the number of terms the user enters.  For the full
-documentation see the
-http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html#query-dsl-minimum-should-match
-====
+####[提示]
 
-To fully understand how the `match` query handles multiword queries, we need
-to look at how to combine multiple queries with the `bool` query.
+``'minimum_should_match'``参数很灵活，根据用户输入的关键词个数，可以采用不同的匹配规则。更详细的内容可以查看[文档](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html#query-dsl-minimum-should-match)。
+
+要全面理解``match``查询是怎样处理多词查询，我们需要了解怎样用``bool``查询合并多个查询。

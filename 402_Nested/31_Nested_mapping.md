@@ -1,10 +1,9 @@
-[[巢状-映射]]
-=== 巢状对象映射
+##嵌套-映射
+### 嵌套对象映射
 
-设定一个`nested`栏位很简单--在((("mapping (types)", "nested object")))((("nested object mapping")))你会设定为`object`类型的地方，改为`nested`类型：
+设定一个`nested`栏位很简单--在你会设定为`object`类型的地方，改为`nested`类型：
 
-[source,json]
---------------------------
+```json
 PUT /my_index
 {
   "mappings": {
@@ -24,9 +23,9 @@ PUT /my_index
     }
   }
 }
---------------------------
+```
 <1> 一个`nested`栏位接受与`object`类型相同的参数。
 
-所需仅此而已。 任何`comments`对象会被索引为分离巢状对象。
-参考更多 http://bit.ly/1KNQEP9[`nested` type reference docs]。
+所需仅此而已。 任何`comments`对象会被索引为分离嵌套对象。
+参考更多 [`nested` type reference docs](http://bit.ly/1KNQEP9)。
 

@@ -1,8 +1,7 @@
-[[nested-mapping]]
-=== Nested Object Mapping
+[[巢状-映射]]
+=== 巢状对象映射
 
-Setting up a `nested` field is simple--where ((("mapping (types)", "nested object")))((("nested object mapping")))you would normally specify type
-`object`, make it type `nested` instead:
+设定一个`nested`栏位很简单--在((("mapping (types)", "nested object")))((("nested object mapping")))你会设定为`object`类型的地方，改为`nested`类型：
 
 [source,json]
 --------------------------
@@ -26,9 +25,8 @@ PUT /my_index
   }
 }
 --------------------------
-<1> A `nested` field accepts the same parameters as a field of type `object`.
+<1> 一个`nested`栏位接受与`object`类型相同的参数。
 
-That's all that is required.  Any `comments` objects would now be indexed as
-separate nested documents. See the
-http://bit.ly/1KNQEP9[`nested` type reference docs] for more.
+所需仅此而已。 任何`comments`对象会被索引为分离巢状对象。
+参考更多 http://bit.ly/1KNQEP9[`nested` type reference docs]。
 

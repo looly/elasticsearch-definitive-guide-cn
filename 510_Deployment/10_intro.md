@@ -12,3 +12,6 @@ strategies
 - Post-deployment considerations, such as security, maximizing indexing performance,
 and backups
 
+
+当你看到此处时，希望你学会了Elasticsearch的一些东西
+

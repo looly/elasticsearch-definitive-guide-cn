@@ -13,5 +13,5 @@ strategies
 and backups
 
 
-当你看到此处时，希望你学会了Elasticsearch的一些东西
+当你看到此处时，希望你已经较好的掌握了Elasticsearch，并且准备将集群部署到生产环境。
 

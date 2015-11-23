@@ -59,7 +59,7 @@
 
 Elasticsearch 会动态的检测新对象的字段，并且映射它们为 `object` 类型，将每个字段加到 `properties` 字段下
 
-```javascript
+```json
 {
   "gb": {
     "tweet": { <1>
@@ -90,12 +90,6 @@ Elasticsearch 会动态的检测新对象的字段，并且映射它们为 `obje
 <1> 根对象.
 <2> 内部对象.
 
-The mapping for the `user` and `name` fields have a similar structure
-to the mapping for the `tweet` type itself.  In fact, the `type` mapping
-is just a special type of `object` mapping, which we refer to as the
-_root object_.  It is just the same as any other object, except that it has
-some special top-level fields for document metadata, like `_source`,
-the `_all` field etc.
 
 对`user`和`name`字段的映射与`tweet`类型自己很相似。事实上，`type`映射只是`object`映射的一种特殊类型，我们将 `object` 称为_根对象_。它与其他对象一模一样，除非它有一些特殊的顶层字段，比如 `_source`, `_all` 等等。
 
@@ -119,12 +113,12 @@ _内部栏位_可被归类至name，例如`"first"`。 为了区别两个拥有�
 
 注意： 在以上扁平化文件中，并没有栏位叫作`user`也没有栏位叫作`user.name`。 Lucene 只索引阶层或简单的值，而不会索引复杂的资料结构。
 
-[[对象-阵列]] ==== 内部对象的阵列
+## 对象-阵列
+### 内部对象的阵列
 
 最後，一个包含内部对象的阵列如何索引。 我们有个阵列如下所示：
 
-[source,js]
---------------------------------------------------
+```json
 {
     "followers": [
         { "age": 35, "name": "Mary White"},
@@ -132,21 +126,20 @@ _内部栏位_可被归类至name，例如`"first"`。 为了区别两个拥有�
         { "age": 19, "name": "Lisa Smith"}
     ]
 }
---------------------------------------------------
+```
 
 
 此文件会如我们以上所说的被扁平化，但其结果会像如此：
 
-[source,js]
---------------------------------------------------
+```json
 {
     "followers.age":    [19, 26, 35],
     "followers.name":   [alex, jones, lisa, smith, mary, white]
 }
---------------------------------------------------
+```
 
 
-`{age: 35}`与`{name: Mary White}`之间的关联会消失，因每个多值的栏位会变成包含数个值，而非有序的阵列。 这让我们可以知道：
+`{age: 35}`与`{name: Mary White}`之间的关联会消失，因每个多值的栏位会变成一个值集合，而非有序的阵列。 这让我们可以知道：
 
 * _是否有26岁的追随者？_
 
@@ -154,4 +147,4 @@ _内部栏位_可被归类至name，例如`"first"`。 为了区别两个拥有�
 
 * _是否有26岁的追随者**且名字叫Alex Jones？**_
 
-关联内部对象可解决此类问题，我们称之为_巢状_对象，我们之後会在<<nested-objects>>中提到它。
+关联内部对象可解决此类问题，我们称之为_嵌套_对象，我们之後会在嵌套对象中提到它。

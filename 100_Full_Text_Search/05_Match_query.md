@@ -4,19 +4,9 @@
 
 这也就是说，`match`查询的一个主要用途是进行全文搜索。让我们通过一个小例子来看一下全文搜索是如何工作的。
 
-The `match` query is the _go-to_ query--the first query that you should
-reach for whenever you need to query any field.((("match query")))((("full text search", "match query"))) It is a high-level _full-text
-query_, meaning that it knows how to deal with both full-text fields and exact-value fields.
-
-That said, the main use case for the `match` query is for full-text search. So
-let's take a look at how full-text search works with a simple example.
-
-#### Index Some Data
+#### 索引一些数据
 
 首先，我们使用`bulk` API来创建和索引一些文档：
-
-First, we'll create a new index and index some((("full text search", "match query", "indexing data"))) documents using the
-<<bulk,`bulk` API>>:
 
 ```json
 DELETE /my_index <1>

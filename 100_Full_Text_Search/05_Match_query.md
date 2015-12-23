@@ -1,5 +1,8 @@
-[[match-query]]
-=== The match Query
+### 匹配查询
+
+不管你搜索什么内容，`match`查询是你首先需要接触的查询。它是一个高级查询，意味着`match`查询知道如何更好的处理全文检索和准确值检索。
+
+这也就是说，`match`查询的一个主要用途是进行全文搜索。让我们通过一个小例子来看一下全文搜索是如何工作的。
 
 The `match` query is the _go-to_ query--the first query that you should
 reach for whenever you need to query any field.((("match query")))((("full text search", "match query"))) It is a high-level _full-text
@@ -8,14 +11,14 @@ query_, meaning that it knows how to deal with both full-text fields and exact-v
 That said, the main use case for the `match` query is for full-text search. So
 let's take a look at how full-text search works with a simple example.
 
-[[match-test-data]]
-==== Index Some Data
+#### Index Some Data
+
+首先，我们使用`bulk` API来创建和索引一些文档：
 
 First, we'll create a new index and index some((("full text search", "match query", "indexing data"))) documents using the
 <<bulk,`bulk` API>>:
 
-[source,js]
---------------------------------------------------
+```json
 DELETE /my_index <1>
 
 PUT /my_index
@@ -30,20 +33,26 @@ POST /my_index/my_type/_bulk
 { "title": "The quick brown fox jumps over the quick dog" }
 { "index": { "_id": 4 }}
 { "title": "Brown fox brown dog" }
---------------------------------------------------
+```
+
 // SENSE: 100_Full_Text_Search/05_Match_query.json
+
+<1> 删除已经存在的索引(如果索引存在)
+<2> 然后，`关联失效`这一节解释了为什么我们创建该索引的时候只使用一个主分片。
 
 <1> Delete the index in case it already exists.
 <2> Later, in <<relevance-is-broken>>, we explain why
     we created this index with only one primary shard.
 
+#### 单词查询
 ==== A Single-Word Query
+
+第一个例子解释了当使用`match`查询进行单词全文搜索时发生了什么：
 
 Our first example explains what((("full text search", "match query", "single word query")))((("match query", "single word query"))) happens when we use the `match` query to
 search within a full-text field for a single word:
 
-[source,js]
---------------------------------------------------
+```json
 GET /my_index/my_type/_search
 {
     "query": {
@@ -52,7 +61,7 @@ GET /my_index/my_type/_search
         }
     }
 }
---------------------------------------------------
+```
 // SENSE: 100_Full_Text_Search/05_Match_query.json
 
 Elasticsearch executes the preceding `match` query((("analysis", "in single term match query"))) as follows:

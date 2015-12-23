@@ -71,8 +71,11 @@ Elasticsearch executes the preceding `match` query((("analysis", "in single term
 1. _检查field类型_  
 `title`字段是一个字符串(`analyzed`)，所以该查询字符串也需要被分析(`analyzed`)
 2. 分析查询字符串  
-查询词`QUICK!`经过标准分析器的分析后变成单词`quick`。因为我们只有一个查询词，因此`match`查询可以以一种低级别单词查询的方式执行。
-
+查询词`QUICK!`经过标准分析器的分析后变成单词`quick`。因为我们只有一个查询词，因此`match`查询可以以一种低级别`term`查询的方式执行。
+3. 找到匹配的文档  
+`term`查询在倒排索引中搜索`quick`，并且返回包含该词的文档。在这个例子中，返回的文档是1，2，3
+4. 为每个文档打分  
+`term`查询综合考虑词频（每篇文档`title`字段包含`quick`的次数）、逆文档频率（在全部文档中`title`字段包含`quick`的次数）、包含`quick`的字段长度（长度越短越相关）来计算每篇文档的相关性得分`_score`。
 
 1. _Check the field type_.
 +
@@ -101,9 +104,9 @@ length of each field (shorter fields are considered more relevant).
 See <<relevance-intro>>.
 
 This process gives us the following (abbreviated) results:
+这个过程之后我们将得到以下结果（简化后）：
 
-[source,js]
---------------------------------------------------
+```json
 "hits": [
  {
     "_id":      "1",
@@ -127,7 +130,7 @@ This process gives us the following (abbreviated) results:
     }
  }
 ]
---------------------------------------------------
-<1> Document 1 is most relevant because its `title` field is short, which means
-    that `quick` represents a large portion of its content.
-<2> Document 3 is more relevant than document 2 because `quick` appears twice.
+```
+
+<1> 文档1最相关，因为 `title` 最短，意味着`quick`在语义中起比较大的作用。
+<2> 文档3比文档2更相关，因为在文档3中`quick`出现了两次。

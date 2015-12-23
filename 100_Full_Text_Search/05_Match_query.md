@@ -64,7 +64,11 @@ GET /my_index/my_type/_search
 ```
 // SENSE: 100_Full_Text_Search/05_Match_query.json
 
+Elasticsearch通过下面的步骤执行`match`查询：
+
 Elasticsearch executes the preceding `match` query((("analysis", "in single term match query"))) as follows:
+
+
 
 1. _Check the field type_.
 +

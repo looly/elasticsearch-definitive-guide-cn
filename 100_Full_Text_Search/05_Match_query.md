@@ -68,6 +68,10 @@ Elasticsearch通过下面的步骤执行`match`查询：
 
 Elasticsearch executes the preceding `match` query((("analysis", "in single term match query"))) as follows:
 
+1. _检查field类型_  
+`title`字段是一个字符串(`analyzed`)，所以该查询字符串也需要被分析(`analyzed`)
+2. 分析查询字符串  
+查询词`QUICK!`经过标准分析器的分析后变成单词`quick`。因为我们只有一个查询词，因此`match`查询可以以一种低级别单词查询的方式执行。
 
 
 1. _Check the field type_.

@@ -1,9 +1,9 @@
-[[query-time-boosting]]
-=== Query-Time Boosting
+[[查询时提升]]
+=== 查询时提升
 
-In <<prioritising-clauses,Prioritizing Clauses>>, we explained ((("relevance", "controlling", "query time boosting")))((("boosting", "query-time")))how you could use the `boost`
-parameter at search time to give one query clause more importance than
-another.  For instance:
+在 <<prioritising-clauses,Prioritizing Clauses>>中, 我们解释了 ((("relevance", "controlling", "query time boosting")))((("boosting", "query-time")))你可以怎样在查询时使用 `boost`
+来使得一个查询项比其它的更重要.
+例如:
 
 [source,json]
 ------------------------------
@@ -30,32 +30,23 @@ GET /_search
   }
 }
 ------------------------------
-<1> The `title` query clause is twice as important as the `content` query
-    clause, because it has been boosted by a factor of `2`.
-<2> A query clause without a `boost` value has a neutral boost of `1`.
+<1> 查询项 `title` 的重要性是查询项 `content` 的2倍, 因为它被因数 `2` 提升了.
+<2> 没有 `boost` 值的查询项会拥有一个默认因数为 `1` 的提升.
 
-_Query-time boosting_ is the main tool that you can use to tune relevance. Any
-type of query accepts a `boost` parameter.((("boost parameter", "setting value")))  Setting a `boost` of `2` doesn't
-simply double the final `_score`; the actual boost value that is applied
-goes through normalization and some internal optimization.  However, it does
-imply that a clause with a boost of `2` is twice as important as a clause with
-a boost of `1`.
+_查询是提升_ 是你用于调节相关性的主要工具. 任何类型的查询都接受 `boost` 参数.
+((("boost parameter", "setting value")))  把 `boost` 设置为 `2` 并不会简单的加倍最后的 `_score`; 
+实际使用的 boost 值取决于标准化和一些内置的优化.  然而, 它确实意味着 boost 值为 `2` 的项的重要性是 boost 值为 `1`的项的2倍.
 
-Practically, there is no simple formula for deciding on the ``correct'' boost
-value for a particular query clause.  It's a matter of try-it-and-see.
-Remember that `boost` is just one of the factors involved in the relevance
-score; it has to compete with the other factors.  For instance, in the preceding
-example, the `title` field will probably already have a ``natural'' boost over
-the `content` field thanks ((("field-length norm")))to the <<field-norm,field-length norm>> (titles
-are usually shorter than the related content), so don't blindly boost fields
-just because you think they should be boosted.  Apply a boost and check the
-results. Change the boost and check again.
+事实上, 对于一个实际的查询项，没有简单的算法来决定 ``正确'' 的 boost 值,它是边做边看的事.
+要记得 `boost` 仅仅是影响相关性分数的因素之一; 它必须与其它因素竞争.  例如, 在之前的例子里, 
+ `title` 字段相较于  `content 字段，可能已经有了一个 ``自然的'' 提升,  这归功于 ((("field-length norm"))) <<field-norm,field-length norm>> (title
+通常比相关的 content 要短), 所以，不要仅仅因为你觉得它应该被提升就盲目的提升一个字段
+应用一个提升并且检查结果. 改变提升并且重新检查.
 
-==== Boosting an Index
+==== 提升一个索引
 
-When searching across multiple indices, you((("boosting", "query-time", "boosting an index")))((("indices", "boosting an index"))) can boost an entire index over
-the others with the `indices_boost` parameter.((("indices_boost parameter")))  This could be used, as in the
-next example, to give more weight to documents from a more recent index:
+当在多个索引间搜索时, ((("boosting", "query-time", "boosting an index")))((("indices", "boosting an index"))) 你可以通过 `indices_boost` 参数提升这些索引中的某一个索引.
+((("indices_boost parameter")))  下面的例子中使用了这种方法, 使得最近的索引文档拥有更高的权重:
 
 [source,json]
 ------------------------------
@@ -72,28 +63,22 @@ GET /docs_2014_*/_search <1>
   }
 }
 ------------------------------
-<1> This multi-index search covers all indices beginning with
-    `docs_2014_`.
-<2> Documents in the `docs_2014_10` index will be boosted by `3`, those
-    in `docs_2014_09` by `2`, and any other matching indices will have
-    a neutral boost of `1`.
+<1> 该多索引搜索包含了所有以 `docs_2014_` 开头的索引.
+<2> 索引 `docs_2014_10` 中的文档将被因数 `3` 提升, `docs_2014_09` 中的文档被因数 `2` 提升, 其它匹配的索引将被默认的因数 `1` 提升.
 
 ==== t.getBoost()
 
-These boost values are represented in the <<practical-scoring-function>> by
-the `t.getBoost()` element.((("practical scoring function", "t.getBoost() method")))((("boosting", "query-time", "t.getBoost()")))((("t.getBoost() method"))) Boosts are not applied at the level that they
-appear in the query DSL.  Instead, any boost values are combined and passsed
-down to the individual terms.  The `t.getBoost()` method returns any `boost`
-value applied to the term itself or to any of the queries higher up the chain.
+boost 值可以通过 <<practical-scoring-function>> `t.getBoost()` 获得.
+((("practical scoring function", "t.getBoost() method")))((("boosting", "query-time", "t.getBoost()")))((("t.getBoost() method"))) 
+提升不会被应用在出现查询 DSL 的地方.  相反, 任何 boost 值都会被合并、传递到单独的 terms 中.
+`t.getBoost()` 方法会返回任意应用到 term本身或更高阶查询链的 `boost` 值.
 
 [TIP]
 ==================================================
 
-In fact, reading the <<explain,`explain`>> output is a little more complex
-than that. You won't see the `boost` value or `t.getBoost()` mentioned in the
-`explanation` at all.  Instead, the boost is rolled into the
-<<query-norm,`queryNorm`>> that is applied to a particular term. Although we said that
-the `queryNorm` is the  same for every term, you will see that the `queryNorm`
-for a boosted term is higher than the `queryNorm` for an unboosted term.
+事实上, 阅读 <<explain,`explain`>> 输出略为复杂. 你不会在`explanation`看到它提到过 `boost` 值或 `t.getBoost()`.
+提升是被放入了应用于特殊term的<<query-norm,`queryNorm`>>中. 
+尽管我们说 `queryNorm` 对于每一个 term 都是相同的, 但是你会发现已提升的term的 `queryNorm`
+要比未提升的term 的 `queryNorm` 要高.
 
 ==================================================

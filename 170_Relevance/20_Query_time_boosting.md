@@ -33,14 +33,14 @@ GET /_search
 <1> 查询项 `title` 的重要性是查询项 `content` 的2倍, 因为它被因数 `2` 提升了.
 <2> 没有 `boost` 值的查询项会拥有一个默认因数为 `1` 的提升.
 
-_查询是提升_ 是你用于调节相关性的主要工具. 任何类型的查询都接受 `boost` 参数.
+_查询时提升_ 是用于调节相关性的主要工具. 任何类型的查询都接受 `boost` 参数.
 ((("boost parameter", "setting value")))  把 `boost` 设置为 `2` 并不会简单的加倍最后的 `_score`; 
 实际使用的 boost 值取决于标准化和一些内置的优化.  然而, 它确实意味着 boost 值为 `2` 的项的重要性是 boost 值为 `1`的项的2倍.
 
 事实上, 对于一个实际的查询项，没有简单的算法来决定 ``正确'' 的 boost 值,它是边做边看的事.
 要记得 `boost` 仅仅是影响相关性分数的因素之一; 它必须与其它因素竞争.  例如, 在之前的例子里, 
- `title` 字段相较于  `content 字段，可能已经有了一个 ``自然的'' 提升,  这归功于 ((("field-length norm"))) <<field-norm,field-length norm>> (title
-通常比相关的 content 要短), 所以，不要仅仅因为你觉得它应该被提升就盲目的提升一个字段
+ `title` 字段相较于  `content 字段，可能已经有了一个 ``自然的'' 提升,  这归功于 ((("field-length norm"))) <<field-norm,field-length norm>> 
+(title通常比相关的 content 要短), 所以，不要仅仅因为你觉得它应该被提升就盲目的提升一个字段
 应用一个提升并且检查结果. 改变提升并且重新检查.
 
 ==== 提升一个索引
@@ -70,7 +70,7 @@ GET /docs_2014_*/_search <1>
 
 boost 值可以通过 <<practical-scoring-function>> `t.getBoost()` 获得.
 ((("practical scoring function", "t.getBoost() method")))((("boosting", "query-time", "t.getBoost()")))((("t.getBoost() method"))) 
-提升不会被应用在出现查询 DSL 的地方.  相反, 任何 boost 值都会被合并、传递到单独的 terms 中.
+提升不会被应用在出现查询 DSL 的地方.  而是任何 boost 值都会被合并、传递到单独的 terms 中.
 `t.getBoost()` 方法会返回任意应用到 term本身或更高阶查询链的 `boost` 值.
 
 [TIP]

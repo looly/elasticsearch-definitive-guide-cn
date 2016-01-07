@@ -29,13 +29,14 @@ Elasticsearch为Java用户提供了两种内置客户端：
 
 向Elasticsearch发出的请求的组成部分与其它普通的HTTP请求是一样的：
 ```bash
-curl -X<VERB> '<PROTOCOL>://<HOST>/<PATH>?<QUERY_STRING>' -d '<BODY>'
+curl -X<VERB> '<PROTOCOL>://<HOST>:<PORT>/<PATH>?<QUERY_STRING>' -d '<BODY>'
 ```
 --------------------------------------------------
 - VERB         HTTP方法：`GET`, `POST`, `PUT`, `HEAD`, `DELETE`
 - PROTOCOL     http或者https协议（只有在Elasticsearch前面有https代理的时候可用）
 - HOST         Elasticsearch集群中的任何一个节点的主机名，如果是在本地的节点，那么就叫localhost
 - PORT         Elasticsearch HTTP服务所在的端口，默认为9200
+- PATH         API路径（例如_count将返回集群中文档的数量），PATH可以包含多个组件，例如_cluster/stats或者_nodes/stats/jvm
 - QUERY_STRING 一些可选的查询请求参数，例如`?pretty`参数将使请求返回更加美观易读的JSON数据
 - BODY         一个JSON格式的请求主体（如果请求需要的话）
 

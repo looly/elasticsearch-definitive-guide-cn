@@ -4,7 +4,7 @@
 
 和SQL使用`LIMIT`关键字返回只有一页的结果一样，Elasticsearch接受`from`和`size`参数：
 
-`size`: 果数，默认`10`
+`size`: 结果数，默认`10`
 
 `from`: 跳过开始的结果数，默认`0`
 

@@ -120,18 +120,17 @@ GET /_search?explain <1>
 
 然后解释了计算的权重是如何计算出来的：
 
-检索词频率::
+检索词频率:
 
     检索词 `honeymoon` 在 `tweet` 字段中的出现次数。
 
-反向文档频率::
+反向文档频率:
 
     检索词 `honeymoon` 在 `tweet` 字段在当前文档出现次数与索引中其他文档的出现总数的比率。
 
-字段长度准则::
+字段长度准则:
 
-    文档中 `tweet` 字段内容的长度 -- 内容越长，How long s the d field in this document -- the longer the field,
-    the smaller this number.
+    文档中 `tweet` 字段内容的长度 -- 内容越长，值越小。
 
 复杂的查询语句解释也非常复杂，但是包含的内容与上面例子大致相同。
 通过这段描述我们可以了解搜索结果是如何产生的。

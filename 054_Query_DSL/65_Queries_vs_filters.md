@@ -8,11 +8,11 @@ translate by [williamzhao](https://github.com/williamzhao)
 
 一条过滤语句会询问每个文档的字段值是否包含着特定值：
 
-* 是否 `created` 的日期范围在 `2013` 到 `2014` ?
+* `created` 的日期范围是否在 `2013` 到 `2014` ?
 
-* 是否 `status` 字段中包含单词 "published" ?
+* `status` 字段中是否包含单词 "published" ?
 
-* 是否 `lat_lon` 字段中的地理位置与目标点相距不超过10km ?
+* `lat_lon` 字段中的地理位置与目标点相距是否不超过10km ?
 
 一条查询语句与过滤语句相似，但问法不同：
 

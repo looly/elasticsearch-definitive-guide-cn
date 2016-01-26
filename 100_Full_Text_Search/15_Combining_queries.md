@@ -61,7 +61,7 @@ GET /my_index/my_type/_search
 
 所有的 `must` 子句必须匹配, 并且所有的 `must_not` 子句必须不匹配, 但是多少 `should` 子句应该匹配呢? 默认的，不需要匹配任何 `should` 子句，一种情况例外：如果没有`must`子句，就必须至少匹配一个`should`子句。
 
-像我们控制`match`查询的精度一样，我们也可以通过`minimum_should_match`参数控制多少`should`子句需要被匹配，这个参数可以是整数，也可以是百分比。
+像我们控制`match`查询的精度一样，我们也可以通过`minimum_should_match`参数控制多少`should`子句需要被匹配，这个参数可以是正整数，也可以是百分比。
 
 ```Javascript
 GET /my_index/my_type/_search

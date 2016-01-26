@@ -1,3 +1,105 @@
+### 组合查询
+
+在《组合过滤》中我们讨论了怎样用布尔过滤器组合多个用`and`, `or`, and `not`逻辑组成的过滤子句，在查询中, 布尔查询充当着相似的作用，但是有一个重要的区别。
+
+过滤器会做一个判断: 是否应该将文档添加到结果集? 然而查询会做更精细的判断. 他们不仅决定一个文档是否要添加到结果集，而且还要计算文档的相关性（_relevant_）.
+
+像过滤器一样, 布尔查询接受多个用`must`, `must_not`, and `should`的查询子句.  例:
+
+
+```Javascript
+GET /my_index/my_type/_search
+{
+  "query": {
+    "bool": {
+      "must":     { "match": { "title": "quick" }},
+      "must_not": { "match": { "title": "lazy"  }},
+      "should": [
+                  { "match": { "title": "brown" }},
+                  { "match": { "title": "dog"   }}
+      ]
+    }
+  }
+}
+```
+
+在前面的查询中，凡是满足`title`字段中包含`quick`，但是不包含`lazy`的文档都会在查询结果中。到目前为止，布尔查询的作用非常类似于布尔过滤的作用。
+
+The difference comes in with the two `should` clauses, which say that: a document
+is _not required_ to contain ((("should clause", "in bool queries")))either `brown` or `dog`, but if it does, then
+it should be considered _more relevant_:
+
+[source,js]
+--------------------------------------------------
+{
+  "hits": [
+     {
+        "_id":      "3",
+        "_score":   0.70134366, <1>
+        "_source": {
+           "title": "The quick brown fox jumps over the quick dog"
+        }
+     },
+     {
+        "_id":      "1",
+        "_score":   0.3312608,
+        "_source": {
+           "title": "The quick brown fox"
+        }
+     }
+  ]
+}
+--------------------------------------------------
+
+<1> Document 3 scores higher because it contains both `brown` and `dog`.
+
+==== Score Calculation
+
+The `bool` query calculates((("relevance scores", "calculation in bool queries")))((("bool query", "score calculation"))) the relevance `_score` for each document by adding
+together the `_score` from all of the matching `must` and `should` clauses,
+and then dividing by the total number of `must` and `should` clauses.
+
+The `must_not` clauses do not affect ((("must_not clause", "in bool queries")))the score; their only purpose is to
+exclude documents that might otherwise have been included.
+
+==== Controlling Precision
+
+All the `must` clauses must match, and all the `must_not` clauses must not
+match, but how many `should` clauses((("bool query", "controlling precision")))((("full text search", "combining queries", "controlling precision")))((("precision", "controlling for bool query"))) should match? By default, none of the `should` clauses are required to match, with one
+exception: if there are no `must` clauses, then at least one `should` clause
+must match.
+
+Just as we can control the <<match-precision,precision of the `match` query>>,
+we can control how many `should` clauses need to match by using the
+`minimum_should_match` parameter,((("minimum_should_match parameter", "in bool queries"))) either as an absolute number or as a
+percentage:
+
+[source,js]
+--------------------------------------------------
+GET /my_index/my_type/_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "title": "brown" }},
+        { "match": { "title": "fox"   }},
+        { "match": { "title": "dog"   }}
+      ],
+      "minimum_should_match": 2 <1>
+    }
+  }
+}
+--------------------------------------------------
+// SENSE: 100_Full_Text_Search/15_Bool_query.json
+
+<1> This could also be expressed as a percentage.
+
+The results would include only documents whose `title` field contains `"brown"
+AND "fox"`, `"brown" AND "dog"`, or `"fox" AND "dog"`. If a document contains
+all three, it would be considered more relevant than those that contain
+just two of the three.
+
+<!--
 [[bool-query]]
 === Combining Queries
 
@@ -107,4 +209,4 @@ The results would include only documents whose `title` field contains `"brown"
 AND "fox"`, `"brown" AND "dog"`, or `"fox" AND "dog"`. If a document contains
 all three, it would be considered more relevant than those that contain
 just two of the three.
-
+-->

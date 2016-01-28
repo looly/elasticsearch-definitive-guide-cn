@@ -1,3 +1,83 @@
+<!--秀川译-->
+###提高查询得分
+
+当然，`bool`查询并不仅仅是组合多个简单的一个词的`match`查询。他可以组合任何其他查询，包括`bool`查询。`bool`查询通常会通过组合几个不同查询的得分为每个文档调整相关性得分。
+
+假设我们想查找关于"full-text search"的文档，但是我们又想给涉及到“Elasticsearch”或者“Lucene”的文档更高的权重。我们的用意是想涉及到"Elasticsearch" 或者 "Lucene"的文档的相关性得分会比那些没有涉及到的文档的得分要高，也就是说这些文档会出现在结果集更靠前的位置。
+
+一个简单的`bool`查询允许我们写出像下面一样的非常复杂的逻辑：
+```javascript
+GET /_search
+{
+    "query": {
+        "bool": {
+            "must": {
+                "match": {
+                    "content": { (1)
+                        "query":    "full text search",
+                        "operator": "and"
+                    }
+                }
+            },
+            "should": [ (2)
+                { "match": { "content": "Elasticsearch" }},
+                { "match": { "content": "Lucene"        }}
+            ]
+        }
+    }
+}
+```
+1. `content`字段必须包含`full`,`text`,`search`这三个单词。
+2. 如果`content`字段也包含了“Elasticsearch”或者“Lucene”，则文档会有一个更高的得分。
+
+匹配的`should`子句越多，文档的相关性就越强。到目前为止一切都很好。但是如果我们想给包含“Lucene”一词的文档比较高的得分，甚至给包含“Elasticsearch”一词更高的得分要怎么做呢？
+
+我们可以在任何查询子句中指定一个`boost`值来控制相对权重，默认值为1。一个大于1的`boost`值可以提高查询子句的相对权重。因此我们可以像下面一样重写之前的查询：
+```javascript
+GET /_search
+{
+    "query": {
+        "bool": {
+            "must": {
+                "match": {  (1)
+                    "content": {
+                        "query":    "full text search",
+                        "operator": "and"
+                    }
+                }
+            },
+            "should": [
+                { "match": {
+                    "content": {
+                        "query": "Elasticsearch",
+                        "boost": 3 (2)
+                    }
+                }},
+                { "match": {
+                    "content": {
+                        "query": "Lucene",
+                        "boost": 2 (3)
+                    }
+                }}
+            ]
+        }
+    }
+}
+```
+1. 这些查询子句的`boost`值为默认值`1`。
+2. 这个子句是最重要的，因为他有最高的`boost`值。
+3. 这个子句比第一个查询子句的要重要，但是没有“Elasticsearch”子句重要。
+
+> 注意：
+> 
+> 1. `boost`参数用于提高子句的相对权重（`boost`值大于`1`）或者降低子句的相对权重（`boost`值在`0`-`1`之间），但是提高和降低并非是线性的。换句话说，`boost`值为2并不能够使结果变成两部的得分。
+> 
+> 2. 另外，`boost`值被使用了以后新的得分是标准的。每个查询类型都会有一个独有的标准算法，算法的详细内容并不在本书的范畴。简单的概括一下，一个更大的`boost`值可以得到一个更高的得分。
+> 
+> 3. 如果你自己实现了没有基于TF/IDF的得分模型，但是你想得到更多的对于提高得分过程的控制，你可以使用`function_score`查询来调整一个文档的boost值而不用通过标准的步骤。
+
+我们会在下一章介绍更多的组合查询，[【multi-field-search】](https://github.com/looly/elasticsearch-definitive-guide-cn/tree/master/110_Multi_Field_Search)。但是首先让我们一起来看一下查询的另外一个重要的特征：文本分析。
+<!--
 === Boosting Query Clauses
 
 Of course, the `bool` query isn't restricted ((("full text search", "boosting query clauses")))to combining simple one-word
@@ -114,3 +194,4 @@ boost without the normalization step.
 We present other ways of combining queries in the next chapter,
 <<multi-field-search>>. But first, let's take a look at the other important
 feature of queries: text analysis.
+-->

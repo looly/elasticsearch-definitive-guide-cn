@@ -1,3 +1,176 @@
+### 分析控制
+
+查询只能查找在倒排索引中出现的词，所以确保在文档索引的时候以及字符串查询的时候使用同一个分析器是很重要的，为了查询的词能够在倒排索引中匹配到。
+
+尽管我们说文档中每个字段的分析器是已经定好的。但是字段可以有不同的分析器，通过给那个字段配置一个指定的分析器或者直接使用类型，索引，或节点上的默认分析器。在索引的时候，一个字段的值会被配置的或者默认的分析器分析。
+
+举个例子，让我们添加一个字段到`my_index`：
+
+```Javascript
+PUT /my_index/_mapping/my_type
+{
+    "my_type": {
+        "properties": {
+            "english_title": {
+                "type":     "string",
+                "analyzer": "english"
+            }
+        }
+    }
+}
+```
+
+现在我们可以通过`analyze`API分析`Foxes`词来比较`english_title`字段中的值以及`title`字段中的值在创建索引的时候是怎么被分析的：
+
+```Javacript
+GET /my_index/_analyze?field=my_type.title   <1>
+Foxes
+
+GET /my_index/_analyze?field=my_type.english_title <2>
+Foxes
+```
+
+<1> 使用`standard`分析器的`title`字段将会返回词`foxes`。
+
+<2> 使用`english`分析器的`english_title`字段将会返回词`fox`。
+
+这意味着，如果我们为精确的词`fox`执行一个低级别的`term`查询，`english_title`字段会匹配而`title`字段不会。
+
+像`match`查询一样的高级别的查询可以知道字段的映射并且能够在被查询的字段上使用正确的分析器。我们可以在`validate-query` API的执行中看到这个：
+
+```Javacript
+GET /my_index/my_type/_validate/query?explain
+{
+    "query": {
+        "bool": {
+            "should": [
+                { "match": { "title":         "Foxes"}},
+                { "match": { "english_title": "Foxes"}}
+            ]
+        }
+    }
+}
+```
+
+它会返回`explanation`：
+
+    (title:foxes english_title:fox)
+
+`match`查询为每个字段使用合适的分析器用来确保在那个字段上可以用正确的格式查询这个词。
+
+#### 默认分析器
+
+虽然我们可以在字段级别指定一个分析器，但是如果我们在字段级别没有指定分析器的话，那要怎么决定某个字段使用什么分析器呢？
+
+分析器可以在好几个地方设置。Elasticsearch会查找每个级别直到找到它可以使用的分析器。在创建索引的时候，Elasticsearch查找分析器的顺序如下：
+
+* 在映射文件中指定字段的`analyzer`，或者
+* *在文档的`_analyzer`字段上指定分析器，或者*
+* 在映射文件中指定类型的默认分析器`analyzer`
+* 在索引映射文件中设置默认的分析器`default`
+* 在节点级别设置默认的分析器`default`
+* `standard`分析器
+
+查找索引的时候，Elasticsearch查找分析器的顺序稍微有点不一样：
+
+* *在查询参数中指定`analyzer`，或者*
+* 在映射文件中指定字段的`analyzer`，或者
+* 在映射文件中指定类型的默认分析器`analyzer`
+* 在索引映射文件中设置默认的分析器`default`
+* 在节点级别设置默认的分析器`default`
+* `standard`分析器
+
+> 注意：
+>
+> 上面列表中用斜体字的两行突出了创建索引以及查询索引的时候Elasticsearch查找分析器的区别。`_analyzer`字段允许你为每个文档指定默认的分析器(比如, english, french, spanish)，虽然在查询的时候指定`analyzer`参数，但是在一个索引中处理多种语言这并不是一个好方法，因为在多语言环境下很多问题会暴露出来。
+
+Occasionally, it makes sense to use a different analyzer at index and search
+time.((("analyzers", "using different analyzers at index and search time"))) For instance, at index time we may want to index synonyms (for example, for every
+occurrence of `quick`, we also index `fast`, `rapid`, and `speedy`). But at
+search time, we don't need to search for all of these synonyms.  Instead we
+can just look up the single word that the user has entered, be it `quick`,
+`fast`, `rapid`, or `speedy`.
+
+To enable this distinction, Elasticsearch also supports ((("index_analyzer parameter")))((("search_analyzer parameter")))the `index_analyzer`
+and `search_analyzer` parameters, and((("default_search parameter"))) ((("default_index analyzer")))analyzers named `default_index` and
+`default_search`.
+
+Taking these extra parameters into account, the _full_ sequence at index time
+really looks like this:
+
+* The `index_analyzer` defined in the field mapping, else
+* The `analyzer` defined in the field mapping, else
+* The analyzer defined in the `_analyzer` field of the document, else
+* The default `index_analyzer` for the `type`, which defaults to
+* The default `analyzer` for the `type`, which defaults to
+* The analyzer named `default_index` in the index settings, which defaults to
+* The analyzer named `default` in the index settings, which defaults to
+* The analyzer named `default_index` at node level, which defaults to
+* The analyzer named `default` at node level, which defaults to
+* The `standard` analyzer
+
+And at search time:
+
+* The `analyzer` defined in the query itself, else
+* The `search_analyzer` defined in the field mapping, else
+* The `analyzer` defined in the field mapping, else
+* The default `search_analyzer` for the `type`, which defaults to
+* The default `analyzer` for the `type`, which defaults to
+* The analyzer named `default_search` in the index settings, which defaults to
+* The analyzer named `default` in the index settings, which defaults to
+* The analyzer named `default_search` at node level, which defaults to
+* The analyzer named `default` at node level, which defaults to
+* The `standard` analyzer
+
+==== Configuring Analyzers in Practice
+
+The sheer number of places where you can specify an analyzer is quite
+overwhelming.((("full text search", "controlling analysis", "configuring analyzers in practice")))((("analyzers", "configuring in practice")))  In practice, though, it is pretty simple.
+
+===== Use index settings, not config files
+
+The first thing to remember is that, even though you may start out using
+Elasticsearch for a single purpose or a single application such as logging,
+chances are that you will find more use cases and end up running several
+distinct applications on the same cluster.  Each index needs to be independent
+and independently configurable. You don't want to set defaults for one use
+case, only to have to override them for another use case later.
+
+This rules out configuring analyzers at the node level.  Additionally,
+configuring analyzers at the node level requires changing the config file on every
+node and restarting every node, which becomes a maintenance nightmare. It's a
+much better idea to keep Elasticsearch running and to manage settings only via
+the API.
+
+===== Keep it simple
+
+Most of the time, you will know what fields your documents will contain ahead
+of time.  The simplest approach is to set the analyzer for each full-text
+field when you create your index or add type mappings.  While this approach is
+slightly more verbose, it enables you to easily see which analyzer is being applied
+to each field.
+
+Typically, most of your string fields will be exact-value `not_analyzed`
+fields such as tags or enums, plus a handful of full-text fields that will
+use some default analyzer like `standard` or `english` or some other language.
+Then you may have one or two fields that need custom analysis: perhaps the
+`title` field needs to be indexed in a way that supports _find-as-you-type_.
+
+You can set the `default` analyzer in the index to the analyzer you want to
+use for almost all full-text fields, and just configure the specialized
+analyzer on the one or two fields that need it.  If, in your model, you need
+a different default analyzer per type, then use the type level `analyzer`
+setting instead.
+
+[NOTE]
+====
+A common work flow for time based data like logging is to create a new index
+per day on the fly by just indexing into it.  While this work flow prevents
+you from creating your index up front, you can still use 
+http://bit.ly/1ygczeq[index templates]
+to specify the settings and mappings that a new index should have.
+====
+<!--
 === Controlling Analysis
 
 Queries can find only terms that actually ((("full text search", "controlling analysis")))((("analysis", "controlling")))exist in the inverted index, so it
@@ -197,3 +370,4 @@ you from creating your index up front, you can still use
 http://bit.ly/1ygczeq[index templates]
 to specify the settings and mappings that a new index should have.
 ====
+-->

@@ -84,45 +84,37 @@ GET /my_index/my_type/_validate/query?explain
 >
 > 上面列表中用斜体字的两行突出了创建索引以及查询索引的时候Elasticsearch查找分析器的区别。`_analyzer`字段允许你为每个文档指定默认的分析器(比如, english, french, spanish)，虽然在查询的时候指定`analyzer`参数，但是在一个索引中处理多种语言这并不是一个好方法，因为在多语言环境下很多问题会暴露出来。
 
-Occasionally, it makes sense to use a different analyzer at index and search
-time.((("analyzers", "using different analyzers at index and search time"))) For instance, at index time we may want to index synonyms (for example, for every
-occurrence of `quick`, we also index `fast`, `rapid`, and `speedy`). But at
-search time, we don't need to search for all of these synonyms.  Instead we
-can just look up the single word that the user has entered, be it `quick`,
-`fast`, `rapid`, or `speedy`.
+有时候，在创建索引与查询索引的时候使用不同的分析器也是有意义的。举个例子：在创建索引的时候想要索引同义词 (比如, 出现quick的时候，我们也索引 fast, rapid, 和 speedy)。但是在查询索引的时候，我们不需要查询所有的同义词，我们只要查询用户输入的一个单词就可以了，它可以是`quick`,
+`fast`, `rapid`, 或者 `speedy`。
 
-To enable this distinction, Elasticsearch also supports ((("index_analyzer parameter")))((("search_analyzer parameter")))the `index_analyzer`
-and `search_analyzer` parameters, and((("default_search parameter"))) ((("default_index analyzer")))analyzers named `default_index` and
-`default_search`.
+为了满足这种差异，Elasticsearch也支持`index_analyzer` 和 `search_analyzer` 参数，并且分析器被命名为`default_index`和`default_search`。
 
-Taking these extra parameters into account, the _full_ sequence at index time
-really looks like this:
+把这些额外的参数考虑进去，Elasticsearch查找所有的分析器的顺序实际上像下面的样子：
 
-* The `index_analyzer` defined in the field mapping, else
-* The `analyzer` defined in the field mapping, else
-* The analyzer defined in the `_analyzer` field of the document, else
-* The default `index_analyzer` for the `type`, which defaults to
-* The default `analyzer` for the `type`, which defaults to
-* The analyzer named `default_index` in the index settings, which defaults to
-* The analyzer named `default` in the index settings, which defaults to
-* The analyzer named `default_index` at node level, which defaults to
-* The analyzer named `default` at node level, which defaults to
-* The `standard` analyzer
+* 在映射文件中指定字段的`index_analyzer`，或者
+* 在映射文件中指定字段的`analyzer`，或者
+* 在文档的`_analyzer`字段上指定分析器，或者
+* 在映射文件中指定类型的创建索引的默认分析器`index_analyzer`
+* 在映射文件中指定类型的默认分析器`analyzer`
+* 在索引映射文件中设置创建索引的默认分析器`default_index`
+* 在索引映射文件中设置默认的分析器`default`
+* 在节点级别设置创建索引的默认分析器`default_index`
+* 在节点级别设置默认的分析器`default`
+* `standard`分析器
 
-And at search time:
+以及查询索引的时候:
 
-* The `analyzer` defined in the query itself, else
-* The `search_analyzer` defined in the field mapping, else
-* The `analyzer` defined in the field mapping, else
-* The default `search_analyzer` for the `type`, which defaults to
-* The default `analyzer` for the `type`, which defaults to
-* The analyzer named `default_search` in the index settings, which defaults to
-* The analyzer named `default` in the index settings, which defaults to
-* The analyzer named `default_search` at node level, which defaults to
-* The analyzer named `default` at node level, which defaults to
-* The `standard` analyzer
+* 在查询参数中指定`analyzer`，或者
+* 在映射文件中指定字段的`search_analyzer`，或者
+* 在映射文件中指定字段的`analyzer`，或者
+* 在映射文件中指定类型的查询索引的默认分析器`analyzer`
+* 在索引映射文件中设置查询索引的默认分析器`default_search`
+* 在索引映射文件中设置默认的分析器`default_search`
+* 在节点级别设置查询索引的默认分析器`default_search`
+* 在节点级别设置默认分析器`default`
+* `standard` 分析器
 
-==== Configuring Analyzers in Practice
+#### 实际配置分析器
 
 The sheer number of places where you can specify an analyzer is quite
 overwhelming.((("full text search", "controlling analysis", "configuring analyzers in practice")))((("analyzers", "configuring in practice")))  In practice, though, it is pretty simple.

@@ -67,8 +67,8 @@ GET /my_index/my_type/_validate/query?explain
 * 在映射文件中指定字段的`analyzer`，或者
 * *在文档的`_analyzer`字段上指定分析器，或者*
 * 在映射文件中指定类型的默认分析器`analyzer`
-* 在索引映射文件中设置默认的分析器`default`
-* 在节点级别设置默认的分析器`default`
+* 在索引映射文件中设置默认分析器`default`
+* 在节点级别设置默认分析器`default`
 * `standard`分析器
 
 查找索引的时候，Elasticsearch查找分析器的顺序稍微有点不一样：
@@ -76,8 +76,8 @@ GET /my_index/my_type/_validate/query?explain
 * *在查询参数中指定`analyzer`，或者*
 * 在映射文件中指定字段的`analyzer`，或者
 * 在映射文件中指定类型的默认分析器`analyzer`
-* 在索引映射文件中设置默认的分析器`default`
-* 在节点级别设置默认的分析器`default`
+* 在索引映射文件中设置默认分析器`default`
+* 在节点级别设置默认分析器`default`
 * `standard`分析器
 
 > 注意：
@@ -97,9 +97,9 @@ GET /my_index/my_type/_validate/query?explain
 * 在映射文件中指定类型的创建索引的默认分析器`index_analyzer`
 * 在映射文件中指定类型的默认分析器`analyzer`
 * 在索引映射文件中设置创建索引的默认分析器`default_index`
-* 在索引映射文件中设置默认的分析器`default`
+* 在索引映射文件中设置默认分析器`default`
 * 在节点级别设置创建索引的默认分析器`default_index`
-* 在节点级别设置默认的分析器`default`
+* 在节点级别设置默认分析器`default`
 * `standard`分析器
 
 以及查询索引的时候:
@@ -109,32 +109,23 @@ GET /my_index/my_type/_validate/query?explain
 * 在映射文件中指定字段的`analyzer`，或者
 * 在映射文件中指定类型的查询索引的默认分析器`analyzer`
 * 在索引映射文件中设置查询索引的默认分析器`default_search`
-* 在索引映射文件中设置默认的分析器`default_search`
+* 在索引映射文件中设置默认分析器`default_search`
 * 在节点级别设置查询索引的默认分析器`default_search`
 * 在节点级别设置默认分析器`default`
 * `standard` 分析器
 
 #### 实际配置分析器
 
-The sheer number of places where you can specify an analyzer is quite
-overwhelming.((("full text search", "controlling analysis", "configuring analyzers in practice")))((("analyzers", "configuring in practice")))  In practice, though, it is pretty simple.
+可以指定分析器的地方实在是太多了，但实际上，指定分析器很简单。
 
-===== Use index settings, not config files
+#### 用索引配置，而不是用配置文件
 
-The first thing to remember is that, even though you may start out using
-Elasticsearch for a single purpose or a single application such as logging,
-chances are that you will find more use cases and end up running several
-distinct applications on the same cluster.  Each index needs to be independent
-and independently configurable. You don't want to set defaults for one use
-case, only to have to override them for another use case later.
+第一点要记住的是，尽管你开始使用Elasticsearch仅仅只是为了一个简单的目的或者是一个应用比如日志，但很可能你会发现更多的案例（use cases翻译成案例不知道合不合适，如果有更好的用词，请联系我，Tks），结局是在同一个集群中运行着好几个不同的应用。每一个索引都需要是独立的，并且可以被独立的配置。你不要想着给一个案例设置默认值，但是不得不重写他们来适配后面的案例。
 
-This rules out configuring analyzers at the node level.  Additionally,
-configuring analyzers at the node level requires changing the config file on every
-node and restarting every node, which becomes a maintenance nightmare. It's a
-much better idea to keep Elasticsearch running and to manage settings only via
-the API.
+这个规则把节点级别的配置分析器方法排除在外了。另外，节点级别的分析器配置方法需要改变每个节点的配置文件并且重启每个节点，这将成为维护的噩梦。保持Elasticsearch持续运行并通过API来管理索引的设置是一个更好的方法。
 
-===== Keep it simple
+#### 保持简便性
+
 
 Most of the time, you will know what fields your documents will contain ahead
 of time.  The simplest approach is to set the analyzer for each full-text

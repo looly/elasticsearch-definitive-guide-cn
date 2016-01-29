@@ -80,7 +80,7 @@ GET /my_index/my_type/_validate/query?explain
 * 在节点级别设置默认分析器`default`
 * `standard`分析器
 
-> 注意：
+> 提示：
 >
 > 上面列表中用斜体字的两行突出了创建索引以及查询索引的时候Elasticsearch查找分析器的区别。`_analyzer`字段允许你为每个文档指定默认的分析器(比如, english, french, spanish)，虽然在查询的时候指定`analyzer`参数，但是在一个索引中处理多种语言这并不是一个好方法，因为在多语言环境下很多问题会暴露出来。
 
@@ -126,33 +126,16 @@ GET /my_index/my_type/_validate/query?explain
 
 #### 保持简便性
 
+大多数时间，你可以预先知道文档会包含哪些字段。最简单的方法是在你创建索引或者添加类型映射的时候为每一个全文检索字段设置分析器。虽然这个方法有点啰嗦，但是它可以很容易的看到哪个字段应用了哪个分析器。
 
-Most of the time, you will know what fields your documents will contain ahead
-of time.  The simplest approach is to set the analyzer for each full-text
-field when you create your index or add type mappings.  While this approach is
-slightly more verbose, it enables you to easily see which analyzer is being applied
-to each field.
+通常情况下，大部分的字符串字段是确切值`not_analyzed`字段（索引但不分析字段）比如标签，枚举，加上少数全文检索字段会使用默认的分析器，像`standard` 或者 `english` 或者其他语言。然后你可能只有一到两个字段需要定制分析：或许`title`字段需要按照你查找的方式去索引来支持你的查找。（指的是你查找的字符创用什么分析器，创建索引就用什么分析器）
 
-Typically, most of your string fields will be exact-value `not_analyzed`
-fields such as tags or enums, plus a handful of full-text fields that will
-use some default analyzer like `standard` or `english` or some other language.
-Then you may have one or two fields that need custom analysis: perhaps the
-`title` field needs to be indexed in a way that supports _find-as-you-type_.
+你可以在索引设置`default`分析器的地方为几乎所有全文检索字段设置成你想要的分析器，并且只要在一到两个字段指定专门的分析器。如果，在你的模型中，你每个类型都需要不同的分析器，那么在类型级别使用`analyzer`配置来代替。
 
-You can set the `default` analyzer in the index to the analyzer you want to
-use for almost all full-text fields, and just configure the specialized
-analyzer on the one or two fields that need it.  If, in your model, you need
-a different default analyzer per type, then use the type level `analyzer`
-setting instead.
+> 提示：
 
-[NOTE]
-====
-A common work flow for time based data like logging is to create a new index
-per day on the fly by just indexing into it.  While this work flow prevents
-you from creating your index up front, you can still use 
-http://bit.ly/1ygczeq[index templates]
-to specify the settings and mappings that a new index should have.
-====
+> 一个普通的像日志一样的基于时间轴的工作流数据每天都得创建新的索引，忙着不断的创建索引。虽然这种工作流阻止你预先创建索引，但是你可以使用索引模板来指定新的索引的配置和映射。
+
 <!--
 === Controlling Analysis
 

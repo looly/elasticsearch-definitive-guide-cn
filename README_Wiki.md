@@ -4,7 +4,7 @@
 
 该书由 [Looly](http://www.xiaoleilu.com) 授权极客学院 Wiki 托管发布。 
 
-阅读地址：[Elasticsearch权威指南（中文版）](https://www.gitbook.io/book/looly/elasticsearch-the-definitive-guide-cn/)
+阅读地址：[Elasticsearch权威指南（中文版）](http://es.xiaoleilu.com/)
 
 ----------------------------------------
 

@@ -98,8 +98,7 @@ GET /_search?q=date:2014         # 0  results !
 尤其当你是Elasticsearch新手时，对于如何分词以及存储到索引中理解起来比较困难。为了更好的理解如何进行，你可以使用`analyze` API来查看文本是如何被分析的。在查询字符串参数中指定要使用的分析器，被分析的文本做为请求体：
 
 ```javascript
-GET /_analyze?analyzer=standard
-Text to analyze
+GET /_analyze?analyzer=standard&text=Text to analyze
 ```
 
 结果中每个节点在代表一个词：

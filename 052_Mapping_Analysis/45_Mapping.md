@@ -120,7 +120,7 @@ GET /gb/_mapping/tweet
 }
 ```
 
-> 其他简单类型——`long`、`double`、`date`等等——也接受`index`参数，但相应的值只能是`no`和`not_analyzed`，它们的值不能被分析。
+> 其他简单类型（`long`、`double`、`date`等等）也接受`index`参数，但相应的值只能是`no`和`not_analyzed`，它们的值不能被分析。
 
 ### 分析
 

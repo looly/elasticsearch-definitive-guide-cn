@@ -51,7 +51,7 @@ GET /gb/_mapping/tweet
             "properties": {
                "date": {
                   "type": "date",
-                  "format": "dateOptionalTime"
+                  "format": "strict_date_optional_time||epoch_millis"
                },
                "name": {
                   "type": "string"

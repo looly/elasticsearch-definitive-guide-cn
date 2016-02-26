@@ -201,13 +201,11 @@ PUT /gb/_mapping/tweet
 你可以通过名字使用`analyze` API测试字符串字段的映射。对比这两个请求的输出：
 
 ```javascript
-GET /gb/_analyze?field=tweet
-Black-cats <1>
+GET /gb/_analyze?field=tweet&text=Black-cats <1>
 
-GET /gb/_analyze?field=tag
-Black-cats <1>
+GET /gb/_analyze?field=tag&text=Black-cats <2>
 ```
 
-`<1>` 我们想要分析的文本被放在请求体中。
+`<1>` `<2>` 我们想要分析的文本被放在请求体中。
 
 `tweet`字段产生两个词，`"black"`和`"cat"`,`tag`字段产生单独的一个词`"Black-cats"`。换言之，我们的映射工作正常。

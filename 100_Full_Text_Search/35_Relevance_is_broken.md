@@ -1,4 +1,29 @@
-[[relevance-is-broken]]
+<!--秀川译-->
+### 关联失效
+
+在我们去讨论多字段检索中的更复杂的查询前，让我们顺便先解释一下为什么我们只用一个主分片来创建索引。
+
+有时有的新手会开一个问题说通过相关性排序没有效果，并且提供了一小段复制的结果：该用户创建了一些文档，执行了一个简单的查询，结果发现相关性较低的结果排在了相关性较高的结果的前面。
+
+为了理解为什么会出现这样的结果，我们假设用两个分片创建一个索引，以及索引10个文档，6个文档包含词 `foo`，这样可能会出现分片1中有3个文档包含 `foo`，分片2中也有三个文档包含 `foo`。换句话说，我们的文档做了比较好的分布式。
+
+在相关性介绍这一节，我们描述了Elasticsearch默认的相似算法，叫做词频率/反转文档频率（TF/IDF）。词频率是一个词在我们当前查询的文档的字段中出现的次数。出现的次数越多，相关性就越大。反转文档频率指的是该索引中所有文档数与出现这个词的文件数的百分比，词出现的频率越大，IDF越小。
+
+然而，由于性能问题，Elasticsearch不通过索引中所有的文档计算IDF。每个分片会为分片中所有的文档计算一个本地的IDF取而代之。
+
+因为我们的文档做了很好的分布式，每个分片的IDF是相同的。现在假设5个包含`foo`的文档在分片1中，以及其他6各文档在分片2中。在这个场景下，词`foo`在第一个分片中是非常普通的（因此重要性较小），但是在另一个分片中是很稀少的（因此重要性较高）。这些区别在IDF中就会产生不正确的结果。
+
+事实证明，这并不是一个问题。你索引越多的文档，本地IDF和全局IDF的区别就会越少。在实际工作的数据量下，本地IDF立刻能够很好的工作（With real-world
+volumes of data, the local IDFs soon even out，不知道这么翻译合不合适）。所以问题不是因为关联失效，而是因为数据太少。
+
+为了测试的目的，对于这个问题，有两种方法可以奏效。第一种方法是创建一个只有一个主分片的索引，像我们介绍`match`查询那节一样做。如果你只有一个分片，那么本地IDF就是全局IDF。
+
+第二种方法是在你们请求中添加`?search_type=dfs_query_then_fetch`。`dfs`就是*Distributed Frequency Search*，并且它会告诉Elasticsearch检查每一个分片的本地IDF为了计算整个索引的全局IDF。
+
+> 提示：不要把`dfs_query_then_fetch`用于生产环境。它实在是没有必要。只要有足够的数据就能够确保词频率很好的分布。没有理由在每个你要执行的查询中添加额外的DFS步骤。
+
+
+<!--[[relevance-is-broken]]
 === Relevance Is Broken!
 
 Before we move on to discussing more-complex queries in
@@ -54,3 +79,4 @@ required. Just having enough data will ensure that your term frequencies are
 well distributed. There is no reason to add this extra DFS step to every query
 that you run.
 
+-->

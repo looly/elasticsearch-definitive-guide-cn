@@ -16,7 +16,7 @@
 
 > 当你从Elasticsearch中取回一个文档，任何一个数组的顺序和你索引它们的顺序一致。你取回的`_source`字段的顺序同样与索引它们的顺序相同。
 
-> 然而，数组是做为多值字段被**索引**的，它们没有顺序。在搜索阶段你不能指定“第一个值”或者“最后一个值”。倒不如把数组当作一个**值集合(gag of values)**
+> 然而，数组是做为多值字段被**索引**的，它们没有顺序。在搜索阶段你不能指定“第一个值”或者“最后一个值”。倒不如把数组当作一个**值集合(bag of values)**
 
 
 ### 空字段
@@ -34,7 +34,7 @@
 
 ### 多层对象
 
-我们需要讨论的最后一个自然JSON数据类型是**对象(object)**——在其它语言中叫做hashed、hashmaps、dictionaries 或者 associative arrays.
+我们需要讨论的最后一个自然JSON数据类型是**对象(object)**——在其它语言中叫做hash、hashmap、dictionary 或者 associative array.
 
 **内部对象(inner objects)**经常用于在另一个对象中嵌入一个实体或对象。例如，做为在`tweet`文档中`user_name`和`user_id`的替代，我们可以这样写：
 

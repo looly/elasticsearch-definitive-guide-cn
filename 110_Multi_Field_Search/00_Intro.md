@@ -1,3 +1,13 @@
+<!--秀川译-->
+## 多字段搜索
+
+只有一个简单的`match`子句的查询是很少的。我们经常需要在一个或者多个字段中查询相同的或者不同的查询字符串，意味着我们需要能够组合多个查询子句以及使他们的相关性得分有意义。
+
+或许我们在寻找列夫·托尔斯泰写的一本叫《战争与和平》的书。或许我们在Elasticsearch的文档中查找`minimum should match`，它可能在标题中，或者在一页的正文中。或许我们查找名为John，姓为Smith的人。
+
+在这一章节，我们会介绍用于构建多个查询子句搜索的可能的工具，以及怎么样选择解决方案来应用到你特殊的场景。
+
+<!--
 [[multi-field-search]]
 == Multifield Search
 
@@ -15,3 +25,4 @@ name Smith.
 In this chapter, we present the available tools for constructing multiclause
 searches and how to figure out which solution you should apply to your
 particular use case.
+-->

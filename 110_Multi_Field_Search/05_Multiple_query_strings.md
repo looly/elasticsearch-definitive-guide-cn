@@ -1,3 +1,88 @@
+<!--秀川译-->
+### 多重查询字符串
+
+在明确的字段中的词查询是最容易处理的多字段查询。如果我们知道War and Peace是标题，Leo Tolstoy是作者，可以很容易的用match查询表达每个条件，并且用布尔查询组合起来：
+
+```
+GET /_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "title":  "War and Peace" }},
+        { "match": { "author": "Leo Tolstoy"   }}
+      ]
+    }
+  }
+}
+```
+
+布尔查询采用越多匹配越好的方法，所以每个match子句的得分会被加起来变成最后的每个文档的得分。匹配两个子句的文档的得分会比只匹配了一个文档的得分高。
+
+当然，没有限制你只能使用match子句：布尔查询可以包装任何其他的查询类型，包含其他的布尔查询，我们可以添加一个子句来指定我们更喜欢看被哪个特殊的翻译者翻译的那版书：
+
+```
+GET /_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "title":  "War and Peace" }},
+        { "match": { "author": "Leo Tolstoy"   }},
+        { "bool":  {
+          "should": [
+            { "match": { "translator": "Constance Garnett" }},
+            { "match": { "translator": "Louise Maude"      }}
+          ]
+        }}
+      ]
+    }
+  }
+}
+```
+为什么我们把翻译者的子句放在一个独立的布尔查询中？所有的匹配查询都是should子句，所以为什么不把翻译者的子句放在和title以及作者的同一级？
+
+答案就在如何计算得分中。布尔查询执行每个匹配查询，把他们的得分加在一起，然后乘以匹配子句的数量，并且除以子句的总数。每个同级的子句权重是相同的。在前面的查询中，包含翻译者的布尔查询占用总得分的三分之一。如果我们把翻译者的子句放在和标题与作者同级的目录中，我们会把标题与作者的作用减少的四分之一。
+
+### 优选子句
+
+在先前的查询中我们可能不需要使每个子句都占用三分之一的权重。我们可能对标题以及作者比翻译者更感兴趣。我们需要调整查询来使得标题和作者的子句相关性更重要。
+
+最简单的方法是使用boost参数。为了提高标题和作者字段的权重，我们给boost参数提供一个比1高的值：
+
+```
+GET /_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { (1)
+            "title":  {
+              "query": "War and Peace",
+              "boost": 2
+        }}},
+        { "match": { (1)
+            "author":  {
+              "query": "Leo Tolstoy",
+              "boost": 2
+        }}},
+        { "bool":  { (2)
+            "should": [
+              { "match": { "translator": "Constance Garnett" }},
+              { "match": { "translator": "Louise Maude"      }}
+            ]
+        }}
+      ]
+    }
+  }
+}
+```
+
+1. 标题和作者的boost值为2。
+2. 嵌套的布尔查询的boost值为默认的1。
+
+给boost参数一个最好的值可以通过试验和犯错来很容易的决定：设置一个boost值，执行测试查询，重复上述过程。一个合理的boost值在1-10之间，也可能15。更高的boost值影响会很小，因为分数是标准化得。
+<!--
 [[multi-query-strings]]
 === Multiple Query Strings
 
@@ -119,3 +204,4 @@ range for `boost` lies between `1` and `10`, maybe `15`. Boosts higher than
 that have little more impact because scores are
 <<boost-normalization,normalized>>.
 
+-->

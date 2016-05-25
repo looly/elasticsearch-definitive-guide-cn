@@ -5,7 +5,7 @@
 `mget` API参数是一个`docs`数组，数组的每个节点定义一个文档的`_index`、`_type`、`_id`元数据。如果你只想检索一个或几个确定的字段，也可以定义一个`_source`参数：
 
 ```Javascript
-GET /_mget
+POST /_mget
 {
    "docs" : [
       {
@@ -58,7 +58,7 @@ GET /_mget
 你依旧可以在单独的请求中使用这些值：
 
 ```Javascript
-GET /website/blog/_mget
+POST /website/blog/_mget
 {
    "docs" : [
       { "_id" : 2 },
@@ -70,7 +70,7 @@ GET /website/blog/_mget
 事实上，如果所有文档具有相同`_index`和`_type`，你可以通过简单的`ids`数组来代替完整的`docs`数组：
 
 ```Javascript
-GET /website/blog/_mget
+POST /website/blog/_mget
 {
    "ids" : [ "2", "1" ]
 }

@@ -94,7 +94,7 @@ GET /_search
 复合子句能合并 **任意**其他查询子句，包括其他的复合子句。
 这就意味着复合子句可以相互嵌套，从而实现非常复杂的逻辑。
 
-以下实例查询在inbox中或未标记spam的邮件中找出包含`"business opportunity"`的星标(starred)邮件：
+以下实例查询的是邮件正文中含有“business opportunity”字样的星标邮件或收件箱中正文中含有“business opportunity”字样的非垃圾邮件：
 ```Javascript
 {
     "bool": {

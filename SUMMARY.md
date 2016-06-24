@@ -129,7 +129,7 @@
    * [Relevance](120_Proximity_Matching/25_Relevance.md)
    * [Performance](120_Proximity_Matching/30_Performance.md)
    * [Shingles](120_Proximity_Matching/35_Shingles.md)
-* [Proximity Matching](130_Partial_Matching/00_Intro.md)
+* [Partial_Matching](130_Partial_Matching/00_Intro.md)
    * [Postcodes](130_Partial_Matching/05_Postcodes.md)
    * [Prefix query](130_Partial_Matching/10_Prefix_query.md)
    * [Wildcard Regexp](130_Partial_Matching/15_WildcardRegexp.md)

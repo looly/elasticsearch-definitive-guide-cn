@@ -1,5 +1,5 @@
-[[proximity-matching]]
-== Proximity Matching
+<!-- 赵明翻译 -->
+### 接近匹配
 
 Standard full-text search with TF/IDF treats documents, or at least each field
 within a document, as a big _bag of words_.((("proximity matching")))  The `match` query can tell us whether

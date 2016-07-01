@@ -1,4 +1,5 @@
 <!-- 赵明翻译 -->
+<!-- 编辑在gitbook -->
 ### 接近匹配
 
 Standard full-text search with TF/IDF treats documents, or at least each field

@@ -121,7 +121,7 @@
    * [全字段查询](110_Multi_Field_Search/45_Custom_all.md)
    * [跨字段查询](110_Multi_Field_Search/50_Cross_field.md)
    * [精确查询](110_Multi_Field_Search/55_Not_analyzed.md)
-* [Proximity Matching](120_Proximity_Matching/00_Intro.md)
+* [模糊匹配](120_Proximity_Matching/00_Intro.md)
    * [Phrase matching](120_Proximity_Matching/05_Phrase_matching.md)
    * [Slop](120_Proximity_Matching/10_Slop.md)
    * [Multi value fields](120_Proximity_Matching/15_Multi_value_fields.md)

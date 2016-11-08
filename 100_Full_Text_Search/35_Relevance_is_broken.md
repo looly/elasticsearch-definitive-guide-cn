@@ -23,7 +23,8 @@ volumes of data, the local IDFs soon even out，不知道这么翻译合不合�
 > 提示：不要把`dfs_query_then_fetch`用于生产环境。它实在是没有必要。只要有足够的数据就能够确保词频率很好的分布。没有理由在每个你要执行的查询中添加额外的DFS步骤。
 
 
-<!--[[relevance-is-broken]]
+<!--
+[[relevance-is-broken]]
 === Relevance Is Broken!
 
 Before we move on to discussing more-complex queries in

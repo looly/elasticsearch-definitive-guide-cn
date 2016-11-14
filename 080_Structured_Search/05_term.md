@@ -62,7 +62,7 @@ GET /my_store/products/_search
 
 <!-- SENSE: 080_Structured_Search/05_Term_number.json -->
 
-<1> `filtered` 查询同时接受接受 `query` 与 `filter`。
+<1> `filtered` 查询同时接受 `query` 与 `filter`。
 <2> `match_all` 用来匹配所有文档，这是默认行为，所以在以后的例子中我们将省略掉 `query` 部分。
 <3> 这是我们上面见过的 `term` 过滤器。注意它在 `filter` 分句中的位置。
 

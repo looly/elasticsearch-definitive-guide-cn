@@ -44,9 +44,10 @@ Elasticsearch已经准备就绪，执行以下命令可在前台启动：
 ```bash
 ./bin/elasticsearch
 ```
+
 启动后，如果只有本地可以访问，尝试修改配置文件 elasticsearch.yml
 
-中network.host(注意配置文件格式不是以```#```开头的要空一格， ```：```后要空一格) ```network.host: 0.0.0.0```
+中network.host\(注意配置文件格式不是以`#`开头的要空一格， `：`后要空一格\) 为`network.host: 0.0.0.0`
 
 如果想在后台以守护进程模式运行，添加`-d`参数。
 

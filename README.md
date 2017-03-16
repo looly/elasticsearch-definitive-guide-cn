@@ -2,7 +2,12 @@
 
 # Elasticsearch 权威指南（中文版）
 
-## 阅读地址：[Elasticsearch权威指南（中文版）](http://es.xiaoleilu.com/)
+## 阅读地址：~~[Elasticsearch权威指南（中文版）](http://es.xiaoleilu.com/)~~
+
+## 最新版阅读地址：[Elasticsearch: 权威指南](http://es-guide-preview.elasticsearch.cn/)
+
+## 感谢大家对Elasticsearch权威指南（中文版）的支持，现在新版的翻译工作已经迁移至 ->
+## [https://github.com/elasticsearch-cn/elasticsearch-definitive-guide](https://github.com/elasticsearch-cn/elasticsearch-definitive-guide) 
 
 ----------------------------------------
 

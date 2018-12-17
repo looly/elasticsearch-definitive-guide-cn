@@ -155,25 +155,26 @@ GET /megacorp/employee/_search
 这会返回与之前查询相同的结果。你可以看到有些东西改变了，我们不再使用**查询字符串(query string)**做为参数，而是使用请求体代替。这个请求体使用JSON表示，其中使用了`match`语句（查询类型之一，具体我们以后会学到）。
 
 ## 更复杂的搜索
+
 我们让搜索稍微再变的复杂一些。我们依旧想要找到姓氏为“Smith”的员工，但是我们只想得到年龄大于30岁的员工。我们的语句将添加**过滤器(filter)**,它使得我们高效率的执行一个结构化搜索：
 
 ```Javascript
 GET /megacorp/employee/_search
 {
-    "query" : {
-        "filtered" : {
-            "filter" : {
-                "range" : {
-                    "age" : { "gt" : 30 } <1>
-                }
-            },
-            "query" : {
-                "match" : {
-                    "last_name" : "smith" <2>
-                }
-            }
+  "query": {
+    "bool": {
+      "filter": {
+        "range":{
+          "age":{ "gt": 30} <1>
         }
+      },
+      "must":{
+        "match":{
+          "last_name":"smith" <2>
+        }
+      }
     }
+  }
 }
 ```
 

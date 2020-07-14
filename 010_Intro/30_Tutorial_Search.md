@@ -160,16 +160,16 @@ GET /megacorp/employee/_search
 ```Javascript
 GET /megacorp/employee/_search
 {
-    "query" : {
-        "filtered" : {
-            "filter" : {
-                "range" : {
-                    "age" : { "gt" : 30 } <1>
+   "query": {
+        "bool": {
+            "must": {
+                "match": {
+                    "last_name": "smith"    <1>
                 }
             },
-            "query" : {
-                "match" : {
-                    "last_name" : "smith" <2>
+            "filter": {
+                "range": {
+                    "age": { "gt": 30 }     <2>
                 }
             }
         }
